@@ -69,10 +69,10 @@ persistence:
   mountPath: /config
   accessMode: ReadWriteOnce
   size: 300Mi
-  storageClassName: ""
+  storageClassName: longhorn
 
   # If you want a static PV created by the chart:
-  createPV: true
+  createPV: false
   pvName: librespeed-pv
   hostPath: /var/lib/librespeed
   reclaimPolicy: Retain

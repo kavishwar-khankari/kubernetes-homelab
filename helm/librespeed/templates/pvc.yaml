@@ -12,7 +12,4 @@ spec:
   {{- if .Values.persistence.storageClassName }}
   storageClassName: {{ .Values.persistence.storageClassName | quote }}
   {{- end }}
-  {{- if .Values.persistence.createPV }}
-  volumeName: {{ .Values.persistence.pvName | quote }}
-  {{- end }}
 {{- end }}
