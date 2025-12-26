@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: master-app
+  namespace: default
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: homelab
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  source:
+    repoURL: git@github.com:kavishwar-khankari/kubernetes-homelab.git
+    targetRevision: main
+    path: argo-apps/
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
