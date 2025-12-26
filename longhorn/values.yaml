@@ -1,0 +1,6 @@
+# longhorn-values.yaml
+defaultSettings:
+  defaultDataPath: /var/lib/longhorn
+  defaultReplicaCount: 2    
+persistence:
+  defaultClass: true
