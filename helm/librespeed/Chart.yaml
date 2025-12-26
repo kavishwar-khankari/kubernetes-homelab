@@ -1,0 +1,6 @@
+apiVersion: v2
+name: librespeed
+description: Personal LibreSpeed chart (Ingress + HPA + PV/PVC + Doppler)
+type: application
+version: 0.1.0
+appVersion: "latest"

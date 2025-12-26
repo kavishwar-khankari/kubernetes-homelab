@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.name | quote }}
+  annotations:
+    {{- if .Values.envFromSecret }}
+    secrets.doppler.com/reload: "true"
+    {{- end }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.name | quote }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.name | quote }}
+    spec:
+      containers:
+        - name: {{ .Values.name | quote }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+          ports:
+            - containerPort: 80
+              name: http
+
+          {{- if .Values.envFromSecret }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.envFromSecret | quote }}
+          {{- end }}
+
+          {{- if .Values.env }}
+          env:
+            - name: TZ
+              valueFrom:
+                secretKeyRef:
+                  name: librespeed-env-vars
+                  key: TZ
+            - name: CUSTOM_RESULTS
+              valueFrom:
+                secretKeyRef:
+                  name: librespeed-env-vars
+                  key: CUSTOM_RESULTS
+            - name: IPINFO_APIKEY
+              valueFrom:
+                secretKeyRef:
+                  name: librespeed-env-vars
+                  key: IPINFO_APIKEY
+          {{- end }}
+
+          {{- if .Values.probes.enabled }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.probes.path | quote }}
+              port: {{ .Values.probes.port }}
+            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.probes.path | quote }}
+              port: {{ .Values.probes.port }}
+            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
+          {{- end }}
+
+          resources:
+{{ toYaml .Values.resources | nindent 12 }}
+
+          {{- if .Values.persistence.enabled }}
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.persistence.mountValues.mountPath | default .Values.persistence.mountPath | quote }}
+          {{- end }}
+
+      {{- if .Values.persistence.enabled }}
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ printf "%s-pvc" .Values.name | quote }}
+      {{- end }}

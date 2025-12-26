@@ -1,0 +1,83 @@
+replicaCount: 1
+
+name: librespeed
+
+image:
+  repository: lscr.io/linuxserver/librespeed
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations: {}
+  hosts:
+    - host: librespeed.techtronics.top
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  # tls:
+  #   - secretName: speedtest-tls
+  #     hosts:
+  #       - librespeed.techtronics.top
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+# LibreSpeed config (plain env vars)
+env:
+  MODE: standalone
+
+# Doppler-managed K8s Secret name to envFrom
+envFromSecret: librespeed-env-vars
+
+# DopplerSecret config
+doppler:
+  enabled: true
+  dopplerSecretNamespace: doppler-operator-system
+  tokenSecretName: doppler-token-secret
+  tokenSecretNamespace: doppler-operator-system
+  project: rke2-cluster
+  config: main
+  managedSecretType: Opaque
+  syncWave: "-1"
+
+probes:
+  enabled: true
+  path: /
+  port: 80
+  readiness:
+    initialDelaySeconds: 5
+    periodSeconds: 10
+  liveness:
+    initialDelaySeconds: 15
+    periodSeconds: 20
+
+persistence:
+  enabled: true
+  mountPath: /config
+  accessMode: ReadWriteOnce
+  size: 300Mi
+  storageClassName: ""
+
+  # If you want a static PV created by the chart:
+  createPV: true
+  pvName: librespeed-pv
+  hostPath: /var/lib/librespeed
+  reclaimPolicy: Retain
+
+hpa:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 60

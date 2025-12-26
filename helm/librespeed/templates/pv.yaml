@@ -1,0 +1,18 @@
+{{- if and .Values.persistence.enabled .Values.persistence.createPV }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Values.persistence.pvName | quote }}
+spec:
+  capacity:
+    storage: {{ .Values.persistence.size | quote }}
+  accessModes:
+    - {{ .Values.persistence.accessMode | quote }}
+  persistentVolumeReclaimPolicy: {{ .Values.persistence.reclaimPolicy | quote }}
+  volumeMode: Filesystem
+  {{- if .Values.persistence.storageClassName }}
+  storageClassName: {{ .Values.persistence.storageClassName | quote }}
+  {{- end }}
+  hostPath:
+    path: {{ .Values.persistence.hostPath | quote }}
+{{- end }}
