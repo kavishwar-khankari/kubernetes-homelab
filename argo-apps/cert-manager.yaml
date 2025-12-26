@@ -13,7 +13,7 @@ spec:
     server: https://kubernetes.default.svc
     namespace: cert-manager
   source:
-    repoURL: git@github.com:kavishwar-khankari/kubernetes-homelab.git
+    repoURL: https://github.com/kavishwar-khankari/kubernetes-homelab.git
     targetRevision: main
     path: /helm/cert-manager
   syncPolicy:

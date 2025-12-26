@@ -5,7 +5,7 @@ metadata:
   namespace: default
 spec:
   sourceRepos:
-    - "git@github.com:kavishwar-khankari/kubernetes-homelab.git"
+    - "https://github.com/kavishwar-khankari/kubernetes-homelab.git"
   destinations:
     - namespace: "*"
       server: https://kubernetes.default.svc
