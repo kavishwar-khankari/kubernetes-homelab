@@ -28,11 +28,11 @@ ingress:
 
 resources:
   limits:
-    cpu: 200m
-    memory: 256Mi
+    cpu: 500m
+    memory: 500Mi
   requests:
-    cpu: 50m
-    memory: 64Mi
+    cpu: 500m
+    memory: 500Mi
 
 
 # LibreSpeed config (plain env vars)
@@ -80,5 +80,5 @@ persistence:
 hpa:
   enabled: true
   minReplicas: 1
-  maxReplicas: 3
+  maxReplicas: 1
   targetCPUUtilizationPercentage: 60
