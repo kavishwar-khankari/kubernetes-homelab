@@ -14,7 +14,6 @@ service:
 ingress:
   enabled: true
   className: nginx
-  annotations: {}
   hosts:
     - host: librespeed.techtronics.top
       paths:
@@ -80,5 +79,5 @@ persistence:
 hpa:
   enabled: true
   minReplicas: 1
-  maxReplicas: 1
+  maxReplicas: 3
   targetCPUUtilizationPercentage: 60
