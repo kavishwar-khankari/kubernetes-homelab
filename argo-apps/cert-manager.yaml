@@ -15,7 +15,7 @@ spec:
   source:
     repoURL: https://github.com/kavishwar-khankari/kubernetes-homelab.git
     targetRevision: main
-    path: /helm/cert-manager/
+    path: manifests/cert-manager
   syncPolicy:
     automated:
       prune: true
