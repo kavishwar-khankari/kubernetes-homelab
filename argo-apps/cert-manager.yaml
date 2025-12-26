@@ -8,7 +8,7 @@ metadata:
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: homelab
+  project: master-project
   destination:
     server: https://kubernetes.default.svc
     namespace: cert-manager
