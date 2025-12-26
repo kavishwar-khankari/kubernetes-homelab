@@ -2,10 +2,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.name | quote }}
+  {{- if .Values.envFromSecret }}
   annotations:
-    {{- if .Values.envFromSecret }}
     secrets.doppler.com/reload: "true"
-    {{- end }}
+  {{- end }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
@@ -70,7 +70,7 @@ spec:
           {{- if .Values.persistence.enabled }}
           volumeMounts:
             - name: config
-              mountPath: {{ .Values.persistence.mountValues.mountPath | default .Values.persistence.mountPath | quote }}
+              mountPath: {{ .Values.persistence.mountPath | default "/config" | quote }}
           {{- end }}
 
       {{- if .Values.persistence.enabled }}

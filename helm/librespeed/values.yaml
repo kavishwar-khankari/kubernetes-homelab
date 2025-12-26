@@ -34,6 +34,7 @@ resources:
     cpu: 50m
     memory: 64Mi
 
+
 # LibreSpeed config (plain env vars)
 env:
   MODE: standalone
