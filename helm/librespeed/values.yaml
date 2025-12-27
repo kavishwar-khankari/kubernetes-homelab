@@ -1,4 +1,4 @@
-replicaCount: 1
+replicaCount: 3
 
 name: librespeed
 
@@ -14,6 +14,11 @@ service:
 ingress:
   enabled: true
   className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
   hosts:
     - host: librespeed.techtronics.top
       paths:
@@ -25,13 +30,6 @@ ingress:
   #     hosts:
   #       - librespeed.techtronics.top
 
-resources:
-  limits:
-    cpu: 500m
-    memory: 500Mi
-  requests:
-    cpu: 500m
-    memory: 500Mi
 
 
 # LibreSpeed config (plain env vars)
@@ -51,6 +49,10 @@ doppler:
   config: main
   managedSecretType: Opaque
   syncWave: "-1"
+  secrets:
+    - LIBRESPEED_CUSTOM_RESULTS
+    - LIBRESPEED_IPINFO_APIKEY
+    - TZ
 
 probes:
   enabled: true
@@ -66,7 +68,7 @@ probes:
 persistence:
   enabled: true
   mountPath: /config
-  accessMode: ReadWriteOnce
+  accessMode: ReadWriteMany
   size: 300Mi
   storageClassName: longhorn
 
@@ -76,8 +78,3 @@ persistence:
   hostPath: /var/lib/librespeed
   reclaimPolicy: Retain
 
-hpa:
-  enabled: true
-  minReplicas: 1
-  maxReplicas: 1
-  targetCPUUtilizationPercentage: 60

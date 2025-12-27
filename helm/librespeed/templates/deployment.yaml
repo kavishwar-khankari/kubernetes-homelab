@@ -24,30 +24,11 @@ spec:
             - containerPort: 80
               name: http
 
-          {{- if .Values.envFromSecret }}
           envFrom:
+            {{- if .Values.doppler.enabled }}
             - secretRef:
                 name: {{ .Values.envFromSecret | quote }}
-          {{- end }}
-
-          {{- if .Values.env }}
-          env:
-            - name: TZ
-              valueFrom:
-                secretKeyRef:
-                  name: librespeed-env-vars
-                  key: TZ
-            - name: CUSTOM_RESULTS
-              valueFrom:
-                secretKeyRef:
-                  name: librespeed-env-vars
-                  key: CUSTOM_RESULTS
-            - name: IPINFO_APIKEY
-              valueFrom:
-                secretKeyRef:
-                  name: librespeed-env-vars
-                  key: IPINFO_APIKEY
-          {{- end }}
+            {{- end }}
 
           {{- if .Values.probes.enabled }}
           readinessProbe:
