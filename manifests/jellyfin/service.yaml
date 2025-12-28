@@ -4,11 +4,14 @@ metadata:
   name: jellyfin
   namespace: jellyfin
 spec:
+  type: ClusterIP
+  ipFamilyPolicy: PreferDualStack
+  ipFamilies:
+    - IPv4
+    - IPv6
   selector:
     app: jellyfin
   ports:
-  - name: http
-    port: 8096
-    targetPort: 8096
-  type: LoadBalancer
-  LoadBalancerIP: 192.168.0.50
+    - name: http
+      port: 8096
+      targetPort: 8096
