@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jellyfin
+  namespace: jellyfin
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: jellyfin
+  template:
+    metadata:
+      labels:
+        app: jellyfin
+    spec:
+      containers:
+      - name: jellyfin
+        image: lscr.io/linuxserver/jellyfin:10.11.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 8096
+        env:
+        - name: TZ
+          value: Asia/Kolkata
+        - name: PUID
+          value: "911"
+        - name: PGID
+          value: "911"
+        - name: NVIDIA_VISIBLE_DEVICES
+          value: "all"
+        - name: NVIDIA_DRIVER_CAPABILITIES
+          value: "compute,video,utility"
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: cache
+          mountPath: /cache
+        - name: media2
+          mountPath: /media_2
+          readOnly: true
+      volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: jellyfin-config
+      - name: cache
+        emptyDir:
+          medium: Memory
+          sizeLimit: 2Gi
+      - name: media2
+        persistentVolumeClaim:
+          claimName: jellyfin-media2
