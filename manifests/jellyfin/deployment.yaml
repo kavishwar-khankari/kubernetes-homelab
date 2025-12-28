@@ -41,7 +41,7 @@ spec:
           mountPath: /config
         - name: cache
           mountPath: /cache
-        - name: media2
+        - name: media2-media
           mountPath: /media_2
           readOnly: true
       volumes:
@@ -52,6 +52,6 @@ spec:
         emptyDir:
           medium: Memory
           sizeLimit: 2Gi
-      - name: media2
+      - name: media2-media
         persistentVolumeClaim:
-          claimName: jellyfin-media2
+          claimName: jellyfin-media2-media
