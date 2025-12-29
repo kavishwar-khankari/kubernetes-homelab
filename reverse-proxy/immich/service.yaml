@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: immich-service # needs to match endpoint name
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: 2283

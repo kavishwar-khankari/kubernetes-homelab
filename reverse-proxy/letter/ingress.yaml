@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: letter-ingress
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - letter.techtronics.top
+  rules:
+    - host: letter.techtronics.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: letter-service
+                port:
+                  name: http

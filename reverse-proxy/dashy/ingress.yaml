@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dashy-ingress
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - dashy.techtronics.top
+  rules:
+    - host: dashy.techtronics.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: dashy-service
+                port:
+                  name: http
