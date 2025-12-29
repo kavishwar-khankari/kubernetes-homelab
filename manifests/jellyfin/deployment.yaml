@@ -44,6 +44,11 @@ spec:
         - name: media2-media
           mountPath: /media_2
           readOnly: true
+      tolerations:
+      - key: "GPU"
+        operator: "Equal"
+        value: "Nvidia"
+        effect: "NoSchedule"                                                                                      
       volumes:
       - name: config
         persistentVolumeClaim:
