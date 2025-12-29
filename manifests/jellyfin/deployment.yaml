@@ -26,25 +26,28 @@ spec:
           httpGet:
             path: /health
             port: 8096
-            periodSeconds: 10
-            successThreshold: 2
-            failureThreshold: 15
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 2
+          failureThreshold: 15
         readinessProbe:
           httpGet:
             path: /health
             port: 8096
-            initialDelaySeconds: 5
-            periodSeconds: 30
-            successThreshold: 1
-            failureThreshold: 2
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 30
+          successThreshold: 1
+          failureThreshold: 2
         livenessProbe:
           httpGet:
             path: /health
             port: 8096
-            initialDelaySeconds: 30
-            periodSeconds: 30
-            successThreshold: 1
-            failureThreshold: 2
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          successThreshold: 1
+          failureThreshold: 2
         env:
         - name: TZ
           value: Asia/Kolkata
