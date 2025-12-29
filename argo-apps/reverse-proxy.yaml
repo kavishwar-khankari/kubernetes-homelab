@@ -16,10 +16,11 @@ spec:
 
   template:
     metadata:
-      # Sanitizes folder name into a valid k8s name (spaces -> -, lowercase, etc.)
       name: >-
-        {{- $n := .path.basename | lower | regexReplaceAll "[^a-z0-9-]" "-" | regexReplaceAll "^-+|-+$" "" -}}
-        rp-{{ $n }}
+        {{- $raw := .path.basename -}}
+        {{- $n := $raw | lower | regexReplaceAll "[^a-z0-9-]+" "-" | regexReplaceAll "^-+|-+$" "" -}}
+        {{- $p := .path.path | lower | regexReplaceAll "[^a-z0-9-]+" "-" | regexReplaceAll "^-+|-+$" "" -}}
+        {{- if eq $n "" -}}rp-{{ $p }}{{- else -}}rp-{{ $n }}{{- end -}}
     spec:
       project: master-project
       source:
@@ -29,8 +30,9 @@ spec:
       destination:
         server: https://kubernetes.default.svc
         namespace: >-
-          {{- $n := .path.basename | lower | regexReplaceAll "[^a-z0-9-]" "-" | regexReplaceAll "^-+|-+$" "" -}}
-          {{ $n }}
+          {{- $raw := .path.basename -}}
+          {{- $n := $raw | lower | regexReplaceAll "[^a-z0-9-]+" "-" | regexReplaceAll "^-+|-+$" "" -}}
+          {{- if eq $n "" -}}reverse-proxy{{- else -}}{{ $n }}{{- end -}}
       syncPolicy:
         automated:
           prune: true
