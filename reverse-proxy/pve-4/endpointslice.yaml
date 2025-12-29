@@ -2,7 +2,6 @@ apiVersion: discovery.k8s.io/v1
 kind: EndpointSlice
 metadata:
   name: pve-4-endpointslice
-  namespace: reverse-proxy
   labels:
     kubernetes.io/service-name: pve-4-service
     endpointslice.kubernetes.io/managed-by: manual
