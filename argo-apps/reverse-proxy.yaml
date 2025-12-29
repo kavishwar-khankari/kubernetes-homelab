@@ -6,22 +6,15 @@ metadata:
 spec:
   goTemplate: true
   goTemplateOptions: ["missingkey=error"]
-
   generators:
     - git:
         repoURL: https://github.com/kavishwar-khankari/kubernetes-homelab.git
         revision: main
         directories:
           - path: reverse-proxy/*
-
   template:
     metadata:
-      name: >-
-        {{- $p := .path.path -}}
-        {{- $raw := regexReplaceAll "^.*/" $p "" -}}
-        {{- $n := $raw | lower | regexReplaceAll "[^a-z0-9-]+" "-" | regexReplaceAll "^-+|-+$" "" -}}
-        {{- if eq $n "" -}}rp-fallback{{- else -}}rp-{{ $n }}{{- end -}}
-
+      name: "rp-{{ .path.basenameNormalized }}"
     spec:
       project: master-project
       source:
@@ -29,13 +22,8 @@ spec:
         targetRevision: main
         path: "{{ .path.path }}"
       destination:
-        namespace: >-
-          {{- $p := .path.path -}}
-          {{- $raw := regexReplaceAll "^.*/" $p "" -}}
-          {{- $n := $raw | lower | regexReplaceAll "[^a-z0-9-]+" "-" | regexReplaceAll "^-+|-+$" "" -}}
-          {{- if eq $n "" -}}reverse-proxy{{- else -}}{{ $n }}{{- end -}}
         server: https://kubernetes.default.svc
-
+        namespace: "{{ .path.basenameNormalized }}"
       syncPolicy:
         automated:
           prune: true
