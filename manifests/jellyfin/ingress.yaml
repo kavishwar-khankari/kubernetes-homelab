@@ -4,9 +4,6 @@ metadata:
   name: jellyfin-ingress
   namespace: jellyfin
   annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
-
     # Jellyfin uses websockets + long-lived streams
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
