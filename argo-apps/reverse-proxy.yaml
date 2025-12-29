@@ -17,10 +17,11 @@ spec:
   template:
     metadata:
       name: >-
-        {{- $p := trimSuffix "/" .path.path -}}
-        {{- $raw := last (splitList "/" $p) -}}
+        {{- $p := .path.path -}}
+        {{- $raw := regexReplaceAll "^.*/" $p "" -}}
         {{- $n := $raw | lower | regexReplaceAll "[^a-z0-9-]+" "-" | regexReplaceAll "^-+|-+$" "" -}}
-        rp-{{ $n }}
+        {{- if eq $n "" -}}rp-fallback{{- else -}}rp-{{ $n }}{{- end -}}
+
     spec:
       project: master-project
       source:
@@ -28,12 +29,13 @@ spec:
         targetRevision: main
         path: "{{ .path.path }}"
       destination:
-        server: https://kubernetes.default.svc
         namespace: >-
-          {{- $p := trimSuffix "/" .path.path -}}
-          {{- $raw := last (splitList "/" $p) -}}
+          {{- $p := .path.path -}}
+          {{- $raw := regexReplaceAll "^.*/" $p "" -}}
           {{- $n := $raw | lower | regexReplaceAll "[^a-z0-9-]+" "-" | regexReplaceAll "^-+|-+$" "" -}}
-          {{ $n }}
+          {{- if eq $n "" -}}reverse-proxy{{- else -}}{{ $n }}{{- end -}}
+        server: https://kubernetes.default.svc
+
       syncPolicy:
         automated:
           prune: true
