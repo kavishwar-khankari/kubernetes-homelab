@@ -26,12 +26,15 @@ spec:
         repoURL: https://github.com/kavishwar-khankari/kubernetes-homelab.git
         targetRevision: main
         path: "{{ .path.path }}"
-        destination:
-          server: https://kubernetes.default.svc
-          namespace: >-
-            {{- $n := .path.basename | lower | regexReplaceAll "[^a-z0-9-]" "-" | regexReplaceAll "^-+|-+$" "" -}}
-            {{ $n }}
-        syncPolicy:
-          syncOptions:
-            - CreateNamespace=true
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: >-
+          {{- $n := .path.basename | lower | regexReplaceAll "[^a-z0-9-]" "-" | regexReplaceAll "^-+|-+$" "" -}}
+          {{ $n }}
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
 
