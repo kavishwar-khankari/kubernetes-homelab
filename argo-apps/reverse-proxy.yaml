@@ -1,24 +1,37 @@
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: reverse-proxy
   namespace: default
-  annotations:
-    argocd.argoproj.io/sync-wave: "0"
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
 spec:
-  project: master-project
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: reverse-proxy
-  source:
-    repoURL: https://github.com/kavishwar-khankari/kubernetes-homelab.git
-    targetRevision: main
-    path: "reverse proxy/"
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+
+  generators:
+    - git:
+        repoURL: https://github.com/kavishwar-khankari/kubernetes-homelab.git
+        revision: main
+        directories:
+          - path: "reverse-proxy/*"
+
+  template:
+    metadata:
+      # Sanitizes folder name into a valid k8s name (spaces -> -, lowercase, etc.)
+      name: >-
+        {{- $n := .path.basename | lower | regexReplaceAll "[^a-z0-9-]" "-" | regexReplaceAll "^-+|-+$" "" -}}
+        rp-{{ $n }}
+    spec:
+      project: master-project
+      source:
+        repoURL: https://github.com/kavishwar-khankari/kubernetes-homelab.git
+        targetRevision: main
+        path: "{{ .path.path }}"
+        destination:
+          server: https://kubernetes.default.svc
+          namespace: >-
+            {{- $n := .path.basename | lower | regexReplaceAll "[^a-z0-9-]" "-" | regexReplaceAll "^-+|-+$" "" -}}
+            {{ $n }}
+        syncPolicy:
+          syncOptions:
+            - CreateNamespace=true
+
