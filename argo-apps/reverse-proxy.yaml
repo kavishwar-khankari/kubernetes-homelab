@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
   name: reverse-proxy
-  namespace: default
+  namespace: default   # keep this same as your other apps (yours are in default)
 spec:
   goTemplate: true
   goTemplateOptions: ["missingkey=error"]
@@ -12,25 +12,24 @@ spec:
         repoURL: https://github.com/kavishwar-khankari/kubernetes-homelab.git
         revision: main
         directories:
-          - path: "reverse-proxy/*"
+          - path: reverse-proxy/*
 
   template:
     metadata:
       name: >-
-        {{- $raw := .path.basename -}}
+        {{- $raw := (base .path) -}}
         {{- $n := $raw | lower | regexReplaceAll "[^a-z0-9-]+" "-" | regexReplaceAll "^-+|-+$" "" -}}
-        {{- $p := .path.path | lower | regexReplaceAll "[^a-z0-9-]+" "-" | regexReplaceAll "^-+|-+$" "" -}}
-        {{- if eq $n "" -}}rp-{{ $p }}{{- else -}}rp-{{ $n }}{{- end -}}
+        {{- if eq $n "" -}}rp-unknown{{- else -}}rp-{{ $n }}{{- end -}}
     spec:
       project: master-project
       source:
         repoURL: https://github.com/kavishwar-khankari/kubernetes-homelab.git
         targetRevision: main
-        path: "{{ .path.path }}"
+        path: "{{ .path }}"
       destination:
         server: https://kubernetes.default.svc
         namespace: >-
-          {{- $raw := .path.basename -}}
+          {{- $raw := (base .path) -}}
           {{- $n := $raw | lower | regexReplaceAll "[^a-z0-9-]+" "-" | regexReplaceAll "^-+|-+$" "" -}}
           {{- if eq $n "" -}}reverse-proxy{{- else -}}{{ $n }}{{- end -}}
       syncPolicy:
@@ -39,4 +38,3 @@ spec:
           selfHeal: true
         syncOptions:
           - CreateNamespace=true
-
