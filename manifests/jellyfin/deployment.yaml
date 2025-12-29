@@ -28,7 +28,6 @@ spec:
             port: 8096
             scheme: HTTP
           periodSeconds: 10
-          successThreshold: 2
           failureThreshold: 15
         readinessProbe:
           httpGet:
