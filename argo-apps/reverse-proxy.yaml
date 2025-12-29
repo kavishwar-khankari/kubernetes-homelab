@@ -15,7 +15,7 @@ spec:
   source:
     repoURL: https://github.com/kavishwar-khankari/kubernetes-homelab.git
     targetRevision: main
-    path: "reverse proxy"
+    path: "reverse proxy/"
   syncPolicy:
     automated:
       prune: true
