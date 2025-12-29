@@ -4,7 +4,7 @@ metadata:
   name: nextcloud-service # needs to match Service name
 subsets:
   - addresses:
-      - ip: 192.168.0.1197
+      - ip: 192.168.0.197
     ports:
       - name: http
         port: 11000
