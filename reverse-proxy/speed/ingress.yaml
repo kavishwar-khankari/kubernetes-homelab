@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: speed-ingress
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - speed.techtronics.top
+  rules:
+    - host: speed.techtronics.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: speed-service
+                port:
+                  name: http

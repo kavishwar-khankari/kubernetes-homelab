@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: files-2-ingress
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - files-2.techtronics.top
+  rules:
+    - host: files-2.techtronics.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: files-2-service
+                port:
+                  name: http
