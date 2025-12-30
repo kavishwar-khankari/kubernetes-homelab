@@ -8,8 +8,8 @@ image:
   pullPolicy: IfNotPresent
 
 service:
-  type: NodePort
-  port: 30080
+  type: LoadBalancer
+  port: 80
 
 ingress:
   enabled: true
