@@ -8,8 +8,8 @@ image:
   pullPolicy: IfNotPresent
 
 service:
-  type: ClusterIP
-  port: 80
+  type: NodePort
+  port: 30080
 
 ingress:
   enabled: true
