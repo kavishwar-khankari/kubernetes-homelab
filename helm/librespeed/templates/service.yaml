@@ -6,10 +6,6 @@ spec:
   type: {{ .Values.service.type | quote }}
   selector:
     app: {{ .Values.name | quote }}
-  ipFamilyPolicy: PreferDualStack
-  ipFamilies:
-    - IPv4
-    - IPv6
   ports:
     - name: http
       port: {{ .Values.service.port }}
