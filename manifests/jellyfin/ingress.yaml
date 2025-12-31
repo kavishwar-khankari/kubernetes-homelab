@@ -8,9 +8,10 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
 
-    #nginx.ingress.kubernetes.io/proxy-buffering: "on"   # required for limit-rate*
-    #nginx.ingress.kubernetes.io/limit-rate-after: "10240"
-    #nginx.ingress.kubernetes.io/limit-rate: "4000"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"   # required "on" for limit-rate
+    nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+    #nginx.ingress.kubernetes.io/limit-rate-after: "10240" #10MB
+    #nginx.ingress.kubernetes.io/limit-rate: "3750" #30Mbps
 
 spec:
   ingressClassName: nginx
