@@ -15,3 +15,6 @@ spec:
     - name: http
       port: 8096
       targetPort: 8096
+    - name: threadfin-http
+      port: 34400
+      targetPort: 34400
