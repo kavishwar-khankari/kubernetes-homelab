@@ -29,7 +29,7 @@ spec:
     - host: threadfin.techtronics.top
       http:
         paths:
-          - path: /
+          - path: /web
             pathType: Prefix
             backend:
               service:
