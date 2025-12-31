@@ -14,6 +14,8 @@ metadata:
   name: strong-nodes-only
   namespace: metallb-system
 spec:
+  ipAddressPools:
+  - lan-pool
   nodeSelectors:
   - matchLabels:
       metallb-announce: "true"
