@@ -71,11 +71,41 @@ spec:
         - name: media2-media
           mountPath: /media_2
           readOnly: true
+
+      - name: threadfin
+        image: fyb3roptik/threadfin:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: threadfin-http
+          containerPort: 34400
+        env:
+        - name: TZ
+          value: Asia/Kolkata
+        - name: THREADFIN_PORT
+          value: "34400"
+        # Threadfin default paths include /home/threadfin/conf (config) :contentReference[oaicite:1]{index=1}
+        volumeMounts:
+        - name: threadfin-config
+          mountPath: /home/threadfin/conf
+        - name: threadfin-temp
+          mountPath: /tmp/threadfin
+        readinessProbe:
+          tcpSocket:
+            port: 34400
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 34400
+          initialDelaySeconds: 20
+          periodSeconds: 20
+
       tolerations:
       - key: "GPU"
         operator: "Equal"
         value: "Nvidia"
-        effect: "NoSchedule"                                                                                      
+        effect: "NoSchedule"
+
       volumes:
       - name: config
         persistentVolumeClaim:
@@ -87,3 +117,9 @@ spec:
       - name: media2-media
         persistentVolumeClaim:
           claimName: jellyfin-media2-media
+
+      - name: threadfin-config
+        persistentVolumeClaim:
+          claimName: threadfin-config
+      - name: threadfin-temp
+        emptyDir: {}

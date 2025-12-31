@@ -15,9 +15,6 @@ metadata:
 
 spec:
   ingressClassName: nginx
-  tls:
-    - hosts:
-        - jellyfin.techtronics.top
   rules:
     - host: jellyfin.techtronics.top
       http:
@@ -29,3 +26,13 @@ spec:
                 name: jellyfin
                 port:
                   number: 8096
+    - host: threadfin.techtronics.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: jellyfin
+                port:
+                  number: 34400
