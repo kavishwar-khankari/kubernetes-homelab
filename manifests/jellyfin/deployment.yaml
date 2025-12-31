@@ -37,7 +37,7 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 30
           successThreshold: 1
-          failureThreshold: 2
+          failureThreshold: 4
         livenessProbe:
           httpGet:
             path: /health
@@ -46,7 +46,7 @@ spec:
           initialDelaySeconds: 30
           periodSeconds: 30
           successThreshold: 1
-          failureThreshold: 2
+          failureThreshold: 4
         env:
         - name: TZ
           value: Asia/Kolkata
