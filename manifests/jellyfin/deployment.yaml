@@ -35,6 +35,7 @@ spec:
             port: 8096
             scheme: HTTP
           initialDelaySeconds: 5
+          timeoutSeconds: 5
           periodSeconds: 30
           successThreshold: 1
           failureThreshold: 4
@@ -44,6 +45,7 @@ spec:
             port: 8096
             scheme: HTTP
           initialDelaySeconds: 30
+          timeoutSeconds: 5
           periodSeconds: 30
           successThreshold: 1
           failureThreshold: 4
