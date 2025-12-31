@@ -11,8 +11,9 @@ spec:
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
 metadata:
-  name: lan-adv
+  name: strong-nodes-only
   namespace: metallb-system
 spec:
-  ipAddressPools:
-  - lan-pool
+  nodeSelectors:
+  - matchLabels:
+      metallb-announce: "true"
