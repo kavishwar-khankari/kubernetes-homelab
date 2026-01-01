@@ -57,6 +57,6 @@ spec:
       {{- if .Values.persistence.enabled }}
       volumes:
         - name: config
-          persistentVolumeClaim:
-            claimName: {{ printf "%s-pvc" .Values.name | quote }}
-      {{- end }}
+          emptyDir: {}
+            medium: Memory
+            sizeLimit: 300Mi
