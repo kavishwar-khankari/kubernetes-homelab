@@ -60,3 +60,4 @@ spec:
           emptyDir:
             medium: Memory
             sizeLimit: 300Mi
+      {{- end }}
