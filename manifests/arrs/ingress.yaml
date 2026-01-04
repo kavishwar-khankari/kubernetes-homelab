@@ -16,7 +16,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: sonarr
+                name: arr-stack-service
                 port:
                   number: 8989
     - host: radarr.techtronics.top
@@ -26,7 +26,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: radarr
+                name: arr-stack-service
                 port:
                   number: 7878
     - host: jdownloader2.techtronics.top
@@ -36,6 +36,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: jdownloader2
+                name: arr-stack-service
                 port:
                   number: 5800
