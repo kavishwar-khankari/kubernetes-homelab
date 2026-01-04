@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: vpn-torrent
-  namespace: media-vpn
+  namespace: vpn-torr
 spec:
   replicas: 1
   strategy:
