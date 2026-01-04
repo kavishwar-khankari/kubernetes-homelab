@@ -75,6 +75,9 @@ spec:
               value: "1280"
             - name: WIREGUARD_PERSISTENT_KEEPALIVE_INTERVAL
               value: "25s"
+            - name: DNS_KEEP_NAMESERVER
+              value: "on"
+
 
 
             # --- K8s-specific firewall allows (important) ---
