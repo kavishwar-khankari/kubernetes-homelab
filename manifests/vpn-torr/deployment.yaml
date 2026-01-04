@@ -16,8 +16,6 @@ spec:
         app: vpn-torrent
     spec:
       terminationGracePeriodSeconds: 30
-      securityContext:
-        privileged: true
 
       # If you run into permission issues on PVCs, set fsGroup to match your PUID/PGID.
       # securityContext:
@@ -28,6 +26,7 @@ spec:
           image: qmcgaw/gluetun:latest
           imagePullPolicy: IfNotPresent
           securityContext:
+            privileged: true
             capabilities:
               add: ["NET_ADMIN"]
           env:
