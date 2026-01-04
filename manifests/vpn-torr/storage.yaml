@@ -16,6 +16,47 @@ spec:
       storage: 100Mi
 ---
 apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: qbittorrent-downloads-pv
+spec:
+  capacity:
+    storage: 10Ti   # bookkeeping only; pick something roughly realistic for your NAS/share
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  persistentVolumeReclaimPolicy: Retain
+  csi:
+    driver: smb.csi.k8s.io
+    volumeHandle: qbittorrent-downloads   # must be unique cluster-wide
+    volumeAttributes:
+      source: "//192.168.0.75/media_2/media"
+    nodeStageSecretRef:
+      name: smbcreds
+      namespace: vpn-torr
+  mountOptions:
+    - dir_mode=0777
+    - file_mode=0777
+    - noperm
+    - mfsymlinks
+    - cache=strict
+    - noserverino
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: qbittorrent-downloads
+  namespace: vpn-torr
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  volumeName: qbittorrent-downloads-pv
+  resources:
+    requests:
+      storage: 10Ti
+---
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: prowlarr-config
