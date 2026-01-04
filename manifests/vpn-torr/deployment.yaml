@@ -16,6 +16,10 @@ spec:
         app: vpn-torrent
     spec:
       terminationGracePeriodSeconds: 30
+      securityContext:
+        sysctls:
+          - name: net.ipv4.conf.all.src_valid_mark
+            value: "1"
 
       # If you run into permission issues on PVCs, set fsGroup to match your PUID/PGID.
       # securityContext:
