@@ -9,7 +9,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: tachidesk.techtronics.top
+    - host: tachi.techtronics.top
       http:
         paths:
           - path: /
