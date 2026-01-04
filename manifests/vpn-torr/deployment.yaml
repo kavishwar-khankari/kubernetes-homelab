@@ -98,20 +98,6 @@ spec:
               containerPort: 9999
               protocol: TCP
 
-          readinessProbe:
-            exec:
-              command: ["/bin/sh", "-c", "ping -c 1 -W 2 1.1.1.1 >/dev/null 2>&1"]
-            initialDelaySeconds: 10
-            periodSeconds: 10
-            failureThreshold: 6
-          
-          livenessProbe:
-            exec:
-              command: ["/bin/sh", "-c", "ping -c 1 -W 2 1.1.1.1 >/dev/null 2>&1"]
-            initialDelaySeconds: 30
-            periodSeconds: 20
-            failureThreshold: 6
-
 
           volumeMounts:
             - name: dev-tun
