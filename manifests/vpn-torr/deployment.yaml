@@ -72,6 +72,8 @@ spec:
               value: "off"
             - name: FIREWALL_OUTBOUND_SUBNETS_IPV6
               value: "::/0"
+            - name: WIREGUARD_MTU
+              value: "1280"
 
             # --- K8s-specific firewall allows (important) ---
             # Allow inbound access to the pod for UIs/proxies (since gluetun firewall may block)
