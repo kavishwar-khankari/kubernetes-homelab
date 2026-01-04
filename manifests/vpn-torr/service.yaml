@@ -38,7 +38,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: flaresolverr
-  namespace: media-vpn
+  namespace: vpn-torr
 spec:
   selector:
     app: vpn-torr
