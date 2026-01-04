@@ -41,24 +41,24 @@ spec:
             - name: WIREGUARD_ENDPOINT_IP
               valueFrom:
                 secretKeyRef:
-                  name: gluetun-wireguard-keys
+                  name: vpn-torr-secrets
                   key: WIREGUARD_ENDPOINT_IP
             - name: WIREGUARD_ENDPOINT_PORT
               value: "61115"
             - name: WIREGUARD_PUBLIC_KEY
               valueFrom:
                 secretKeyRef:
-                  name: gluetun-wireguard-keys
+                  name: vpn-torr-secrets
                   key: WIREGUARD_PUBLIC_KEY
             - name: WIREGUARD_PRIVATE_KEY
               valueFrom:
                 secretKeyRef:
-                  name: gluetun-wireguard-keys
+                  name: vpn-torr-secrets
                   key: WIREGUARD_PRIVATE_KEY
             - name: WIREGUARD_PRESHARED_KEY
               valueFrom:
                 secretKeyRef:
-                  name: gluetun-wireguard-keys
+                  name: vpn-torr-secrets
                   key: WIREGUARD_PRESHARED_KEY
             - name: WIREGUARD_ADDRESSES
               value: "10.66.66.3/32,fd42:42:42::3/128,2603:c021:4000:8b7b::3/128"
