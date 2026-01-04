@@ -12,6 +12,10 @@ spec:
         revision: main
         directories:
           - path: reverse-proxy/*
+  syncPolicy:
+    orphan:
+      enabled: true
+      preserveResourcesOnDeletion: false
   template:
     metadata:
       name: "rp-{{ .path.basenameNormalized }}"
