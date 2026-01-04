@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: arr-stack-service
+  namespace: arr-stack
+spec:
+  selector:
+    app: arr-stack
+  ports:
+    - name: jdownloader2
+      port: 5800
+      targetPort: 5800
+    - name: radarr
+      port: 7878
+      targetPort: 7878
+    - name: sonarr
+      port: 8989
+      targetPort: 8989
