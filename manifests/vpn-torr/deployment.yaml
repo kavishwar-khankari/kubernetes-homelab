@@ -193,7 +193,4 @@ spec:
         - name: prowlarr-config
           persistentVolumeClaim:
             claimName: prowlarr-config
-        - name: flaresolverr-config
-          persistentVolumeClaim:
-            claimName: flaresolverr-config
 
