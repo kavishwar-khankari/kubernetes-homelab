@@ -1,4 +1,4 @@
-apiVersion: v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: tachidesk
@@ -17,7 +17,6 @@ spec:
       - name: tachidesk
         image: ghcr.io/suwayomi/tachidesk:latest
         imagePullPolicy: IfNotPresent
-        restartPolicy: Always
         ports:
         - name: web
           containerPort: 4567
