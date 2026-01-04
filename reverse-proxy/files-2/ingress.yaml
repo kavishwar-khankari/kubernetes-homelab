@@ -2,6 +2,9 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: files-2-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "100g" # Allow large file uploads
+    nginx.ingress.kubernetes.io/proxy-request-buffering: "off" # Disable request buffering for better performance, avoids buffering huge uploads.
 spec:
   ingressClassName: nginx
   tls:
