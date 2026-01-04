@@ -1,15 +1,13 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: qbittorent-ingress
+  name: vpn-torr-ingress
+  namespace: vpn-torr
   annotations:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
 spec:
   ingressClassName: nginx
-  tls:
-    - hosts:
-        - qbittorent.techtronics.top
   rules:
     - host: qbittorent.techtronics.top
       http:
@@ -18,6 +16,16 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: qbittorent-service
+                name: qbittorrent
                 port:
-                  name: http
+                  number: 9090
+    - host: prowlarr.techtronics.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: prowlarr
+                port:
+                  number: 9696
