@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: tachidesk
+  namespace: tachidesk
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tachidesk
+  template:
+    metadata:
+      labels:
+        app: tachidesk
+    spec:
+      containers:
+      - name: tachidesk
+        image: ghcr.io/suwayomi/tachidesk:latest
+        imagePullPolicy: IfNotPresent
+        restartPolicy: Always
+        ports:
+        - name: web
+          containerPort: 4567
+        env:
+        - name: TZ
+          value: "Asia/Kolkata"
+        - name: DEBUG
+          value: "true"
+        - name: BIND_IP
+          value: "0.0.0.0"
+        - name: BIND_PORT
+          value: "4567"
+        - name: SOCKS_PROXY_ENABLED
+          value: "false"
+        - name: DOWNLOAD_AS_CBZ
+          value: "true"
+        - name: MAX_PARALLEL_UPDATE
+          value: "6"
+        volumeMounts:
+        - name: tachidesk-config
+          mountPath: /home/suwayomi/.local/share/Tachidesk
+      
+      volumes:
+      - name: tachidesk-config
+        persistentVolumeClaim:
+          claimName: tachidesk-config
