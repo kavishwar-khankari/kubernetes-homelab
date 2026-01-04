@@ -17,9 +17,7 @@ spec:
     spec:
       terminationGracePeriodSeconds: 30
       securityContext:
-        sysctls:
-          - name: net.ipv4.conf.all.src_valid_mark
-            value: "1"
+        privileged: true
 
       # If you run into permission issues on PVCs, set fsGroup to match your PUID/PGID.
       # securityContext:
@@ -71,7 +69,7 @@ spec:
             - name: IPV6
               value: "on"
             - name: BLOCK_IPV6
-              value: "on"
+              value: "off"
             - name: FIREWALL_OUTBOUND_SUBNETS_IPV6
               value: "::/0"
 
