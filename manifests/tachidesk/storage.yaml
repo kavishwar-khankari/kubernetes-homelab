@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tachidesk
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tachidesk-config
+  namespace: tachidesk
+spec:
+  accessModes: ["ReadWriteOnce"] 
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 50Gi
