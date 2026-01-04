@@ -59,7 +59,7 @@ spec:
     volumeAttributes:
       source: "//192.168.0.75/media_2/media"
     nodeStageSecretRef:
-      name: smbcreds
+      name: smbcreds-arr-stack
       namespace: arr-stack
   mountOptions:
     - dir_mode=0777
