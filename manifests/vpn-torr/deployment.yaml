@@ -1,0 +1,199 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vpn-torrent
+  namespace: media-vpn
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: vpn-torrent
+  template:
+    metadata:
+      labels:
+        app: vpn-torrent
+    spec:
+      terminationGracePeriodSeconds: 30
+
+      # If you run into permission issues on PVCs, set fsGroup to match your PUID/PGID.
+      # securityContext:
+      #   fsGroup: 1000
+
+      containers:
+        - name: gluetun
+          image: qmcgaw/gluetun:latest
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            capabilities:
+              add: ["NET_ADMIN"]
+          env:
+            # --- Your compose env vars ---
+            - name: HTTPPROXY
+              value: "on"
+            - name: SHADOWSOCKS
+              value: "on"
+            - name: VPN_SERVICE_PROVIDER
+              value: "custom"
+            - name: VPN_TYPE
+              value: "wireguard"
+            - name: WIREGUARD_ENDPOINT_IP
+              valueFrom:
+                secretKeyRef:
+                  name: gluetun-wireguard-keys
+                  key: WIREGUARD_ENDPOINT_IP
+            - name: WIREGUARD_ENDPOINT_PORT
+              value: "61115"
+            - name: WIREGUARD_PUBLIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: gluetun-wireguard-keys
+                  key: WIREGUARD_PUBLIC_KEY
+            - name: WIREGUARD_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: gluetun-wireguard-keys
+                  key: WIREGUARD_PRIVATE_KEY
+            - name: WIREGUARD_PRESHARED_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: gluetun-wireguard-keys
+                  key: WIREGUARD_PRESHARED_KEY
+            - name: WIREGUARD_ADDRESSES
+              value: "10.66.66.3/32,fd42:42:42::3/128,2603:c021:4000:8b7b::3/128"
+            - name: FIREWALL_VPN_INPUT_PORTS
+              value: "6881"
+            - name: IPV6
+              value: "on"
+            - name: BLOCK_IPV6
+              value: "on"
+            - name: FIREWALL_OUTBOUND_SUBNETS_IPV6
+              value: "::/0"
+
+            # --- K8s-specific firewall allows (important) ---
+            # Allow inbound access to the pod for UIs/proxies (since gluetun firewall may block)
+            - name: FIREWALL_INPUT_PORTS
+              value: "9090,9696,8191,8888,8388,9999,6881"
+            # Allow the VPN pod to reach your LAN + Kubernetes network ranges
+            # Replace with your actual LAN + Pod CIDR + Service CIDR
+            - name: FIREWALL_OUTBOUND_SUBNETS
+              value: "192.168.0.0/24,10.42.0.0/16,10.43.0.0/16"
+
+            # Optional: set timezone for logs
+            - name: TZ
+              value: "Asia/Kolkata"
+
+          ports:
+            - name: http-proxy
+              containerPort: 8888
+              protocol: TCP
+            - name: shadowsocks-tcp
+              containerPort: 8388
+              protocol: TCP
+            - name: shadowsocks-udp
+              containerPort: 8388
+              protocol: UDP
+            - name: health
+              containerPort: 9999
+              protocol: TCP
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 9999
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 9999
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            failureThreshold: 6
+
+          volumeMounts:
+            - name: dev-tun
+              mountPath: /dev/net/tun
+
+        - name: qbittorrent
+          image: lscr.io/linuxserver/qbittorrent:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PUID
+              value: "0"
+            - name: PGID
+              value: "0"
+            - name: TZ
+              value: "Asia/Kolkata"
+            - name: WEBUI_PORT
+              value: "9090"
+            # Keep torrent listen port aligned with FIREWALL_VPN_INPUT_PORTS
+            - name: TORRENTING_PORT
+              value: "6881"
+          ports:
+            - name: qbit-web
+              containerPort: 9090
+              protocol: TCP
+            - name: qbit-tcp
+              containerPort: 6881
+              protocol: TCP
+            - name: qbit-udp
+              containerPort: 6881
+              protocol: UDP
+          volumeMounts:
+            - name: qbittorrent-config
+              mountPath: /config
+            - name: qbittorrent-downloads
+              mountPath: /media_2
+
+        - name: prowlarr
+          image: lscr.io/linuxserver/prowlarr:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "Asia/Kolkata"
+          ports:
+            - name: prowlarr
+              containerPort: 9696
+              protocol: TCP
+          volumeMounts:
+            - name: prowlarr-config
+              mountPath: /config
+
+        - name: flaresolverr
+          image: ghcr.io/flaresolverr/flaresolverr:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: TZ
+              value: "Asia/Kolkata"
+            - name: LOG_LEVEL
+              value: "info"
+          ports:
+            - name: flaresolverr
+              containerPort: 8191
+              protocol: TCP
+
+      volumes:
+        - name: dev-tun
+          hostPath:
+            path: /dev/net/tun
+            type: CharDevice
+        - name: qbittorrent-config
+          persistentVolumeClaim:
+            claimName: qbittorrent-config
+        - name: qbittorrent-downloads
+          persistentVolumeClaim:
+            claimName: qbittorrent-downloads
+        - name: prowlarr-config
+          persistentVolumeClaim:
+            claimName: prowlarr-config
+        - name: flaresolverr-config
+          persistentVolumeClaim:
+            claimName: flaresolverr-config
+

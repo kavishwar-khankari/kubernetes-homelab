@@ -1,0 +1,73 @@
+# Services (ClusterIP).
+apiVersion: v1
+kind: Service
+metadata:
+  name: qbittorrent
+  namespace: vpn-torr
+spec:
+  selector:
+    app: vpn-torrent
+  ports:
+    - name: web
+      port: 9090
+      targetPort: 9090
+    - name: bittorrent-tcp
+      port: 6881
+      targetPort: 6881
+      protocol: TCP
+    - name: bittorrent-udp
+      port: 6881
+      targetPort: 6881
+      protocol: UDP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prowlarr
+  namespace: vpn-torr
+spec:
+  selector:
+    app: vpn-torrent
+  ports:
+    - name: http
+      port: 9696
+      targetPort: 9696
+---
+# Optional: access FlareSolverr directly (Prowlarr can also use http://localhost:8191)
+apiVersion: v1
+kind: Service
+metadata:
+  name: flaresolverr
+  namespace: media-vpn
+spec:
+  selector:
+    app: vpn-torr
+  ports:
+    - name: http
+      port: 8191
+      targetPort: 8191
+---
+# Optional: expose gluetun proxy/health inside the cluster
+apiVersion: v1
+kind: Service
+metadata:
+  name: gluetun
+  namespace: vpn-torr
+spec:
+  selector:
+    app: vpn-torrent
+  ports:
+    - name: http-proxy
+      port: 8888
+      targetPort: 8888
+    - name: shadowsocks-tcp
+      port: 8388
+      targetPort: 8388
+      protocol: TCP
+    - name: shadowsocks-udp
+      port: 8388
+      targetPort: 8388
+      protocol: UDP
+    - name: health
+      port: 9999
+      targetPort: 9999
