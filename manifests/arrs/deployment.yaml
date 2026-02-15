@@ -190,7 +190,7 @@ spec:
             periodSeconds: 20
             failureThreshold: 6
         - name: jellyseerr
-          image: fallenbagel/jellyseerr:latest
+          image: ghcr.io/seerr-team/seerr:latestt
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
