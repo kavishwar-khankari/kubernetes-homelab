@@ -16,6 +16,9 @@ spec:
       labels:
         app: arr-stack
     spec:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
       initContainers:
         - name: ensure-qbit-dir
           image: busybox:1.36
