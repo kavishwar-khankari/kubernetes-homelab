@@ -15,6 +15,10 @@ spec:
       labels:
         app: jellyfin
     spec:
+      securityContext:
+        runAsUser: 911
+        runAsGroup: 911
+        fsGroup: 911
       containers:
       - name: jellyfin
         image: lscr.io/linuxserver/jellyfin:10.11.5
@@ -68,8 +72,6 @@ spec:
           mountPath: /config
         - name: cache
           mountPath: /cache
-        - name: cache
-          mountPath: /cache/transcodes
         - name: media2-media
           mountPath: /media_2
           readOnly: true
