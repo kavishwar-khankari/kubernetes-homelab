@@ -189,6 +189,33 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 20
             failureThreshold: 6
+        - name: jellyseerr
+          image: fallenbagel/jellyseerr:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 5055
+          env:
+            - name: TZ
+              value: "Asia/Kolkata"
+            # optional:
+            # - name: LOG_LEVEL
+            #   value: "info"
+          volumeMounts:
+            - name: jellyseerr-config
+              mountPath: /app/config
+          readinessProbe:
+            tcpSocket:
+              port: 5055
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            tcpSocket:
+              port: 5055
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            failureThreshold: 6
 
 
         
@@ -208,6 +235,9 @@ spec:
         - name: wizarr-data
           persistentVolumeClaim:
             claimName: wizarr-data
+        - name: jellyseerr-config
+          persistentVolumeClaim:
+            claimName: jellyseerr-config
         - name: media
           persistentVolumeClaim:
             claimName: media-pvc

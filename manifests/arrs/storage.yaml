@@ -69,6 +69,19 @@ spec:
   storageClassName: longhorn
 ---
 apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jellyseerr-config
+  namespace: arr-stack
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: longhorn
+---
+apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: media-pv
