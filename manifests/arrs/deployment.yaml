@@ -159,6 +159,37 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 20
             failureThreshold: 6
+        - name: wizarr
+          image: ghcr.io/wizarrrr/wizarr:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 5690
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "Asia/Kolkata"
+            - name: DISABLE_BUILTIN_AUTH
+              value: "false"
+          volumeMounts:
+            - name: wizarr-data
+              mountPath: /data
+          readinessProbe:
+            tcpSocket:
+              port: 5690
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            tcpSocket:
+              port: 5690
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            failureThreshold: 6
+
 
         
       volumes:
@@ -174,6 +205,9 @@ spec:
         - name: lidarr-config
           persistentVolumeClaim:
             claimName: lidarr-config
+        - name: wizarr-data
+          persistentVolumeClaim:
+            claimName: wizarr-data
         - name: media
           persistentVolumeClaim:
             claimName: media-pvc

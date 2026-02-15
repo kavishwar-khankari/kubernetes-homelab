@@ -19,3 +19,6 @@ spec:
     - name: lidarr
       port: 8686
       targetPort: 8686
+    - name: wizarr
+      port: 5690
+      targetPort: 5690

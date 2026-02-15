@@ -49,3 +49,13 @@ spec:
                 name: arr-stack-service
                 port:
                   number: 8686
+    - host: wizarr.techtronics.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: arr-stack-service
+                port:
+                  number: 5690

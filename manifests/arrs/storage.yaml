@@ -56,6 +56,19 @@ spec:
   storageClassName: longhorn
 ---
 apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: wizarr-data
+  namespace: arr-stack
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
+  storageClassName: longhorn
+---
+apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: media-pv
