@@ -22,3 +22,6 @@ spec:
     - name: wizarr
       port: 5690
       targetPort: 5690
+    - name: jellyseerr
+      port: 5055
+      targetPort: 5055
