@@ -68,6 +68,8 @@ spec:
           mountPath: /config
         - name: cache
           mountPath: /cache
+        - name: transcodes
+          mountPath: /cache/transcodes
         - name: media2-media
           mountPath: /media_2
           readOnly: true
