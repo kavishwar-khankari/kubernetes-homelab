@@ -16,9 +16,9 @@ spec:
         app: jellyfin
     spec:
       securityContext:
-        runAsUser: 911
-        runAsGroup: 911
         fsGroup: 911
+        fsGroupChangePolicy: "OnRootMismatch"
+
       containers:
       - name: jellyfin
         image: lscr.io/linuxserver/jellyfin:10.11.5
