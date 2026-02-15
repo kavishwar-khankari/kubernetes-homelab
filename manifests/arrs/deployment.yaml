@@ -16,6 +16,16 @@ spec:
       labels:
         app: arr-stack
     spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k3s-node-2
       securityContext:
         fsGroup: 1000
         fsGroupChangePolicy: "OnRootMismatch"
