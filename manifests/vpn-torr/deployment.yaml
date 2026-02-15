@@ -15,6 +15,17 @@ spec:
       labels:
         app: vpn-torrent
     spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k3s-node-2
+
       terminationGracePeriodSeconds: 30
 
       # If you run into permission issues on PVCs, set fsGroup to match your PUID/PGID.
