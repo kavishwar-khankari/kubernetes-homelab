@@ -68,7 +68,7 @@ spec:
           mountPath: /config
         - name: cache
           mountPath: /cache
-        - name: transcodes
+        - name: cache
           mountPath: /cache/transcodes
         - name: media2-media
           mountPath: /media_2
