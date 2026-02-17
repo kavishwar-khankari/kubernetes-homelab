@@ -18,6 +18,9 @@ spec:
       securityContext:
         fsGroup: 911
         fsGroupChangePolicy: "OnRootMismatch"
+        supplementalGroups:
+          - 44   # video
+          - 993  # render
 
       containers:
       - name: jellyfin
@@ -101,11 +104,6 @@ spec:
           initialDelaySeconds: 20
           periodSeconds: 20
 
-      tolerations:
-      - key: "GPU"
-        operator: "Equal"
-        value: "Nvidia"
-        effect: "NoSchedule"
 
       volumes:
       - name: config
