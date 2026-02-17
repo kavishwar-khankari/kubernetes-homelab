@@ -60,13 +60,6 @@ spec:
           value: "911"
         - name: PGID
           value: "911"
-        - name: NVIDIA_VISIBLE_DEVICES
-          value: "all"
-        - name: NVIDIA_DRIVER_CAPABILITIES
-          value: "compute,video,utility"
-        resources:
-          limits:
-            nvidia.com/gpu: 1
         volumeMounts:
         - name: config
           mountPath: /config
