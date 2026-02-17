@@ -68,6 +68,10 @@ spec:
         - name: media2-media
           mountPath: /media_2
           readOnly: true
+        resources:
+          limits:
+            gpu.intel.com/xe: 1
+
 
       - name: threadfin
         image: fyb3roptik/threadfin:latest
