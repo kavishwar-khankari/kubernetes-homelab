@@ -16,3 +16,12 @@ spec:
     - name: sonarr
       port: 8989
       targetPort: 8989
+    - name: lidarr
+      port: 8686
+      targetPort: 8686
+    - name: wizarr
+      port: 5690
+      targetPort: 5690
+    - name: jellyseerr
+      port: 5055
+      targetPort: 5055

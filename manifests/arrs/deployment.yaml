@@ -16,6 +16,19 @@ spec:
       labels:
         app: arr-stack
     spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k3s-node-2
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
       initContainers:
         - name: ensure-qbit-dir
           image: busybox:1.36
@@ -124,6 +137,102 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 20
             failureThreshold: 6
+        - name: lidarr
+          image: lscr.io/linuxserver/lidarr:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8686
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "Asia/Kolkata"
+          volumeMounts:
+            - name: lidarr-config
+              mountPath: /config
+            # your "/home/pico/media_2:/media_2"
+            - name: media
+              mountPath: /media_2
+            # your "/home/pico/media_2/qbittorent:/downloads"
+            - name: media
+              mountPath: /downloads
+              subPath: qbittorent
+          readinessProbe:
+            tcpSocket:
+              port: 8686
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            tcpSocket:
+              port: 8686
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            failureThreshold: 6
+        - name: wizarr
+          image: ghcr.io/wizarrrr/wizarr:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 5690
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "Asia/Kolkata"
+            - name: DISABLE_BUILTIN_AUTH
+              value: "false"
+          volumeMounts:
+            - name: wizarr-data
+              mountPath: /data
+          readinessProbe:
+            tcpSocket:
+              port: 5690
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            tcpSocket:
+              port: 5690
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            failureThreshold: 6
+        - name: jellyseerr
+          image: ghcr.io/seerr-team/seerr:latest
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+          ports:
+            - name: http
+              containerPort: 5055
+          env:
+            - name: TZ
+              value: "Asia/Kolkata"
+            # optional:
+            # - name: LOG_LEVEL
+            #   value: "info"
+          volumeMounts:
+            - name: jellyseerr-config
+              mountPath: /app/config
+          readinessProbe:
+            tcpSocket:
+              port: 5055
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            tcpSocket:
+              port: 5055
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            failureThreshold: 6
+
 
         
       volumes:
@@ -136,6 +245,15 @@ spec:
         - name: sonarr-config
           persistentVolumeClaim:
             claimName: sonarr-config
+        - name: lidarr-config
+          persistentVolumeClaim:
+            claimName: lidarr-config
+        - name: wizarr-data
+          persistentVolumeClaim:
+            claimName: wizarr-data
+        - name: jellyseerr-config
+          persistentVolumeClaim:
+            claimName: jellyseerr-config
         - name: media
           persistentVolumeClaim:
             claimName: media-pvc
