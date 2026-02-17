@@ -18,6 +18,9 @@ spec:
       securityContext:
         fsGroup: 911
         fsGroupChangePolicy: "OnRootMismatch"
+        supplementalGroups:
+          - 44   # video
+          - 993  # render
 
       containers:
       - name: jellyfin
@@ -68,6 +71,10 @@ spec:
         - name: media2-media
           mountPath: /media_2
           readOnly: true
+        resources:
+          limits:
+            gpu.intel.com/xe: 1
+
 
       - name: threadfin
         image: fyb3roptik/threadfin:latest
@@ -97,11 +104,6 @@ spec:
           initialDelaySeconds: 20
           periodSeconds: 20
 
-      tolerations:
-      - key: "GPU"
-        operator: "Equal"
-        value: "Nvidia"
-        effect: "NoSchedule"
 
       volumes:
       - name: config
