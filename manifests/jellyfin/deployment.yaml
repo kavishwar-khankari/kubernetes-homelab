@@ -60,9 +60,9 @@ spec:
         - name: TZ
           value: Asia/Kolkata
         - name: PUID
-          value: "911"
+          value: "0"
         - name: PGID
-          value: "911"
+          value: "0"
         - name: DOCKER_MODS
           value: "linuxserver/mods:jellyfin-opencl-intel"
         volumeMounts:
