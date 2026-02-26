@@ -71,6 +71,9 @@ spec:
         - name: media2-media
           mountPath: /media_2
           readOnly: true
+        - name: intel-opencl
+          mountPath: /usr/lib/x86_64-linux-gnu/intel-opencl/
+          readOnly: true
         resources:
           limits:
             gpu.intel.com/xe: 1
@@ -116,6 +119,10 @@ spec:
       - name: media2-media
         persistentVolumeClaim:
           claimName: jellyfin-media2-media
+      - name: intel-opencl
+        hostPath:
+          path: /usr/lib/x86_64-linux-gnu/intel-opencl/
+          type: Directory
 
       - name: threadfin-config
         persistentVolumeClaim:
