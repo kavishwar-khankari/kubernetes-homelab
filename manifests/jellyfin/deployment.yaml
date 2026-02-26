@@ -74,6 +74,9 @@ spec:
         - name: intel-opencl
           mountPath: /usr/lib/x86_64-linux-gnu/intel-opencl/
           readOnly: true
+        - name: intel-opencl-icd
+          mountPath: /etc/OpenCL/vendors/intel.icd
+          readOnly: true
         resources:
           limits:
             gpu.intel.com/xe: 1
@@ -123,6 +126,10 @@ spec:
         hostPath:
           path: /usr/lib/x86_64-linux-gnu/intel-opencl/
           type: Directory
+      - name: intel-opencl-icd
+        hostPath:
+          path: /etc/OpenCL/vendors/intel.icd
+          type: File
 
       - name: threadfin-config
         persistentVolumeClaim:
