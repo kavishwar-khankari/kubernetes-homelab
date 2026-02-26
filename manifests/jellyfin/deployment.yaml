@@ -64,7 +64,7 @@ spec:
         - name: PGID
           value: "911"
         - name: LD_LIBRARY_PATH
-          value: "/usr/lib/x86_64-linux-gnu/intel-opencl:/usr/lib/jellyfin-ffmpeg/lib"
+          value: "/opt/intel-libs:/usr/lib/x86_64-linux-gnu/intel-opencl:/usr/lib/jellyfin-ffmpeg/lib"
         volumeMounts:
         - name: config
           mountPath: /config
@@ -80,7 +80,7 @@ spec:
           mountPath: /etc/OpenCL/vendors/intel.icd
           readOnly: true
         - name: intel-igdgmm
-          mountPath: /usr/lib/x86_64-linux-gnu/intel-opencl/libigdgmm.so.12
+          mountPath: /opt/intel-libs/libigdgmm.so.12
           readOnly: true
         resources:
           limits:
