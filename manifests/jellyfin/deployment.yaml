@@ -63,6 +63,8 @@ spec:
           value: "911"
         - name: PGID
           value: "911"
+        - name: DOCKER_MODS
+          value: "linuxserver/mods:jellyfin-opencl-intel"
         volumeMounts:
         - name: config
           mountPath: /config
@@ -70,12 +72,6 @@ spec:
           mountPath: /cache
         - name: media2-media
           mountPath: /media_2
-          readOnly: true
-        - name: intel-opencl
-          mountPath: /usr/lib/x86_64-linux-gnu/intel-opencl/
-          readOnly: true
-        - name: intel-opencl-icd
-          mountPath: /etc/OpenCL/vendors/intel.icd
           readOnly: true
         resources:
           limits:
@@ -122,14 +118,6 @@ spec:
       - name: media2-media
         persistentVolumeClaim:
           claimName: jellyfin-media2-media
-      - name: intel-opencl
-        hostPath:
-          path: /opt/jellyfin-opencl/usr/lib/x86_64-linux-gnu/intel-opencl/
-          type: Directory
-      - name: intel-opencl-icd
-        hostPath:
-          path: /opt/jellyfin-opencl/intel.icd
-          type: File
 
       - name: threadfin-config
         persistentVolumeClaim:
