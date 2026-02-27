@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tdarr
+---
+# Server and configs PVCs are auto-created by StatefulSet volumeClaimTemplates
+# (server-tdarr-0, configs-tdarr-0)
+---
+# Transcode cache — hostPath to dedicated 100GB SSD disk
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: tdarr-cache-pv
+spec:
+  capacity:
+    storage: 90Gi
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: ""
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /mnt/tdarr-cache
+    type: Directory
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: intel.feature.node.kubernetes.io/gpu
+              operator: Exists
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tdarr-cache
+  namespace: tdarr
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: ""
+  volumeName: tdarr-cache-pv
+  resources:
+    requests:
+      storage: 90Gi
+---
+# Media — same SMB share as Jellyfin but read-write
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: tdarr-media2-media-pv
+spec:
+  capacity:
+    storage: 10Ti
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  persistentVolumeReclaimPolicy: Retain
+  csi:
+    driver: smb.csi.k8s.io
+    volumeHandle: tdarr-media2-media   # unique cluster-wide
+    volumeAttributes:
+      source: "//192.168.0.75/media_2/media"
+    nodeStageSecretRef:
+      name: smbcreds
+      namespace: tdarr
+  mountOptions:
+    - dir_mode=0777
+    - file_mode=0777
+    - noperm
+    - mfsymlinks
+    - cache=strict
+    - noserverino
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tdarr-media2-media
+  namespace: tdarr
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  volumeName: tdarr-media2-media-pv
+  resources:
+    requests:
+      storage: 10Ti
