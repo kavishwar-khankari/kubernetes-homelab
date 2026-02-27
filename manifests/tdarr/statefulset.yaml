@@ -1,0 +1,121 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: tdarr
+  namespace: tdarr
+spec:
+  serviceName: tdarr
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tdarr
+  template:
+    metadata:
+      labels:
+        app: tdarr
+    spec:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+        supplementalGroups:
+          - 44   # video
+          - 993  # render
+
+      containers:
+      - name: tdarr
+        image: ghcr.io/haveagitgat/tdarr:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: webui
+          containerPort: 8265
+        - name: server
+          containerPort: 8266
+        env:
+        - name: TZ
+          value: Asia/Kolkata
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: serverIP
+          value: "0.0.0.0"
+        - name: serverPort
+          value: "8266"
+        - name: webUIPort
+          value: "8265"
+        - name: internalNode
+          value: "true"
+        - name: inContainer
+          value: "true"
+        - name: ffmpegVersion
+          value: "7"
+        - name: nodeName
+          value: "K8sGPUNode"
+        volumeMounts:
+        - name: server
+          mountPath: /app/server
+        - name: configs
+          mountPath: /app/configs
+        - name: logs
+          mountPath: /app/logs
+        - name: cache
+          mountPath: /temp
+        - name: media
+          mountPath: /media
+        resources:
+          limits:
+            gpu.intel.com/xe: 1
+        startupProbe:
+          httpGet:
+            path: /api/v2/status
+            port: 8265
+          periodSeconds: 10
+          failureThreshold: 15
+        readinessProbe:
+          httpGet:
+            path: /api/v2/status
+            port: 8265
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          failureThreshold: 4
+        livenessProbe:
+          httpGet:
+            path: /api/v2/status
+            port: 8265
+          initialDelaySeconds: 30
+          periodSeconds: 60
+          failureThreshold: 4
+
+      volumes:
+      - name: cache
+        persistentVolumeClaim:
+          claimName: tdarr-cache
+      - name: media
+        persistentVolumeClaim:
+          claimName: tdarr-media2-media
+
+  volumeClaimTemplates:
+  - metadata:
+      name: server
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: longhorn
+      resources:
+        requests:
+          storage: 5Gi
+  - metadata:
+      name: configs
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: longhorn
+      resources:
+        requests:
+          storage: 1Gi
+  - metadata:
+      name: logs
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: longhorn
+      resources:
+        requests:
+          storage: 2Gi
