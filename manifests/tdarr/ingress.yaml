@@ -17,6 +17,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: tdarr
+                name: tdarr-server
                 port:
                   number: 8265

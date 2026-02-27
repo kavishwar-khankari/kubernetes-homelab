@@ -3,10 +3,7 @@ kind: Namespace
 metadata:
   name: tdarr
 ---
-# Server and configs PVCs are auto-created by StatefulSet volumeClaimTemplates
-# (server-tdarr-0, configs-tdarr-0)
----
-# Transcode cache — hostPath to dedicated 100GB SSD disk
+# Transcode cache — hostPath to dedicated 100GB SSD on GPU node
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -40,7 +37,7 @@ spec:
     requests:
       storage: 90Gi
 ---
-# Media — same SMB share as Jellyfin but read-write
+# Media — SMB share, ReadWriteMany so both server and worker can mount
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -54,7 +51,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   csi:
     driver: smb.csi.k8s.io
-    volumeHandle: tdarr-media2-media   # unique cluster-wide
+    volumeHandle: tdarr-media2-media
     volumeAttributes:
       source: "//192.168.0.75/media_2/media"
     nodeStageSecretRef:

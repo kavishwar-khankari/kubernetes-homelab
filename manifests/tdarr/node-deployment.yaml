@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tdarr-worker
+  namespace: tdarr
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: tdarr
+      component: worker
+  template:
+    metadata:
+      labels:
+        app: tdarr
+        component: worker
+    spec:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+        supplementalGroups:
+          - 44   # video
+          - 993  # render
+
+      containers:
+      - name: tdarr-node
+        image: ghcr.io/haveagitgat/tdarr_node:latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: TZ
+          value: Asia/Kolkata
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: serverIP
+          value: "tdarr-server.tdarr.svc.cluster.local"
+        - name: serverPort
+          value: "8266"
+        - name: inContainer
+          value: "true"
+        - name: ffmpegVersion
+          value: "7"
+        - name: nodeName
+          value: "K8sGPUNode"
+        volumeMounts:
+        - name: cache
+          mountPath: /temp
+        - name: media
+          mountPath: /media
+        resources:
+          requests:
+            memory: 512Mi
+            cpu: 250m
+          limits:
+            gpu.intel.com/xe: 1
+
+      volumes:
+      - name: cache
+        persistentVolumeClaim:
+          claimName: tdarr-cache
+      - name: media
+        persistentVolumeClaim:
+          claimName: tdarr-media2-media
