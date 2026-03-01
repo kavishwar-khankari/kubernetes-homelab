@@ -20,16 +20,6 @@ spec:
         fsGroup: 1000
         fsGroupChangePolicy: "OnRootMismatch"
 
-      # Avoid scheduling on GPU node (leave RAM for worker)
-      affinity:
-        nodeAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              preference:
-                matchExpressions:
-                  - key: intel.feature.node.kubernetes.io/gpu
-                    operator: DoesNotExist
-
       containers:
       - name: tdarr-server
         image: ghcr.io/haveagitgat/tdarr:latest
