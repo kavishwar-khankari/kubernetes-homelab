@@ -1,0 +1,66 @@
+# tailscale/daemonset.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: tailscale-subnet-router
+  namespace: tailscale
+  labels:
+    app: tailscale-subnet-router
+spec:
+  selector:
+    matchLabels:
+      app: tailscale-subnet-router
+  template:
+    metadata:
+      labels:
+        app: tailscale-subnet-router
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+        - name: tailscale
+          image: tailscale/tailscale:latest
+          imagePullPolicy: Always
+          env:
+            - name: TS_AUTHKEY
+              valueFrom:
+                secretKeyRef:
+                  name: tailscale-doppler
+                  key: TS_AUTHKEY
+            - name: TS_ROUTES
+              value: "192.168.0.0/24"
+            - name: TS_EXTRA_ARGS
+              value: "--advertise-routes=192.168.0.0/24 --accept-dns=false --hostname=$(NODE_NAME)-ts"
+            - name: TS_KUBE_SECRET
+              value: ""
+            - name: TS_USERSPACE
+              value: "false"
+            - name: TS_STATE_DIR
+              value: "/var/lib/tailscale"
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+                - NET_RAW
+          volumeMounts:
+            - name: ts-state
+              mountPath: /var/lib/tailscale
+            - name: dev-tun
+              mountPath: /dev/net/tun
+          resources:
+            requests:
+              cpu: 10m
+              memory: 64Mi
+            limits:
+              memory: 512Mi
+      volumes:
+        - name: ts-state
+          emptyDir: {}
+        - name: dev-tun
+          hostPath:
+            path: /dev/net/tun
+            type: CharDevice
