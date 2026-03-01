@@ -46,6 +46,7 @@ spec:
             - -c
             - |
               export TS_HOSTNAME="${NODE_NAME}-ts"
+              export TS_EXTRA_ARGS="--snat-subnet-routes=true"
               exec /usr/local/bin/containerboot
           securityContext:
             capabilities:
