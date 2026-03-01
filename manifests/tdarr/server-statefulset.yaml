@@ -78,7 +78,7 @@ spec:
             path: /api/v2/status
             port: 8265
           periodSeconds: 10
-          failureThreshold: 15
+          failureThreshold: 35
         readinessProbe:
           httpGet:
             path: /api/v2/status
