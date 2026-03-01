@@ -29,8 +29,8 @@ spec:
                   key: TS_AUTHKEY
             - name: TS_ROUTES
               value: "192.168.0.0/24"
-            - name: TS_EXTRA_ARGS
-              value: "--advertise-routes=192.168.0.0/24 --accept-dns=false --hostname=$(NODE_NAME)-ts"
+            - name: TS_ACCEPT_DNS
+              value: "false"
             - name: TS_KUBE_SECRET
               value: ""
             - name: TS_USERSPACE
@@ -41,6 +41,12 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: spec.nodeName
+          command:
+            - sh
+            - -c
+            - |
+              export TS_HOSTNAME="${NODE_NAME}-ts"
+              exec /usr/local/bin/containerboot
           securityContext:
             capabilities:
               add:
