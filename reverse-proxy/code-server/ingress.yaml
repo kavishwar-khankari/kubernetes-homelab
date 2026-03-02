@@ -17,4 +17,4 @@ spec:
               service:
                 name: code-server-service
                 port:
-                  number: 8080
+                  name: http
