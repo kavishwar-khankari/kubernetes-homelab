@@ -84,14 +84,6 @@ spec:
           volumeMounts:
             - name: crafty-data
               mountPath: /crafty
-              subPath: crafty
-            # Mount specific subdirs to keep things organized
-            - name: crafty-data
-              mountPath: /crafty/backups
-              subPath: backups
-            - name: crafty-data
-              mountPath: /crafty/servers
-              subPath: servers
           resources:
             requests:
               memory: "4Gi"
