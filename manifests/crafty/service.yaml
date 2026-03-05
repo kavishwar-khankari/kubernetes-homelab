@@ -1,0 +1,43 @@
+# =============================================================================
+# Headless Service — required by StatefulSet
+# =============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: minecraft-server
+  namespace: minecraft
+  labels:
+    app: minecraft-server
+spec:
+  clusterIP: None
+  selector:
+    app: minecraft-server
+  ports:
+    - port: 25565
+      targetPort: 25565
+      name: minecraft
+      protocol: TCP
+    - port: 8443
+      targetPort: 8443
+      name: web-ui
+      protocol: TCP
+---
+# =============================================================================
+# ClusterIP Service — for Ingress to reach the Crafty web UI
+# =============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: crafty-web
+  namespace: minecraft
+  labels:
+    app: minecraft-server
+spec:
+  type: ClusterIP
+  selector:
+    app: minecraft-server
+  ports:
+    - port: 8443
+      targetPort: 8443
+      name: web-ui
+      protocol: TCP

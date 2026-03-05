@@ -1,0 +1,36 @@
+# =============================================================================
+# Longhorn PVC — Crafty Controller data
+# Houses: Crafty config, server jars, worlds, backups, logs, imports
+# Crafty's directory structure lives under /crafty/
+#   /crafty/backups/     — built-in backup storage
+#   /crafty/servers/     — server files, worlds, plugins
+#   /crafty/app/config/  — Crafty's own configuration
+# =============================================================================
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: crafty-data
+  namespace: minecraft
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 50Gi        # Generous for worlds + backups; adjust as needed
+---
+# =============================================================================
+# Longhorn PVC — Tailscale state (persists node identity across restarts)
+# =============================================================================
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tailscale-state
+  namespace: minecraft
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 256Mi
