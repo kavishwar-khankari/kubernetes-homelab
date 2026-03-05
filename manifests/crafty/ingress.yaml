@@ -11,17 +11,17 @@ metadata:
   labels:
     app: minecraft-server
   annotations:
-    # Crafty's backend is HTTPS (self-signed cert on 8443)
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-    # Skip backend cert verification (it's self-signed)
     nginx.ingress.kubernetes.io/proxy-ssl-verify: "false"
-    # Websocket support for Crafty's live console
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      proxy_set_header Upgrade $http_upgrade;
-      proxy_set_header Connection "upgrade";
+    nginx.ingress.kubernetes.io/upstream-hash-by: "$remote_addr"
+    nginx.ingress.kubernetes.io/server-snippets: |
+      location / {
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+      }
 spec:
   ingressClassName: nginx     # Adjust to match your cluster's ingress class
   rules:
