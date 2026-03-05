@@ -83,7 +83,20 @@ spec:
               value: "Asia/Kolkata"
           volumeMounts:
             - name: crafty-data
-              mountPath: /crafty
+              mountPath: /crafty/backups
+              subPath: backups
+            - name: crafty-data
+              mountPath: /crafty/logs
+              subPath: logs
+            - name: crafty-data
+              mountPath: /crafty/servers
+              subPath: servers
+            - name: crafty-data
+              mountPath: /crafty/app/config
+              subPath: app-config
+            - name: crafty-data
+              mountPath: /crafty/import
+              subPath: import
           resources:
             requests:
               memory: "4Gi"
