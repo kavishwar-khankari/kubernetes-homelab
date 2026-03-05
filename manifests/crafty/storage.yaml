@@ -17,7 +17,7 @@ spec:
   storageClassName: longhorn
   resources:
     requests:
-      storage: 50Gi        # Generous for worlds + backups; adjust as needed
+      storage: 20Gi        # Generous for worlds + backups; adjust as needed
 ---
 # =============================================================================
 # Longhorn PVC — Tailscale state (persists node identity across restarts)
