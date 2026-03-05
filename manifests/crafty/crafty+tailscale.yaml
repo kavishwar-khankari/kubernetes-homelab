@@ -1,0 +1,131 @@
+# =============================================================================
+# StatefulSet — Crafty Controller + Tailscale sidecar
+# =============================================================================
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: minecraft-server
+  namespace: minecraft
+  labels:
+    app: minecraft-server
+spec:
+  serviceName: minecraft-server
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minecraft-server
+  template:
+    metadata:
+      labels:
+        app: minecraft-server
+    spec:
+      containers:
+        # =====================================================================
+        # Container 1: Crafty Controller 4
+        # Web UI on 8443 (HTTPS), game server on 25565 (configured in UI)
+        # =====================================================================
+        - name: crafty
+          image: registry.gitlab.com/crafty-controller/crafty-4:4.4.4
+          ports:
+            - containerPort: 8443
+              name: web-ui
+              protocol: TCP
+            - containerPort: 25565
+              name: minecraft
+              protocol: TCP
+            # Ports 25566-25569 available if you run multiple servers
+            - containerPort: 25566
+              name: mc-extra-1
+              protocol: TCP
+          env:
+            # Crafty runs as root inside container by default;
+            # TZ for correct log/backup timestamps
+            - name: TZ
+              value: "Asia/Kolkata"
+          volumeMounts:
+            - name: crafty-data
+              mountPath: /crafty
+              subPath: crafty
+            # Mount specific subdirs to keep things organized
+            - name: crafty-data
+              mountPath: /crafty/backups
+              subPath: backups
+            - name: crafty-data
+              mountPath: /crafty/servers
+              subPath: servers
+          resources:
+            requests:
+              memory: "4Gi"
+              cpu: "1000m"
+            limits:
+              memory: "6Gi"
+              cpu: "4000m"
+          # Crafty's web UI health check
+          readinessProbe:
+            tcpSocket:
+              port: 8443
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 12
+          livenessProbe:
+            tcpSocket:
+              port: 8443
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            failureThreshold: 5
+
+        # =====================================================================
+        # Container 2: Tailscale Sidecar
+        # Exposes ONLY the game port (25565) over tailnet.
+        # The web UI is NOT exposed via Tailscale — it goes through Ingress.
+        # =====================================================================
+        - name: tailscale
+          image: ghcr.io/tailscale/tailscale:latest
+          env:
+            - name: TS_AUTHKEY_MINECRAFT
+              valueFrom:
+                secretKeyRef:
+                  name: minecraft-doppler
+                  key: TS_AUTHKEY_MINECRAFT
+            - name: TS_HOSTNAME
+              value: "minecraft"
+            - name: TS_USERSPACE
+              value: "false"
+            - name: TS_STATE_DIR
+              value: /var/lib/tailscale
+            - name: TS_ACCEPT_DNS
+              value: "true"
+            - name: TS_EXTRA_ARGS
+              value: "--advertise-tags=tag:minecraft-server"
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+                - NET_RAW
+          volumeMounts:
+            - name: tailscale-state
+              mountPath: /var/lib/tailscale
+            - name: tun-device
+              mountPath: /dev/net/tun
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "128Mi"
+              cpu: "200m"
+
+      volumes:
+        - name: crafty-data
+          persistentVolumeClaim:
+            claimName: crafty-data
+        - name: tailscale-state
+          persistentVolumeClaim:
+            claimName: tailscale-state
+        - name: tun-device
+          hostPath:
+            path: /dev/net/tun
+            type: CharDevice
+
+      # Give Crafty time to gracefully stop the MC server and save world
+      terminationGracePeriodSeconds: 120
