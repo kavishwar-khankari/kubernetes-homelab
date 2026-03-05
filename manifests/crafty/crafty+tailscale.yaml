@@ -64,7 +64,7 @@ spec:
         # Web UI on 8443 (HTTPS), game server on 25565 (configured in UI)
         # =====================================================================
         - name: crafty
-          image: registry.gitlab.com/crafty-controller/crafty-4:4.4.4
+          image: registry.gitlab.com/crafty-controller/crafty-4:4.10.0
           ports:
             - containerPort: 8443
               name: web-ui
