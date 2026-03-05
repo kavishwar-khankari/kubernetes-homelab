@@ -1,6 +1,44 @@
 # =============================================================================
 # StatefulSet — Crafty Controller + Tailscale sidecar
 # =============================================================================
+# =============================================================================
+# ServiceAccount + RBAC for Tailscale sidecar
+# Tailscale needs to read/write a K8s Secret to persist its state
+# and optionally write Events to the Pod.
+# =============================================================================
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: minecraft-tailscale
+  namespace: minecraft
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: minecraft-tailscale
+  namespace: minecraft
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "create", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["get", "create", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: minecraft-tailscale
+  namespace: minecraft
+subjects:
+  - kind: ServiceAccount
+    name: minecraft-tailscale
+    namespace: minecraft
+roleRef:
+  kind: Role
+  name: minecraft-tailscale
+  apiGroup: rbac.authorization.k8s.io
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -19,6 +57,7 @@ spec:
       labels:
         app: minecraft-server
     spec:
+      serviceAccountName: minecraft-tailscale
       containers:
         # =====================================================================
         # Container 1: Crafty Controller 4
@@ -97,6 +136,14 @@ spec:
               value: "true"
             - name: TS_EXTRA_ARGS
               value: "--advertise-tags=tag:minecraft-server"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_UID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
           securityContext:
             capabilities:
               add:
@@ -129,3 +176,4 @@ spec:
 
       # Give Crafty time to gracefully stop the MC server and save world
       terminationGracePeriodSeconds: 120
+---
