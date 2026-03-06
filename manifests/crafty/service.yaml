@@ -14,7 +14,7 @@ spec:
     app: minecraft-server
   ports:
     - port: 25565
-      targetPort: 25565
+      targetPort: 25566
       name: minecraft
       protocol: TCP
     - port: 8443
@@ -56,6 +56,6 @@ spec:
     app: minecraft-server
   ports:
     - port: 25565
-      targetPort: 25565
+      targetPort: 25566
       name: minecraft
       protocol: TCP
