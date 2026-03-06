@@ -47,23 +47,8 @@ data:
     #!/bin/bash
     set -e
 
-    echo "=== [tailscale] Installing tailscale ==="
-    # Install tailscale into persistent storage (only on first run)
-    if [ ! -f /var/lib/tailscale/bin/tailscaled ]; then
-      echo "Downloading tailscale..."
-      wget -qO /tmp/tailscale.tgz https://pkgs.tailscale.com/stable/tailscale_latest_amd64.tgz
-      tar xzf /tmp/tailscale.tgz -C /tmp
-      mkdir -p /var/lib/tailscale/bin
-      cp /tmp/tailscale_*/tailscaled /var/lib/tailscale/bin/tailscaled
-      cp /tmp/tailscale_*/tailscale /var/lib/tailscale/bin/tailscale
-      rm -rf /tmp/tailscale_* /tmp/tailscale.tgz
-      echo "Tailscale installed to /var/lib/tailscale/bin/"
-    else
-      echo "Tailscale already installed, skipping download"
-    fi
-
     echo "=== [tailscale] Starting tailscaled in tun mode ==="
-    /var/lib/tailscale/bin/tailscaled \
+    /tsbin/tailscaled \
       --state=/var/lib/tailscale/tailscaled.state \
       --socket=/var/run/tailscale/tailscaled.sock \
       --tun=tailscale0 &
@@ -83,12 +68,12 @@ data:
     fi
 
     echo "=== [tailscale] Bringing up tailscale ==="
-    /var/lib/tailscale/bin/tailscale --socket=/var/run/tailscale/tailscaled.sock up \
+    /tsbin/tailscale --socket=/var/run/tailscale/tailscaled.sock up \
       --authkey="${TS_AUTHKEY_MINECRAFT}" \
       --hostname=minecraft \
       --advertise-tags=tag:minecraft
 
-    TS_IP=$(/var/lib/tailscale/bin/tailscale --socket=/var/run/tailscale/tailscaled.sock ip -4)
+    TS_IP=$(/tsbin/tailscale --socket=/var/run/tailscale/tailscaled.sock ip -4)
     echo "=== [tailscale] UP — Tailscale IP: ${TS_IP} ==="
 
     echo "=== [crafty] Starting Crafty Controller ==="
@@ -116,6 +101,31 @@ spec:
         app: minecraft-server
     spec:
       serviceAccountName: minecraft-tailscale
+      initContainers:
+        # =====================================================================
+        # Init: Download tailscale binaries into shared volume
+        # Only downloads if not already cached from a previous run
+        # =====================================================================
+        - name: tailscale-install
+          image: alpine:latest
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              if [ -f /tsbin/tailscaled ] && [ -f /tsbin/tailscale ]; then
+                echo "Tailscale binaries already cached, skipping download"
+              else
+                echo "Downloading tailscale..."
+                wget -qO /tmp/tailscale.tgz https://pkgs.tailscale.com/stable/tailscale_latest_amd64.tgz
+                tar xzf /tmp/tailscale.tgz -C /tmp
+                mkdir -p /tsbin
+                cp /tmp/tailscale_*/tailscaled /tsbin/tailscaled
+                cp /tmp/tailscale_*/tailscale /tsbin/tailscale
+                chmod +x /tsbin/tailscaled /tsbin/tailscale
+                echo "Tailscale installed to /tsbin/"
+              fi
+          volumeMounts:
+            - name: tailscale-bin
+              mountPath: /tsbin
       containers:
         # =====================================================================
         # Single container: Crafty + Tailscale
@@ -165,6 +175,8 @@ spec:
               mountPath: /dev/net/tun
             - name: entrypoint
               mountPath: /entrypoint
+            - name: tailscale-bin
+              mountPath: /tsbin
           securityContext:
             privileged: true
           resources:
@@ -204,5 +216,7 @@ spec:
           configMap:
             name: crafty-entrypoint
             defaultMode: 0755
+        - name: tailscale-bin
+          emptyDir: {}
 
       terminationGracePeriodSeconds: 120
