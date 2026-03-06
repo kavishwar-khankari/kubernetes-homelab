@@ -126,11 +126,11 @@ spec:
         - name: tailscale
           image: ghcr.io/tailscale/tailscale:latest
           env:
-            - name: TS_AUTHKEY
+            - name: TS_AUTHKEY_MINECRAFT
               valueFrom:
                 secretKeyRef:
                   name: minecraft-doppler
-                  key: TS_AUTHKEY
+                  key: TS_AUTHKEY_MINECRAFT
             - name: TS_HOSTNAME
               value: "minecraft"
             - name: TS_STATE_DIR
