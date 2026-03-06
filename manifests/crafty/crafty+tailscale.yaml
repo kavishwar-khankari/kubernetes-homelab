@@ -1,5 +1,5 @@
 # =============================================================================
-# ServiceAccount + RBAC for Tailscale sidecar
+# ServiceAccount + RBAC for Tailscale
 # =============================================================================
 apiVersion: v1
 kind: ServiceAccount
@@ -34,6 +34,68 @@ roleRef:
   name: minecraft-tailscale
   apiGroup: rbac.authorization.k8s.io
 ---
+# =============================================================================
+# ConfigMap — Startup wrapper that runs tailscaled then Crafty
+# =============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: crafty-entrypoint
+  namespace: minecraft
+data:
+  start.sh: |
+    #!/bin/bash
+    set -e
+
+    echo "=== [tailscale] Installing tailscale ==="
+    # Install tailscale into persistent storage (only on first run)
+    if [ ! -f /var/lib/tailscale/bin/tailscaled ]; then
+      echo "Downloading tailscale..."
+      curl -fsSL https://pkgs.tailscale.com/stable/tailscale_latest_amd64.tgz | tar xz -C /tmp
+      mkdir -p /var/lib/tailscale/bin
+      cp /tmp/tailscale_*/tailscaled /var/lib/tailscale/bin/tailscaled
+      cp /tmp/tailscale_*/tailscale /var/lib/tailscale/bin/tailscale
+      rm -rf /tmp/tailscale_*
+      echo "Tailscale installed to /var/lib/tailscale/bin/"
+    else
+      echo "Tailscale already installed, skipping download"
+    fi
+
+    echo "=== [tailscale] Starting tailscaled in tun mode ==="
+    /var/lib/tailscale/bin/tailscaled \
+      --state=/var/lib/tailscale/tailscaled.state \
+      --socket=/var/run/tailscale/tailscaled.sock \
+      --tun=tailscale0 &
+
+    # Wait for tailscaled socket to be ready
+    echo "Waiting for tailscaled..."
+    for i in $(seq 1 30); do
+      if [ -S /var/run/tailscale/tailscaled.sock ]; then
+        break
+      fi
+      sleep 1
+    done
+
+    if [ ! -S /var/run/tailscale/tailscaled.sock ]; then
+      echo "ERROR: tailscaled did not start within 30s"
+      exit 1
+    fi
+
+    echo "=== [tailscale] Bringing up tailscale ==="
+    /var/lib/tailscale/bin/tailscale --socket=/var/run/tailscale/tailscaled.sock up \
+      --authkey="${TS_AUTHKEY_MINECRAFT}" \
+      --hostname=minecraft \
+      --advertise-tags=tag:minecraft
+
+    TS_IP=$(/var/lib/tailscale/bin/tailscale --socket=/var/run/tailscale/tailscaled.sock ip -4)
+    echo "=== [tailscale] UP — Tailscale IP: ${TS_IP} ==="
+
+    echo "=== [crafty] Starting Crafty Controller ==="
+    exec /crafty/docker_launcher.sh
+---
+# =============================================================================
+# StatefulSet — Crafty Controller with embedded Tailscale
+# =============================================================================
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -55,11 +117,14 @@ spec:
       serviceAccountName: minecraft-tailscale
       containers:
         # =====================================================================
-        # Container 1: Crafty Controller 4
-        # Web UI on 8443, game server on 25565
+        # Single container: Crafty + Tailscale
+        # tailscaled runs as a background process in tun mode.
+        # MC binds on 0.0.0.0:25565, directly reachable on tailscale0.
+        # No proxy, no netstack, no sidecar — pure kernel TCP.
         # =====================================================================
         - name: crafty
           image: registry.gitlab.com/crafty-controller/crafty-4:4.10.0
+          command: ["/bin/bash", "/entrypoint/start.sh"]
           ports:
             - containerPort: 8443
               name: web-ui
@@ -70,6 +135,11 @@ spec:
           env:
             - name: TZ
               value: "Asia/Kolkata"
+            - name: TS_AUTHKEY_MINECRAFT
+              valueFrom:
+                secretKeyRef:
+                  name: minecraft-doppler
+                  key: TS_AUTHKEY_MINECRAFT
           volumeMounts:
             - name: crafty-data
               mountPath: /crafty/backups
@@ -86,6 +156,16 @@ spec:
             - name: crafty-data
               mountPath: /crafty/import
               subPath: import
+            - name: tailscale-state
+              mountPath: /var/lib/tailscale
+            - name: tailscale-run
+              mountPath: /var/run/tailscale
+            - name: tun-device
+              mountPath: /dev/net/tun
+            - name: entrypoint
+              mountPath: /entrypoint
+          securityContext:
+            privileged: true
           resources:
             requests:
               memory: "4Gi"
@@ -96,60 +176,15 @@ spec:
           readinessProbe:
             tcpSocket:
               port: 8443
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60
             periodSeconds: 10
             failureThreshold: 12
           livenessProbe:
             tcpSocket:
               port: 8443
-            initialDelaySeconds: 60
+            initialDelaySeconds: 90
             periodSeconds: 30
             failureThreshold: 5
-
-        # =====================================================================
-        # Container 2: Tailscale Sidecar
-        # Runs in userspace networking mode. Automatically forwards all
-        # incoming Tailscale traffic to localhost — so connections to
-        # 100.65.x.x:25565 go straight to MC on localhost:25565.
-        # No tailscale serve, no netstack TCP proxy, no socat needed.
-        # =====================================================================
-        - name: tailscale
-          image: ghcr.io/tailscale/tailscale:latest
-          env:
-            - name: TS_AUTHKEY_MINECRAFT
-              valueFrom:
-                secretKeyRef:
-                  name: minecraft-doppler
-                  key: TS_AUTHKEY_MINECRAFT
-            - name: TS_HOSTNAME
-              value: "minecraft"
-            - name: TS_STATE_DIR
-              value: /var/lib/tailscale
-            - name: TS_USERSPACE
-              value: "true"
-            - name: TS_EXTRA_ARGS
-              value: "--advertise-tags=tag:minecraft"
-            - name: POD_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
-            - name: POD_UID
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.uid
-          volumeMounts:
-            - name: tailscale-state
-              mountPath: /var/lib/tailscale
-          securityContext:
-            capabilities:
-              add: ["NET_ADMIN"]
-          resources:
-            requests:
-              memory: "64Mi"
-              cpu: "50m"
-            limits:
-              memory: "128Mi"
-              cpu: "200m"
 
       volumes:
         - name: crafty-data
@@ -158,5 +193,15 @@ spec:
         - name: tailscale-state
           persistentVolumeClaim:
             claimName: tailscale-state
+        - name: tailscale-run
+          emptyDir: {}
+        - name: tun-device
+          hostPath:
+            path: /dev/net/tun
+            type: CharDevice
+        - name: entrypoint
+          configMap:
+            name: crafty-entrypoint
+            defaultMode: 0755
 
       terminationGracePeriodSeconds: 120
