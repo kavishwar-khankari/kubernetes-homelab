@@ -139,6 +139,8 @@ spec:
               value: /var/lib/tailscale
             - name: TS_ACCEPT_DNS
               value: "true"
+            - name: TS_DEST
+              value: "localhost:25565"
             - name: TS_EXTRA_ARGS
               value: "--advertise-tags=tag:minecraft"
             - name: POD_NAME
