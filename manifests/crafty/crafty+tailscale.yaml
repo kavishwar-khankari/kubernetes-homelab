@@ -35,51 +35,6 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 ---
 # =============================================================================
-# ConfigMap — Startup wrapper that runs tailscaled then Crafty
-# =============================================================================
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: crafty-entrypoint
-  namespace: minecraft
-data:
-  start.sh: |
-    #!/bin/bash
-    set -e
-
-    echo "=== [tailscale] Starting tailscaled in tun mode ==="
-    /tsbin/tailscaled \
-      --state=/var/lib/tailscale/tailscaled.state \
-      --socket=/var/run/tailscale/tailscaled.sock \
-      --tun=tailscale0 &
-
-    # Wait for tailscaled socket to be ready
-    echo "Waiting for tailscaled..."
-    for i in $(seq 1 30); do
-      if [ -S /var/run/tailscale/tailscaled.sock ]; then
-        break
-      fi
-      sleep 1
-    done
-
-    if [ ! -S /var/run/tailscale/tailscaled.sock ]; then
-      echo "ERROR: tailscaled did not start within 30s"
-      exit 1
-    fi
-
-    echo "=== [tailscale] Bringing up tailscale ==="
-    /tsbin/tailscale --socket=/var/run/tailscale/tailscaled.sock up \
-      --authkey="${TS_AUTHKEY_MINECRAFT}" \
-      --hostname=minecraft \
-      --advertise-tags=tag:minecraft
-
-    TS_IP=$(/tsbin/tailscale --socket=/var/run/tailscale/tailscaled.sock ip -4)
-    echo "=== [tailscale] UP — Tailscale IP: ${TS_IP} ==="
-
-    echo "=== [crafty] Starting Crafty Controller ==="
-    exec /crafty/docker_launcher.sh
----
-# =============================================================================
 # StatefulSet — Crafty Controller with embedded Tailscale
 # =============================================================================
 apiVersion: apps/v1
@@ -135,7 +90,32 @@ spec:
         # =====================================================================
         - name: crafty
           image: registry.gitlab.com/crafty-controller/crafty-4:4.10.0
-          command: ["/bin/bash", "/entrypoint/start.sh"]
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              echo "=== [tailscale] Starting tailscaled in tun mode ==="
+              /tsbin/tailscaled \
+                --state=/var/lib/tailscale/tailscaled.state \
+                --socket=/var/run/tailscale/tailscaled.sock \
+                --tun=tailscale0 &
+              echo "Waiting for tailscaled..."
+              i=0
+              while [ ! -S /var/run/tailscale/tailscaled.sock ] && [ $i -lt 30 ]; do
+                sleep 1
+                i=$((i+1))
+              done
+              if [ ! -S /var/run/tailscale/tailscaled.sock ]; then
+                echo "ERROR: tailscaled did not start"
+                exit 1
+              fi
+              echo "=== [tailscale] Bringing up tailscale ==="
+              /tsbin/tailscale --socket=/var/run/tailscale/tailscaled.sock up \
+                --authkey="${TS_AUTHKEY_MINECRAFT}" \
+                --hostname=minecraft \
+                --advertise-tags=tag:minecraft
+              echo "=== [tailscale] UP — IP: $(/tsbin/tailscale --socket=/var/run/tailscale/tailscaled.sock ip -4) ==="
+              echo "=== [crafty] Starting Crafty Controller ==="
+              exec /crafty/docker_launcher.sh
           ports:
             - containerPort: 8443
               name: web-ui
@@ -173,8 +153,6 @@ spec:
               mountPath: /var/run/tailscale
             - name: tun-device
               mountPath: /dev/net/tun
-            - name: entrypoint
-              mountPath: /entrypoint
             - name: tailscale-bin
               mountPath: /tsbin
           securityContext:
@@ -212,10 +190,6 @@ spec:
           hostPath:
             path: /dev/net/tun
             type: CharDevice
-        - name: entrypoint
-          configMap:
-            name: crafty-entrypoint
-            defaultMode: 0755
         - name: tailscale-bin
           emptyDir: {}
 
