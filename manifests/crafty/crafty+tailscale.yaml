@@ -51,11 +51,12 @@ data:
     # Install tailscale into persistent storage (only on first run)
     if [ ! -f /var/lib/tailscale/bin/tailscaled ]; then
       echo "Downloading tailscale..."
-      curl -fsSL https://pkgs.tailscale.com/stable/tailscale_latest_amd64.tgz | tar xz -C /tmp
+      wget -qO /tmp/tailscale.tgz https://pkgs.tailscale.com/stable/tailscale_latest_amd64.tgz
+      tar xzf /tmp/tailscale.tgz -C /tmp
       mkdir -p /var/lib/tailscale/bin
       cp /tmp/tailscale_*/tailscaled /var/lib/tailscale/bin/tailscaled
       cp /tmp/tailscale_*/tailscale /var/lib/tailscale/bin/tailscale
-      rm -rf /tmp/tailscale_*
+      rm -rf /tmp/tailscale_* /tmp/tailscale.tgz
       echo "Tailscale installed to /var/lib/tailscale/bin/"
     else
       echo "Tailscale already installed, skipping download"
