@@ -56,7 +56,7 @@ spec:
       containers:
         # =====================================================================
         # Container 1: Crafty Controller 4
-        # Web UI on 8443 (HTTPS), game server on 25566 (internal)
+        # Web UI on 8443, game server on 25565
         # =====================================================================
         - name: crafty
           image: registry.gitlab.com/crafty-controller/crafty-4:4.10.0
@@ -64,7 +64,7 @@ spec:
             - containerPort: 8443
               name: web-ui
               protocol: TCP
-            - containerPort: 25566
+            - containerPort: 25565
               name: minecraft
               protocol: TCP
           env:
@@ -108,8 +108,10 @@ spec:
 
         # =====================================================================
         # Container 2: Tailscale Sidecar
-        # Runs in tun mode — NO tailscale serve, NO netstack proxy.
-        # Just establishes the WireGuard tunnel. socat handles forwarding.
+        # Runs in userspace networking mode. Automatically forwards all
+        # incoming Tailscale traffic to localhost — so connections to
+        # 100.65.x.x:25565 go straight to MC on localhost:25565.
+        # No tailscale serve, no netstack TCP proxy, no socat needed.
         # =====================================================================
         - name: tailscale
           image: ghcr.io/tailscale/tailscale:latest
@@ -124,7 +126,7 @@ spec:
             - name: TS_STATE_DIR
               value: /var/lib/tailscale
             - name: TS_USERSPACE
-              value: "false"
+              value: "true"
             - name: TS_EXTRA_ARGS
               value: "--advertise-tags=tag:minecraft"
             - name: POD_NAME
@@ -138,8 +140,6 @@ spec:
           volumeMounts:
             - name: tailscale-state
               mountPath: /var/lib/tailscale
-            - name: tun-device
-              mountPath: /dev/net/tun
           securityContext:
             capabilities:
               add: ["NET_ADMIN"]
@@ -151,31 +151,6 @@ spec:
               memory: "128Mi"
               cpu: "200m"
 
-        # =====================================================================
-        # Container 3: socat TCP forwarder
-        # Listens on 25565 (what friends connect to via Tailscale IP)
-        # Forwards to 127.0.0.1:25566 (where Minecraft actually listens)
-        # Uses kernel TCP stack — no netstack, no packet drops.
-        # =====================================================================
-        - name: socat-forwarder
-          image: alpine/socat:latest
-          command: ["/bin/sh", "-c"]
-          args:
-            - |
-              echo "Waiting for tailscale0 interface..."
-              while ! ip addr show tailscale0 2>/dev/null | grep -q "inet "; do
-                sleep 2
-              done
-              echo "tailscale0 is up, starting TCP forwarder on port 25565"
-              exec socat TCP-LISTEN:25565,fork,reuseaddr TCP:127.0.0.1:25566
-          resources:
-            requests:
-              memory: "16Mi"
-              cpu: "10m"
-            limits:
-              memory: "32Mi"
-              cpu: "100m"
-
       volumes:
         - name: crafty-data
           persistentVolumeClaim:
@@ -183,9 +158,5 @@ spec:
         - name: tailscale-state
           persistentVolumeClaim:
             claimName: tailscale-state
-        - name: tun-device
-          hostPath:
-            path: /dev/net/tun
-            type: CharDevice
 
       terminationGracePeriodSeconds: 120
