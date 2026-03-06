@@ -126,21 +126,20 @@ spec:
         - name: tailscale
           image: ghcr.io/tailscale/tailscale:latest
           env:
-            - name: TS_AUTHKEY_MINECRAFT
+            - name: TS_AUTHKEY
               valueFrom:
                 secretKeyRef:
                   name: minecraft-doppler
-                  key: TS_AUTHKEY_MINECRAFT
+                  key: TS_AUTHKEY
             - name: TS_HOSTNAME
               value: "minecraft"
-            - name: TS_USERSPACE
-              value: "false"
             - name: TS_STATE_DIR
               value: /var/lib/tailscale
-            - name: TS_ACCEPT_DNS
-              value: "true"
-            - name: TS_DEST
-              value: "localhost:25565"
+            - name: TS_SERVE_CONFIG
+              value: /config/serve.json
+            - name: TS_USERSPACE
+              value: "false"
+            # NO TS_DEST — that's the key change
             - name: TS_EXTRA_ARGS
               value: "--advertise-tags=tag:minecraft"
             - name: POD_NAME
@@ -151,16 +150,16 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.uid
-          securityContext:
-            capabilities:
-              add:
-                - NET_ADMIN
-                - NET_RAW
           volumeMounts:
             - name: tailscale-state
               mountPath: /var/lib/tailscale
+            - name: tailscale-serve-config
+              mountPath: /config
             - name: tun-device
               mountPath: /dev/net/tun
+          securityContext:
+            capabilities:
+              add: ["NET_ADMIN"]
           resources:
             requests:
               memory: "64Mi"
@@ -176,6 +175,9 @@ spec:
         - name: tailscale-state
           persistentVolumeClaim:
             claimName: tailscale-state
+        - name: tailscale-serve-config
+          configMap:
+            name: tailscale-serve-config        
         - name: tun-device
           hostPath:
             path: /dev/net/tun
@@ -183,4 +185,3 @@ spec:
 
       # Give Crafty time to gracefully stop the MC server and save world
       terminationGracePeriodSeconds: 120
----
