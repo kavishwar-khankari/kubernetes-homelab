@@ -1,4 +1,3 @@
-# tailscale/daemonset.yaml
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -17,6 +16,13 @@ spec:
     spec:
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: minecraft-server
+                    operator: DoesNotExist
       containers:
         - name: tailscale
           image: tailscale/tailscale:latest
