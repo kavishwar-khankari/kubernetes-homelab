@@ -41,3 +41,21 @@ spec:
       targetPort: 8443
       name: web-ui
       protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minecraft-lan
+  namespace: minecraft
+  labels:
+    app: minecraft-server
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 192.168.0.41
+  selector:
+    app: minecraft-server
+  ports:
+    - port: 25565
+      targetPort: 25565
+      name: minecraft
+      protocol: TCP
