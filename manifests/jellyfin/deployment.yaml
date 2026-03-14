@@ -116,8 +116,9 @@ spec:
           medium: Memory
           sizeLimit: 3Gi
       - name: media2-media
-        persistentVolumeClaim:
-          claimName: jellyfin-media2-media
+        hostPath:
+          path: /mnt/merged/media
+          type: Directory
 
       - name: threadfin-config
         persistentVolumeClaim:
