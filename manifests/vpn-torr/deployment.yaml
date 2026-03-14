@@ -135,6 +135,7 @@ spec:
               mountPath: /config
             - name: media-nas
               mountPath: /media_2
+              mountPropagation: HostToContainer
 
         - name: prowlarr
           image: lscr.io/linuxserver/prowlarr:latest
