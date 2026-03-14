@@ -19,7 +19,6 @@ spec:
       securityContext:
         fsGroup: 1000
         fsGroupChangePolicy: "OnRootMismatch"
-
       containers:
       - name: tdarr-server
         image: ghcr.io/haveagitgat/tdarr:latest
@@ -55,8 +54,9 @@ spec:
           mountPath: /app/configs
         - name: logs
           mountPath: /app/logs
-        - name: media
+        - name: media-nas
           mountPath: /media
+          mountPropagation: HostToContainer
         resources:
           requests:
             memory: 512Mi
@@ -83,12 +83,11 @@ spec:
           initialDelaySeconds: 30
           periodSeconds: 60
           failureThreshold: 4
-
       volumes:
-      - name: media
-        persistentVolumeClaim:
-          claimName: tdarr-media2-media
-
+      - name: media-nas
+        hostPath:
+          path: /mnt/nas/media
+          type: Directory
   volumeClaimTemplates:
   - metadata:
       name: server
