@@ -28,10 +28,6 @@ spec:
 
       terminationGracePeriodSeconds: 30
 
-      # If you run into permission issues on PVCs, set fsGroup to match your PUID/PGID.
-      # securityContext:
-      #   fsGroup: 1000
-
       containers:
         - name: gluetun
           image: qmcgaw/gluetun:latest
@@ -41,7 +37,6 @@ spec:
             capabilities:
               add: ["NET_ADMIN"]
           env:
-            # --- Your compose env vars ---
             - name: HTTPPROXY
               value: "on"
             - name: SHADOWSOCKS
@@ -88,22 +83,12 @@ spec:
               value: "25s"
             - name: DNS_KEEP_NAMESERVER
               value: "on"
-
-
-
-            # --- K8s-specific firewall allows (important) ---
-            # Allow inbound access to the pod for UIs/proxies (since gluetun firewall may block)
             - name: FIREWALL_INPUT_PORTS
               value: "9090,9696,8191,8888,8388,9999,6881"
-            # Allow the VPN pod to reach your LAN + Kubernetes network ranges
-            # Replace with your actual LAN + Pod CIDR + Service CIDR
             - name: FIREWALL_OUTBOUND_SUBNETS
               value: "192.168.0.0/24,10.42.0.0/16,10.43.0.0/16"
-
-            # Optional: set timezone for logs
             - name: TZ
               value: "Asia/Kolkata"
-
           ports:
             - name: http-proxy
               containerPort: 8888
@@ -117,8 +102,6 @@ spec:
             - name: health
               containerPort: 9999
               protocol: TCP
-
-
           volumeMounts:
             - name: dev-tun
               mountPath: /dev/net/tun
@@ -135,7 +118,6 @@ spec:
               value: "Asia/Kolkata"
             - name: WEBUI_PORT
               value: "9090"
-            # Keep torrent listen port aligned with FIREWALL_VPN_INPUT_PORTS
             - name: TORRENTING_PORT
               value: "6881"
           ports:
@@ -151,8 +133,9 @@ spec:
           volumeMounts:
             - name: qbittorrent-config
               mountPath: /config
-            - name: qbittorrent-downloads
+            - name: media-nas
               mountPath: /media_2
+              mountPropagation: HostToContainer
 
         - name: prowlarr
           image: lscr.io/linuxserver/prowlarr:latest
@@ -193,10 +176,10 @@ spec:
         - name: qbittorrent-config
           persistentVolumeClaim:
             claimName: qbittorrent-config
-        - name: qbittorrent-downloads
-          persistentVolumeClaim:
-            claimName: qbittorrent-downloads
+        - name: media-nas
+          hostPath:
+            path: /mnt/nas/media
+            type: Directory
         - name: prowlarr-config
           persistentVolumeClaim:
             claimName: prowlarr-config
-

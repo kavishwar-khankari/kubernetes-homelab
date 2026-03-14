@@ -23,7 +23,6 @@ spec:
         supplementalGroups:
           - 44   # video
           - 993  # render
-
       containers:
       - name: tdarr-node
         image: ghcr.io/haveagitgat/tdarr_node:latest
@@ -48,19 +47,20 @@ spec:
         volumeMounts:
         - name: cache
           mountPath: /temp
-        - name: media
+        - name: media-nas
           mountPath: /media
+          mountPropagation: HostToContainer
         resources:
           requests:
             memory: 512Mi
             cpu: 250m
           limits:
             gpu.intel.com/xe: 1
-
       volumes:
       - name: cache
         persistentVolumeClaim:
           claimName: tdarr-cache
-      - name: media
-        persistentVolumeClaim:
-          claimName: tdarr-media2-media
+      - name: media-nas
+        hostPath:
+          path: /mnt/nas/media
+          type: Directory
