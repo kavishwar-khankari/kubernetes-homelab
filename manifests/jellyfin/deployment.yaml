@@ -73,6 +73,7 @@ spec:
         - name: media2-media
           mountPath: /media_2
           readOnly: true
+          mountPropagation: Bidirectional
         resources:
           limits:
             gpu.intel.com/xe: '1'
@@ -119,7 +120,6 @@ spec:
         hostPath:
           path: /mnt/merged/media
           type: Directory
-          mountPropagation: Bidirectional
 
       - name: threadfin-config
         persistentVolumeClaim:
