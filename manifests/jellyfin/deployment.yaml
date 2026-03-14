@@ -75,7 +75,7 @@ spec:
           readOnly: true
         resources:
           limits:
-            gpu.intel.com/xe: 1
+            gpu.intel.com/xe: '1'
 
 
       - name: threadfin
