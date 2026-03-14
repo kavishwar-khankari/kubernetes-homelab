@@ -35,7 +35,7 @@ spec:
             port: 8096
             scheme: HTTP
           periodSeconds: 10
-          failureThreshold: 15
+          failureThreshold: 150
         readinessProbe:
           httpGet:
             path: /health
