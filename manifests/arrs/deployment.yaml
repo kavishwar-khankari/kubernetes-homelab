@@ -35,6 +35,7 @@ spec:
           volumeMounts:
             - name: media-nas
               mountPath: /share
+              mountPropagation: HostToContainer
       containers:
         - name: jdownloader2
           image: jlesage/jdownloader-2:latest
@@ -54,6 +55,7 @@ spec:
               mountPath: /config
             - name: media-nas
               mountPath: /output_2
+              mountPropagation: HostToContainer
           readinessProbe:
             tcpSocket:
               port: 5800
@@ -85,9 +87,11 @@ spec:
               mountPath: /config
             - name: media-merged
               mountPath: /media_2
+              mountPropagation: HostToContainer
             - name: media-merged
               mountPath: /downloads
               subPath: qbittorent
+              mountPropagation: HostToContainer
           readinessProbe:
             tcpSocket:
               port: 7878
@@ -119,9 +123,11 @@ spec:
               mountPath: /config
             - name: media-merged
               mountPath: /media_2
+              mountPropagation: HostToContainer
             - name: media-merged
               mountPath: /downloads
               subPath: qbittorent
+              mountPropagation: HostToContainer
           readinessProbe:
             tcpSocket:
               port: 8989
@@ -153,9 +159,11 @@ spec:
               mountPath: /config
             - name: media-merged
               mountPath: /media_2
+              mountPropagation: HostToContainer
             - name: media-merged
               mountPath: /downloads
               subPath: qbittorent
+              mountPropagation: HostToContainer
           readinessProbe:
             tcpSocket:
               port: 8686
