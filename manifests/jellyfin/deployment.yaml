@@ -119,6 +119,7 @@ spec:
         hostPath:
           path: /mnt/merged/media
           type: Directory
+          mountPropagation: Bidirectional
 
       - name: threadfin-config
         persistentVolumeClaim:
