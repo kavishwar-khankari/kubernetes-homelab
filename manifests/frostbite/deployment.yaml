@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frostbite
+  namespace: frostbite
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: frostbite
+  template:
+    metadata:
+      labels:
+        app: frostbite
+    spec:
+      # hostNetwork required — Frostbite talks to rclone RC daemons on
+      # 127.0.0.1:5572 (transfers) and 127.0.0.1:5573 (VFS cache).
+      # Pod must be scheduled on the node that runs those daemons.
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+
+      containers:
+        - name: frostbite
+          image: coooolkpk/frostbite:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+              name: http
+
+          env:
+            - name: TZ
+              value: "Asia/Kolkata"
+
+          envFrom:
+            - secretRef:
+                name: frostbite-secrets
+
+          volumeMounts:
+            - name: merged-media
+              mountPath: /mnt/merged/media
+              mountPropagation: HostToContainer
+            - name: nas-media
+              mountPath: /mnt/nas/media
+              mountPropagation: HostToContainer
+
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            periodSeconds: 10
+            failureThreshold: 30   # 5 minutes for migrations to run on first deploy
+
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 4
+
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 60
+            failureThreshold: 4
+
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 100m
+            limits:
+              memory: 1Gi
+              cpu: 1000m
+
+      volumes:
+        - name: merged-media
+          hostPath:
+            path: /mnt/merged/media
+            type: Directory
+        - name: nas-media
+          hostPath:
+            path: /mnt/nas/media
+            type: Directory
