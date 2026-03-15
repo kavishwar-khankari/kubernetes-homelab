@@ -27,7 +27,7 @@ spec:
 
       containers:
         - name: frostbite
-          image: coooolkpk/frostbite:14ec2c4
+          image: coooolkpk/frostbite:e5c41cd
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
