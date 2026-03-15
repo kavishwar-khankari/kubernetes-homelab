@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: frostbite-service
+  namespace: frostbite
+spec:
+  type: ClusterIP
+  ipFamilyPolicy: PreferDualStack
+  ipFamilies:
+    - IPv4
+    - IPv6
+  selector:
+    app: frostbite
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
