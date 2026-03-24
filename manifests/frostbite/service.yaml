@@ -6,10 +6,9 @@ metadata:
 spec:
   type: ClusterIP
   clusterIP: None
-  ipFamilyPolicy: PreferDualStack
+  ipFamilyPolicy: SingleStack
   ipFamilies:
     - IPv4
-    - IPv6
   selector:
     app: frostbite
   ports:
