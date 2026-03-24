@@ -5,6 +5,7 @@ metadata:
   namespace: frostbite
 spec:
   type: ClusterIP
+  clusterIP: None
   ipFamilyPolicy: PreferDualStack
   ipFamilies:
     - IPv4
