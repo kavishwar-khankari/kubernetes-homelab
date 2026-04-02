@@ -29,16 +29,6 @@ spec:
                 name: arr-stack-service
                 port:
                   number: 7878
-    - host: jdownloader2.techtronics.top
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: arr-stack-service
-                port:
-                  number: 5800
     - host: lidarr.techtronics.top
       http:
         paths:

@@ -33,6 +33,19 @@ spec:
       port: 9696
       targetPort: 9696
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jdownloader2
+  namespace: vpn-torr
+spec:
+  selector:
+    app: vpn-torrent
+  ports:
+    - name: http
+      port: 5800
+      targetPort: 5800
+---
 # Optional: access FlareSolverr directly (Prowlarr can also use http://localhost:8191)
 apiVersion: v1
 kind: Service

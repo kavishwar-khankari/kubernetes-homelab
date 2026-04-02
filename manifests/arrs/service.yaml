@@ -7,9 +7,6 @@ spec:
   selector:
     app: arr-stack
   ports:
-    - name: jdownloader2
-      port: 5800
-      targetPort: 5800
     - name: radarr
       port: 7878
       targetPort: 7878

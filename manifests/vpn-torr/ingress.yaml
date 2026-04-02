@@ -19,6 +19,16 @@ spec:
                 name: qbittorrent
                 port:
                   number: 9090
+    - host: jdownloader2.techtronics.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: jdownloader2
+                port:
+                  number: 5800
     - host: prowlarr.techtronics.top
       http:
         paths:
