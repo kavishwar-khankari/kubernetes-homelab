@@ -78,7 +78,7 @@ spec:
             - name: FIREWALL_OUTBOUND_SUBNETS_IPV6
               value: "::/0"
             - name: WIREGUARD_MTU
-              value: "1280"
+              value: "1420"
             - name: WIREGUARD_PERSISTENT_KEEPALIVE_INTERVAL
               value: "25s"
             - name: DNS_KEEP_NAMESERVER
