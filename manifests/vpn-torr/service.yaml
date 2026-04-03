@@ -59,20 +59,6 @@ spec:
       port: 6500
       targetPort: 6500
 ---
-# Optional: access FlareSolverr directly (Prowlarr can also use http://localhost:8191)
-apiVersion: v1
-kind: Service
-metadata:
-  name: flaresolverr
-  namespace: vpn-torr
-spec:
-  selector:
-    app: vpn-torr
-  ports:
-    - name: http
-      port: 8191
-      targetPort: 8191
----
 # Optional: expose gluetun proxy/health inside the cluster
 apiVersion: v1
 kind: Service

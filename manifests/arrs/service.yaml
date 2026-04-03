@@ -22,3 +22,6 @@ spec:
     - name: jellyseerr
       port: 5055
       targetPort: 5055
+    - name: flaresolverr
+      port: 8191
+      targetPort: 8191

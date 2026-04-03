@@ -84,7 +84,7 @@ spec:
             - name: DNS_KEEP_NAMESERVER
               value: "on"
             - name: FIREWALL_INPUT_PORTS
-              value: "9090,9696,8191,8888,8388,9999,6881,5800,6500"
+              value: "9090,9696,8888,8388,9999,6881,5800,6500"
             - name: FIREWALL_OUTBOUND_SUBNETS
               value: "192.168.0.0/24,10.42.0.0/16,10.43.0.0/16"
             - name: TZ
@@ -209,18 +209,6 @@ spec:
               subPath: rdtclient
               mountPropagation: HostToContainer
 
-        - name: flaresolverr
-          image: ghcr.io/flaresolverr/flaresolverr:latest
-          imagePullPolicy: IfNotPresent
-          env:
-            - name: TZ
-              value: "Asia/Kolkata"
-            - name: LOG_LEVEL
-              value: "info"
-          ports:
-            - name: flaresolverr
-              containerPort: 8191
-              protocol: TCP
 
       volumes:
         - name: dev-tun

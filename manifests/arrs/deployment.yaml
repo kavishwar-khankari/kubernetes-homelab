@@ -213,6 +213,19 @@ spec:
             periodSeconds: 20
             failureThreshold: 6
 
+        - name: flaresolverr
+          image: ghcr.io/flaresolverr/flaresolverr:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: TZ
+              value: "Asia/Kolkata"
+            - name: LOG_LEVEL
+              value: "info"
+          ports:
+            - name: flaresolverr
+              containerPort: 8191
+              protocol: TCP
+
       volumes:
         - name: radarr-config
           persistentVolumeClaim:
