@@ -84,7 +84,7 @@ spec:
             - name: DNS_KEEP_NAMESERVER
               value: "on"
             - name: FIREWALL_INPUT_PORTS
-              value: "9090,9696,8191,8888,8388,9999,6881,5800"
+              value: "9090,9696,8191,8888,8388,9999,6881,5800,6500"
             - name: FIREWALL_OUTBOUND_SUBNETS
               value: "192.168.0.0/24,10.42.0.0/16,10.43.0.0/16"
             - name: TZ
@@ -187,6 +187,28 @@ spec:
             periodSeconds: 20
             failureThreshold: 6
 
+        - name: rdtclient
+          image: rogerfar/rdtclient@sha256:f10b0891dd2365022b7992bb7fa685ce489fe21153c61cf429d77420a52447ba  # v2.0.127
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: rdtclient
+              containerPort: 6500
+              protocol: TCP
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "Asia/Kolkata"
+          volumeMounts:
+            - name: rdtclient-db
+              mountPath: /data/db
+            - name: media-nas
+              mountPath: /data/downloads
+              subPath: rdtclient
+              mountPropagation: HostToContainer
+
         - name: flaresolverr
           image: ghcr.io/flaresolverr/flaresolverr:latest
           imagePullPolicy: IfNotPresent
@@ -218,3 +240,6 @@ spec:
         - name: jdownloader-config
           persistentVolumeClaim:
             claimName: jdownloader-config
+        - name: rdtclient-db
+          persistentVolumeClaim:
+            claimName: rdtclient-db

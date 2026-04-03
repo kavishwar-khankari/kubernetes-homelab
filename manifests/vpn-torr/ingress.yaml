@@ -29,6 +29,16 @@ spec:
                 name: jdownloader2
                 port:
                   number: 5800
+    - host: rdtclient.techtronics.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rdtclient
+                port:
+                  number: 6500
     - host: prowlarr.techtronics.top
       http:
         paths:

@@ -46,6 +46,19 @@ spec:
       port: 5800
       targetPort: 5800
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rdtclient
+  namespace: vpn-torr
+spec:
+  selector:
+    app: vpn-torrent
+  ports:
+    - name: http
+      port: 6500
+      targetPort: 6500
+---
 # Optional: access FlareSolverr directly (Prowlarr can also use http://localhost:8191)
 apiVersion: v1
 kind: Service

@@ -60,6 +60,9 @@ spec:
               mountPath: /downloads
               subPath: qbittorent
               mountPropagation: HostToContainer
+            - name: rdtclient-downloads
+              mountPath: /rdtclient-downloads
+              mountPropagation: HostToContainer
           readinessProbe:
             tcpSocket:
               port: 7878
@@ -96,6 +99,9 @@ spec:
               mountPath: /downloads
               subPath: qbittorent
               mountPropagation: HostToContainer
+            - name: rdtclient-downloads
+              mountPath: /rdtclient-downloads
+              mountPropagation: HostToContainer
           readinessProbe:
             tcpSocket:
               port: 8989
@@ -131,6 +137,9 @@ spec:
             - name: media-merged
               mountPath: /downloads
               subPath: qbittorent
+              mountPropagation: HostToContainer
+            - name: rdtclient-downloads
+              mountPath: /rdtclient-downloads
               mountPropagation: HostToContainer
           readinessProbe:
             tcpSocket:
@@ -228,3 +237,7 @@ spec:
           hostPath:
             path: /mnt/nas/media
             type: Directory
+        - name: rdtclient-downloads
+          hostPath:
+            path: /mnt/nas/media/rdtclient
+            type: DirectoryOrCreate
