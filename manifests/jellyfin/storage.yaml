@@ -16,6 +16,18 @@ spec:
       storage: 100Gi
 ---
 apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: meilisearch-data
+  namespace: jellyfin
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: jellyfin-media2-media-pv
@@ -68,6 +80,5 @@ spec:
     requests:
       storage: 2Gi
   storageClassName: longhorn
-
 
 
