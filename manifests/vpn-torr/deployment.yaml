@@ -233,7 +233,7 @@ spec:
             - name: DISK_CACHE
               value: "1024M"
             - name: IPV6_MODE
-              value: "true"
+              value: "false"
             - name: UPDATE_TRACKERS
               value: "true"
           ports:
