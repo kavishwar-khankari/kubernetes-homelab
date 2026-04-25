@@ -72,7 +72,7 @@ spec:
             - name: FIREWALL_VPN_INPUT_PORTS
               value: "6881,6888"
             - name: IPV6
-              value: "off"
+              value: "on"
             - name: BLOCK_IPV6
               value: "off"
             - name: FIREWALL_OUTBOUND_SUBNETS_IPV6
@@ -233,7 +233,7 @@ spec:
             - name: DISK_CACHE
               value: "1024M"
             - name: IPV6_MODE
-              value: "false"
+              value: "true"
             - name: UPDATE_TRACKERS
               value: "true"
           ports:
