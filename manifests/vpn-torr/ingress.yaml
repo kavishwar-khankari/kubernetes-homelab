@@ -49,3 +49,23 @@ spec:
                 name: prowlarr
                 port:
                   number: 9696
+    - host: ariang.techtronics.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ariang
+                port:
+                  number: 6880
+    - host: aria2.techtronics.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: aria2
+                port:
+                  number: 6800

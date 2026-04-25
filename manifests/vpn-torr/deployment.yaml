@@ -70,7 +70,7 @@ spec:
             - name: WIREGUARD_ADDRESSES
               value: "10.66.66.3/32,fd42:42:42::3/128,2603:c021:4000:8b7b::3/128"
             - name: FIREWALL_VPN_INPUT_PORTS
-              value: "6881"
+              value: "6881,6888"
             - name: IPV6
               value: "on"
             - name: BLOCK_IPV6
@@ -84,7 +84,7 @@ spec:
             - name: DNS_KEEP_NAMESERVER
               value: "on"
             - name: FIREWALL_INPUT_PORTS
-              value: "9090,9696,8888,8388,9999,6881,5800,6500"
+              value: "9090,9696,8888,8388,9999,6881,5800,6500,6800,6880"
             - name: FIREWALL_OUTBOUND_SUBNETS
               value: "192.168.0.0/24,10.42.0.0/16,10.43.0.0/16"
             - name: TZ
@@ -209,6 +209,77 @@ spec:
               subPath: rdtclient
               mountPropagation: HostToContainer
 
+        - name: aria2
+          image: p3terx/aria2-pro:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: UMASK_SET
+              value: "022"
+            - name: TZ
+              value: "Asia/Kolkata"
+            - name: RPC_PORT
+              value: "6800"
+            - name: LISTEN_PORT
+              value: "6888"
+            - name: RPC_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: vpn-torr-secrets
+                  key: ARIA2_RPC_SECRET
+            - name: DISK_CACHE
+              value: "64M"
+            - name: IPV6_MODE
+              value: "true"
+            - name: UPDATE_TRACKERS
+              value: "true"
+          ports:
+            - name: aria2-rpc
+              containerPort: 6800
+              protocol: TCP
+            - name: aria2-bt-tcp
+              containerPort: 6888
+              protocol: TCP
+            - name: aria2-bt-udp
+              containerPort: 6888
+              protocol: UDP
+          volumeMounts:
+            - name: aria2-config
+              mountPath: /config
+            - name: media-nas
+              mountPath: /data/downloads
+              subPath: rdtclient
+              mountPropagation: HostToContainer
+          readinessProbe:
+            tcpSocket:
+              port: 6800
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            tcpSocket:
+              port: 6800
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            failureThreshold: 6
+
+        - name: ariang
+          image: p3terx/ariang:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: ariang
+              containerPort: 6880
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: 6880
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 6
+
 
       volumes:
         - name: dev-tun
@@ -231,3 +302,6 @@ spec:
         - name: rdtclient-db
           persistentVolumeClaim:
             claimName: rdtclient-db
+        - name: aria2-config
+          persistentVolumeClaim:
+            claimName: aria2-config

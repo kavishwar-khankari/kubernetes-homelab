@@ -59,6 +59,33 @@ spec:
       port: 6500
       targetPort: 6500
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aria2
+  namespace: vpn-torr
+spec:
+  selector:
+    app: vpn-torrent
+  ports:
+    - name: rpc
+      port: 6800
+      targetPort: 6800
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ariang
+  namespace: vpn-torr
+spec:
+  selector:
+    app: vpn-torrent
+  ports:
+    - name: http
+      port: 6880
+      targetPort: 6880
+---
 # Optional: expose gluetun proxy/health inside the cluster
 apiVersion: v1
 kind: Service
