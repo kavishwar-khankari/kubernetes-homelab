@@ -68,17 +68,17 @@ spec:
                   name: vpn-torr-secrets
                   key: WIREGUARD_PRESHARED_KEY
             - name: WIREGUARD_ADDRESSES
-              value: "10.66.66.3/32"      # fd42:42:42::3/128,2603:c021:4000:8b7b::3/128
+              value: "10.66.66.3/32,fd42:42:42::3/128,2603:c021:4000:8b7b::3/128"
             - name: FIREWALL_VPN_INPUT_PORTS
               value: "6881,6888"
             - name: IPV6
-              value: "off"
+              value: "on"
             - name: BLOCK_IPV6
               value: "off"
             - name: FIREWALL_OUTBOUND_SUBNETS_IPV6
               value: "::/0"
             - name: WIREGUARD_MTU
-              value: "1280"
+              value: "1400"
             - name: WIREGUARD_PERSISTENT_KEEPALIVE_INTERVAL
               value: "25s"
             - name: DNS_KEEP_NAMESERVER
@@ -233,7 +233,7 @@ spec:
             - name: DISK_CACHE
               value: "1024M"
             - name: IPV6_MODE
-              value: "false"
+              value: "true"
             - name: UPDATE_TRACKERS
               value: "true"
           ports:
