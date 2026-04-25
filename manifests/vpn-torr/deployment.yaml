@@ -68,7 +68,7 @@ spec:
                   name: vpn-torr-secrets
                   key: WIREGUARD_PRESHARED_KEY
             - name: WIREGUARD_ADDRESSES
-              value: "10.66.66.3/32,fd42:42:42::3/128,2603:c021:4000:8b7b::3/128"
+              value: "10.66.66.3/32"      # fd42:42:42::3/128,2603:c021:4000:8b7b::3/128
             - name: FIREWALL_VPN_INPUT_PORTS
               value: "6881,6888"
             - name: IPV6
