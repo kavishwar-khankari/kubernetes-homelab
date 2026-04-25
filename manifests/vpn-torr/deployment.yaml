@@ -230,8 +230,6 @@ spec:
                 secretKeyRef:
                   name: vpn-torr-secrets
                   key: ARIA2_RPC_SECRET
-            - name: DISK_CACHE
-              value: "64M"
             - name: IPV6_MODE
               value: "true"
             - name: UPDATE_TRACKERS
