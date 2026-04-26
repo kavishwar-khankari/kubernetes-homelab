@@ -9,9 +9,6 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-request-buffering: "off" # Disable request buffering for better performance, avoids buffering huge uploads.
 spec:
   ingressClassName: nginx
-  tls:
-    - hosts:
-        - immich.techtronics.top
   rules:
     - host: immich.techtronics.top
       http:
