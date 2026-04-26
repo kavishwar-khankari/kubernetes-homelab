@@ -1,4 +1,4 @@
-replicaCount: 3
+replicaCount: 1
 
 name: librespeed
 
@@ -32,9 +32,6 @@ ingress:
         - path: /
           pathType: Prefix
   #tls: []
-  tls:
-    hosts:
-      - librespeed.techtronics.top
 
 
 
