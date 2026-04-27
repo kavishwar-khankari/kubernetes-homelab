@@ -6,9 +6,6 @@ metadata:
   annotations: {{ .Values.ingress.annotations | toYaml | nindent 4 }}
 spec:
   ingressClassName: {{ .Values.ingress.className | quote }}
-  tls:
-    - hosts:
-        - librespeed.techtronics.top
   rules:
     {{- range .Values.ingress.hosts }}
     - host: {{ .host | quote }}
