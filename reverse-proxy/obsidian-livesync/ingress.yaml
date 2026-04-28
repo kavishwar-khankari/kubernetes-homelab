@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: obsidian-livesync-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "256m" # LiveSync chunks attachments; single PUT can still be large
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600" # long-poll _changes feed for live replication
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/server-snippet: |
+      more_clear_headers Server;
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - ob-lsync.techtronics.top
+  rules:
+    - host: ob-lsync.techtronics.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: couchdb-service
+                port:
+                  name: http
