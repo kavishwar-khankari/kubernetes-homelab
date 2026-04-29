@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: vaultwarden
-          image: vaultwarden/server@sha256:a8ab79da87a8f9b11ed484d85f41a24710a9a6020a637ed78bceaf2e8ad6d7f2 # latest at time of migration from Portainer
+          image: vaultwarden/server@sha256:c4f6056fe0c288a052a223cecd263a90d1dda1a0177bb5b054a363a6c7b211d9 # v1.35.8
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
