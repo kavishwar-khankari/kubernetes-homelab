@@ -15,11 +15,6 @@ spec:
       labels:
         app: dashy
     spec:
-      securityContext:
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
-        fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: dashy
           image: lissy93/dashy@sha256:8166e7e269abbe8e9244748a1a3fb8070d934cfa3f7d121e68084b9b16c8594b # v3.2.4
