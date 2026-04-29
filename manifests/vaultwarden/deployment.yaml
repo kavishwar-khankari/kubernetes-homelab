@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vaultwarden
+  namespace: vaultwarden
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: vaultwarden
+  template:
+    metadata:
+      labels:
+        app: vaultwarden
+    spec:
+      containers:
+        - name: vaultwarden
+          image: vaultwarden/server@sha256:a8ab79da87a8f9b11ed484d85f41a24710a9a6020a637ed78bceaf2e8ad6d7f2 # latest at time of migration from Portainer
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+          env:
+            - name: DOMAIN
+              value: https://vaultwarden.techtronics.top
+            - name: ROCKET_PORT
+              value: "80"
+            - name: ROCKET_ADDRESS
+              value: 0.0.0.0
+            - name: SIGNUPS_ALLOWED
+              value: "false"
+            - name: INVITATIONS_ALLOWED
+              value: "true"
+            - name: WEBSOCKET_ENABLED
+              value: "true"
+            - name: LOG_LEVEL
+              value: warn
+            - name: TZ
+              value: Asia/Kolkata
+          envFrom:
+            - secretRef:
+                name: vaultwarden-secrets
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          startupProbe:
+            httpGet:
+              path: /alive
+              port: 80
+            periodSeconds: 5
+            failureThreshold: 12
+          readinessProbe:
+            httpGet:
+              path: /alive
+              port: 80
+            periodSeconds: 10
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /alive
+              port: 80
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: 64Mi
+              cpu: 50m
+            limits:
+              memory: 256Mi
+              cpu: 500m
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: vaultwarden-data
