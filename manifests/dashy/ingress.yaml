@@ -1,7 +1,8 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: dashy-ingress
+  name: dashy
+  namespace: dashy
 spec:
   ingressClassName: nginx
   tls:
@@ -15,6 +16,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: dashy-service
+                name: dashy
                 port:
-                  name: http
+                  number: 80

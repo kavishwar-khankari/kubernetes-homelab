@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dashy
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dashy-config
+  namespace: dashy
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 200Mi

@@ -1,0 +1,462 @@
+appConfig:
+  theme: dashy-docs
+  language: en
+  layout: horizontal
+  iconSize: large
+pageInfo:
+  title: Dashy
+  description: My dashboard
+  navLinks:
+    - title: GitHub
+      path: https://github.com/Lissy93/dashy
+      target: newtab
+    - title: Documentation
+      path: https://dashy.to/docs
+      target: newtab
+  footerText: ''
+sections:
+  - name: networking
+    displayData:
+      sortBy: default
+      rows: 4
+      cols: 4
+      collapsed: false
+      hideForGuests: false
+    items:
+      - title: nginx proxy manager
+        description: reverse proxy
+        icon: hl-nginx-proxy-manager
+        url: http://192.168.0.237:81/
+        target: newtab
+        id: 0_1096_nginxproxymanager
+      - title: adguard home
+        icon: hl-adguardhome
+        url: http://192.168.0.38/
+        target: newtab
+        id: 1_1096_adguardhome
+      - title: librespeed-server-1
+        icon: hl-librespeed
+        url: http://192.168.0.237:10012/
+        target: newtab
+        id: 2_1096_librespeedserver
+      - title: open speedtest
+        icon: hl-openspeedtest
+        url: http://192.168.0.237:10014/
+        target: newtab
+        id: 3_1096_openspeedtest
+      - title: speedtest tracker
+        icon: hl-speedtesttracker
+        url: http://192.168.0.197:8383/
+        target: newtab
+        id: 4_1096_speedtesttracker
+      - title: netdata node-1
+        icon: hl-netdata
+        url: http://192.168.0.211:19999
+        target: newtab
+        id: 5_1096_netdatanode
+      - title: router
+        icon: hl-tp-link
+        url: https://router.techtronics.top
+        target: newtab
+        id: 6_1096_router
+      - title: netdata node-2
+        icon: hl-netdata
+        url: http://192.168.0.212:19999
+        id: 7_1096_netdatanode
+      - title: node-1 temps
+        icon: hl-netdata
+        url: >-
+          http://192.168.0.211:19999/spaces/proxmox/rooms/local/overview#metrics_correlation=false&after=-900&before=0&utc=Asia%2FCalcutta&offset=%2B5.5&timezoneName=Chennai%2C%20Kolkata%2C%20Mumbai%2C%20New%20Delhi&modal=&modalTab=&modalParams=&selectedIntegrationCategory=deploy.operating-systems&local--chartName=menu_sensors
+        target: newtab
+        id: 8_1096_nodetemps
+      - title: librespeed-server-2
+        icon: hl-librespeed
+        url: http://192.168.0.197:10012/
+        target: newtab
+        id: 9_1096_librespeedserver
+      - title: switch
+        icon: hl-tp-link
+        url: http://192.168.0.2
+        target: newtab
+        id: 10_1096_switch
+      - title: router-dhule
+        icon: hl-tp-link
+        url: https://router-dhule.techtronics.top
+        target: newtab
+        id: 11_1096_routerdhule
+    icon: fas fa-network-wired
+  - name: media
+    icon: far fa-photo-film-music
+    displayData:
+      sortBy: default
+      rows: 4
+      cols: 4
+      collapsed: false
+      hideForGuests: false
+    items:
+      - title: jellyfin-ip
+        icon: hl-jellyfin
+        url: http://192.168.0.197:8096/
+        target: newtab
+        id: 0_512_jellyfinip
+      - title: jellyfin-domain
+        icon: hl-jellyfin
+        url: https://jellyfin.techtronics.top/
+        target: newtab
+        id: 1_512_jellyfindomain
+      - title: youtube
+        icon: fab fa-youtube
+        url: https://www.youtube.com/
+        target: newtab
+        id: 2_512_youtube
+      - title: handbrake
+        icon: hl-handbrake
+        url: http://192.168.0.74:10053/
+        target: newtab
+        id: 3_512_handbrake
+      - title: qbittorent
+        icon: hl-qbittorrent
+        url: https://qbittorent.techtronics.top
+        target: newtab
+        id: 4_512_qbittorent
+      - title: prowlarr
+        icon: hl-prowlarr
+        url: https://prowlarr.techtronics.top
+        target: newtab
+        id: 5_512_prowlarr
+      - title: sonarr
+        icon: hl-sonarr
+        url: https://sonarr.techtronics.top
+        target: newtab
+        id: 6_512_sonarr
+      - title: lidarr
+        icon: hl-lidarr
+        url: http://192.168.0.197:8686/
+        target: newtab
+        id: 7_512_lidarr
+      - title: radarr
+        icon: hl-radarr
+        url: https://radarr.techtronics.top
+        target: newtab
+        id: 8_512_radarr
+      - title: file browser
+        icon: hl-filebrowser
+        url: https://files.techtronics.top
+        target: newtab
+        id: 9_512_filebrowser
+      - title: bazarr
+        icon: hl-bazarr
+        url: http://192.168.0.197:6767/
+        target: newtab
+        id: 10_512_bazarr
+      - title: jdownloader
+        icon: hl-jdownloader
+        url: https://jdownloader2.techtronics.top
+        target: newtab
+        id: 11_512_jdownloader
+      - title: file browser 2
+        icon: hl-filebrowser
+        url: https://files-2.techtronics.top
+        target: newtab
+        id: 12_512_filebrowser
+      - title: qbittorent-11
+        icon: hl-qbittorrent
+        url: http://192.168.1.19:9090/
+        target: newtab
+        id: 13_512_qbittorent
+      - title: wizarr
+        icon: hl-wizarr
+        url: https://wizarr.techtronics.top
+        target: newtab
+        id: 14_512_wizarr
+      - title: seerr
+        icon: hl-jellyseerr
+        url: https://jellyseerr.techtronics.top
+        target: newtab
+        id: 15_512_seerr
+      - title: Tdarr
+        icon: hl-tdarr
+        url: https://tdarr.techtronics.top/
+        target: newtab
+        id: 16_512_tdarr
+      - title: frostbite
+        icon: hl-frost
+        url: https://frostbite.techtronics.top
+        target: newtab
+        id: 17_512_frostbite
+      - title: RDTC
+        icon: hl-rdt-client
+        url: https://rdtclient.techtronics.top
+        target: newtab
+        id: 18_512_rdtc
+      - title: ariang
+        icon: hl-ariang
+        url: https://ariang.techtronics.top
+        target: newtab
+        id: 19_512_ariang
+  - name: vm controllers and nas
+    displayData:
+      sortBy: default
+      rows: 4
+      cols: 4
+      collapsed: false
+      hideForGuests: false
+    items:
+      - title: portainer-1
+        icon: hl-portainer
+        url: https://192.168.0.237:9443/
+        target: newtab
+        id: 0_2159_portainer
+      - title: portainer-2
+        icon: hl-portainer
+        url: https://192.168.0.197:9443/
+        target: newtab
+        id: 1_2159_portainer
+      - title: proxmox 1
+        icon: hl-proxmox
+        url: https://proxmox-1.techtronics.top
+        target: newtab
+        id: 2_2159_proxmox
+      - title: proxmox 2
+        icon: hl-proxmox
+        url: https://proxmox-2.techtronics.top
+        target: newtab
+        id: 3_2159_proxmox
+      - title: proxmox 3
+        icon: hl-proxmox
+        url: https://proxmox-3.techtronics.top
+        target: newtab
+        id: 4_2159_proxmox
+      - title: proxmox backup server
+        icon: hl-proxmox
+        url: https://pbs.techtronics.top
+        target: newtab
+        id: 5_2159_proxmoxbackupserver
+      - title: truenas scale
+        icon: hl-truenas
+        url: https://truenas.techtronics.top
+        target: newtab
+        id: 6_2159_truenasscale
+      - title: truenas scale 2
+        icon: hl-truenas
+        url: https://truenas-2.techtronics.top
+        target: newtab
+        id: 7_2159_truenasscale
+      - title: ubuntu-server-1
+        icon: hl-code-server
+        url: https://ubuntu-server-1.techtronics.top
+        target: newtab
+        id: 8_2159_ubuntuserver
+      - title: ubuntu-server-2
+        icon: hl-code-server
+        url: https://ubuntu-server-2.techtronics.top
+        target: newtab
+        id: 9_2159_ubuntuserver
+      - title: oracle-vm
+        icon: hl-code-server
+        url: https://oracle-vm.techtronics.top/
+        target: newtab
+        id: 10_2159_oraclevm
+      - title: crafty
+        icon: hl-crafty-controller
+        url: https://crafty.techtronics.top
+        target: newtab
+        id: 11_2159_crafty
+      - title: portainer-11
+        icon: hl-portainer
+        url: https://192.168.1.7:9443/
+        target: newtab
+        id: 12_2159_portainer
+      - title: proxmox-11
+        icon: hl-proxmox
+        url: https://192.168.1.94:8006
+        target: newtab
+        id: 13_2159_proxmox
+      - title: pbs-11
+        icon: hl-proxmox
+        url: https://192.168.1.16:8007
+        target: newtab
+        id: 14_2159_pbs
+      - title: truenas scale 11
+        icon: https://www.svgrepo.com/show/331613/truenas.svg
+        url: https://192.168.1.19
+        target: newtab
+        id: 15_2159_truenasscale
+      - title: proxmox 4
+        icon: hl-proxmox
+        url: https://proxmox-4.techtronics.top
+        target: newtab
+        id: 16_2159_proxmox
+      - title: code-server
+        description: ''
+        icon: hl-code-server
+        url: https://code-server.techtronics.top/
+        target: newtab
+        id: 17_2159_codeserver
+    icon: fas fa-server
+  - name: cloud
+    icon: fas fa-cloud
+    displayData:
+      sortBy: default
+      rows: 4
+      cols: 4
+      collapsed: false
+      hideForGuests: false
+    items:
+      - title: nextcloud
+        icon: https://www.svgrepo.com/show/349455/nextcloud.svg
+        url: https://nextcloud.techtronics.top/apps/dashboard/
+        target: newtab
+        id: 0_535_nextcloud
+      - title: github
+        icon: hl-github
+        url: https://github.com/
+        target: newtab
+        id: 1_535_github
+      - title: tachidesk
+        icon: hl-tachiyomi
+        url: https://tachi.techtronics.top/library
+        target: newtab
+        id: 2_535_tachidesk
+      - title: mineos
+        icon: hl-mineos
+        url: http://192.168.0.197:8444/admin/index.html
+        target: newtab
+        id: 3_535_mineos
+      - title: immich
+        icon: hl-immich
+        url: https://immich.techtronics.top/
+        target: newtab
+        id: 4_535_immich
+      - title: gmail
+        description: ''
+        icon: hl-gmail
+        url: https://mail.google.com
+        target: newtab
+        id: 5_535_gmail
+  - name: smart home
+    icon: far fa-house-signal
+    displayData:
+      sortBy: default
+      rows: 4
+      cols: 4
+      collapsed: false
+      hideForGuests: false
+    items:
+      - title: home assistant
+        icon: https://www.svgrepo.com/show/331429/home-assistant.svg
+        url: https://hass.techtronics.top/
+        target: newtab
+        id: 0_1008_homeassistant
+      - title: hass-ip
+        icon: https://www.svgrepo.com/show/331429/home-assistant.svg
+        url: http://192.168.0.9:8123
+        target: newtab
+        id: 1_1008_hassip
+  - name: oracle
+    displayData:
+      sortBy: default
+      rows: 7
+      cols: 1
+      collapsed: false
+      hideForGuests: false
+    items:
+      - title: oracle-vm
+        icon: hl-code-server
+        url: https://oracle-vm.techtronics.top/
+        target: newtab
+        id: 0_630_oraclevm
+      - title: qbittorent
+        icon: hl-qbittorrent
+        url: http://144.24.111.11:9090/
+        target: newtab
+        id: 1_630_qbittorent
+      - title: filebrowser
+        icon: hl-filebrowser
+        url: http://144.24.126.155:8090
+        target: newtab
+        id: 2_630_filebrowser
+      - title: jenkins
+        icon: hl-jenkins
+        url: http://144.24.111.11:8081/
+        target: newtab
+        id: 3_630_jenkins
+      - title: portainer
+        icon: hl-portainer
+        url: https://144.24.126.155:9443
+        target: newtab
+        id: 4_630_portainer
+      - title: qbittorent-x64
+        icon: hl-qbittorrent
+        url: http://144.24.117.73:8080/
+        target: newtab
+        id: 5_630_qbittorentx
+      - title: filebrowser-x64
+        icon: hl-filebrowser
+        url: http://144.24.117.73:8081
+        target: newtab
+        id: 6_630_filebrowserx
+      - title: openspeed
+        icon: hl-openspeedtest
+        url: http://144.24.126.155:10014
+        target: newtab
+        id: 7_630_openspeed
+      - title: librespeed
+        icon: hl-librespeed
+        url: http://144.24.126.155:10012
+        target: newtab
+        id: 8_630_librespeed
+  - name: devops
+    displayData:
+      sortBy: default
+      rows: 1
+      cols: 1
+      collapsed: false
+      hideForGuests: false
+    items:
+      - title: jenkins
+        icon: hl-jenkins
+        url: https://jenkins.techtronics.top
+        target: newtab
+        id: 0_657_jenkins
+      - title: argocd
+        icon: hl-argocd
+        url: https://argocd.techtronics.top
+        target: newtab
+        id: 1_657_argocd
+      - title: longhorn
+        icon: hl-longhorn
+        url: https://longhorn.techtronics.top
+        target: newtab
+        id: 2_657_longhorn
+  - name: piracy websites
+    displayData:
+      sortBy: default
+      rows: 1
+      cols: 1
+      collapsed: false
+      hideForGuests: false
+    items:
+      - title: modlist.in
+        url: https://modlist.in/
+        target: newtab
+        id: 0_1550_modlistin
+      - title: mp4moviez.law
+        url: https://www.mp4moviez.law/
+        target: newtab
+        id: 1_1550_mpmoviezlaw
+      - title: bolly4u.care
+        url: https://bolly4u.care/
+        target: newtab
+        id: 2_1550_bollyucare
+      - title: torrends.to
+        url: https://torrends.to/
+        target: newtab
+        id: 3_1550_torrendsto
+      - title: ips
+        url: https://www.indianpornsites.net/kamareels2-com/
+        id: 4_1550_ips
+      - title: xd movies
+        url: https://xdmovies.com/
+        target: newtab
+        id: 5_1550_xdmovies
