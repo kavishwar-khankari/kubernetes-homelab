@@ -5,6 +5,30 @@ singleBinary:
   replicas: 1
   extraArgs:
     - "-config.expand-env=true"
+  # MinIO credentials: DopplerSecret keys are root-user/root-password
+  # but config uses ${MINIO_ROOT_USER}/${MINIO_ROOT_PASSWORD}
+  # and S3 SDK auto-detects AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY
+  extraEnv:
+    - name: MINIO_ROOT_USER
+      valueFrom:
+        secretKeyRef:
+          name: minio-secrets
+          key: root-user
+    - name: MINIO_ROOT_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: minio-secrets
+          key: root-password
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: minio-secrets
+          key: root-user
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: minio-secrets
+          key: root-password
   resources:
     requests: { cpu: 300m, memory: 1Gi }
     limits:   { cpu: 1,     memory: 2Gi }
@@ -107,33 +131,3 @@ loki:
             period: 24h
     analytics:
       reporting_enabled: false
-
-# ── Inject MinIO credentials as env vars ──
-# MinIO DopplerSecret exports keys as root-user/root-password;
-# we need them as MINIO_ROOT_USER/PASSWORD (for config expand-env)
-# and AWS_ACCESS_KEY_ID/SECRET_ACCESS_KEY (for S3 SDK auto-detection)
-global:
-  extraEnvFrom:
-    - secretRef:
-        name: minio-secrets
-  extraEnv:
-    - name: MINIO_ROOT_USER
-      valueFrom:
-        secretKeyRef:
-          name: minio-secrets
-          key: root-user
-    - name: MINIO_ROOT_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: minio-secrets
-          key: root-password
-    - name: AWS_ACCESS_KEY_ID
-      valueFrom:
-        secretKeyRef:
-          name: minio-secrets
-          key: root-user
-    - name: AWS_SECRET_ACCESS_KEY
-      valueFrom:
-        secretKeyRef:
-          name: minio-secrets
-          key: root-password
