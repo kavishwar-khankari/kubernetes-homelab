@@ -98,6 +98,29 @@ query_scheduler:
 
 compactor:
   replicas: 1
+  extraArgs:
+    config.expand-env: "true"
+  extraEnv:
+    - name: MINIO_ROOT_USER
+      valueFrom:
+        secretKeyRef:
+          name: minio-secrets
+          key: root-user
+    - name: MINIO_ROOT_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: minio-secrets
+          key: root-password
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: minio-secrets
+          key: root-user
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: minio-secrets
+          key: root-password
   resources:
     requests: { cpu: 100m, memory: 256Mi }
     limits:   { cpu: 500m, memory: 1Gi }
@@ -117,6 +140,31 @@ compactor:
 
 store_gateway:
   replicas: 1
+  zoneAwareReplication:
+    enabled: false
+  extraArgs:
+    config.expand-env: "true"
+  extraEnv:
+    - name: MINIO_ROOT_USER
+      valueFrom:
+        secretKeyRef:
+          name: minio-secrets
+          key: root-user
+    - name: MINIO_ROOT_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: minio-secrets
+          key: root-password
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: minio-secrets
+          key: root-user
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: minio-secrets
+          key: root-password
   resources:
     requests: { cpu: 100m, memory: 256Mi }
     limits:   { cpu: 500m, memory: 1Gi }
@@ -136,6 +184,8 @@ store_gateway:
 
 ruler:
   replicas: 1
+  extraArgs:
+    config.expand-env: "true"
   resources:
     requests: { cpu: 50m,  memory: 64Mi }
     limits:   { cpu: 200m, memory: 256Mi }
@@ -148,6 +198,41 @@ ruler:
               - key: kubernetes.io/hostname
                 operator: In
                 values: [k3s-node-1, k3s-node-2]
+
+alertmanager:
+  replicas: 1
+  zoneAwareReplication:
+    enabled: false
+  extraArgs:
+    config.expand-env: "true"
+  extraEnv:
+    - name: MINIO_ROOT_USER
+      valueFrom:
+        secretKeyRef:
+          name: minio-secrets
+          key: root-user
+    - name: MINIO_ROOT_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: minio-secrets
+          key: root-password
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: minio-secrets
+          key: root-user
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: minio-secrets
+          key: root-password
+  resources:
+    requests: { cpu: 50m,  memory: 64Mi }
+    limits:   { cpu: 200m, memory: 256Mi }
+  persistence:
+    enabled: true
+    size: 5Gi
+    storageClass: longhorn
 
 # ── S3 object storage (custom MinIO) ──
 mimir:
