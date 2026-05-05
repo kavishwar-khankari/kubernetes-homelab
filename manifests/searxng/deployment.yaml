@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: searxng
+  namespace: searxng
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: searxng
+  template:
+    metadata:
+      labels:
+        app: searxng
+    spec:
+      initContainers:
+        - name: render-settings
+          image: busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662 # 1.36
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+              cp /tmp/cm/settings.yml /etc/searxng/settings.yml
+              sed -i "s|ULTRASECRETKEY|${SEARXNG_SECRET_KEY}|g" /etc/searxng/settings.yml
+          env:
+            - name: SEARXNG_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: searxng-secrets
+                  key: SEARXNG_SECRET_KEY
+          volumeMounts:
+            - name: settings-cm
+              mountPath: /tmp/cm
+            - name: settings
+              mountPath: /etc/searxng
+      containers:
+        - name: searxng
+          image: searxng/searxng@sha256:b2211b2ad11fc9822ed8d94502a609a862d6587e13f052e18847559586c76b71 # latest @ 2026-05-05
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: SEARXNG_BASE_URL
+              value: https://searxng.techtronics.top/
+            - name: SEARXNG_PORT
+              value: "8080"
+            - name: SEARXNG_BIND_ADDRESS
+              value: "0.0.0.0"
+            - name: TZ
+              value: Asia/Kolkata
+          volumeMounts:
+            - name: settings
+              mountPath: /etc/searxng
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            periodSeconds: 5
+            failureThreshold: 24
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            periodSeconds: 10
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+      volumes:
+        - name: settings-cm
+          configMap:
+            name: searxng-settings
+        - name: settings
+          emptyDir: {}
