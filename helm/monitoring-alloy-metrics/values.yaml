@@ -100,7 +100,7 @@ configMap:
     // ── Monitoring stack self-scrape ──
     prometheus.scrape "monitoring_components" {
       targets = [
-        { __address__ = "mimir-gateway.monitoring.svc:80",        job = "mimir" },
+        { __address__ = "monitoring-mimir-gateway.monitoring.svc:80",        job = "mimir" },
         { __address__ = "monitoring-loki.monitoring.svc:3100",    job = "loki" },
         { __address__ = "minio.monitoring.svc:9000",              job = "minio" },
       ]
@@ -131,7 +131,7 @@ configMap:
     // ── Remote write to Mimir ──
     prometheus.remote_write "mimir" {
       endpoint {
-        url = "http://mimir-gateway.monitoring.svc:80/api/v1/push"
+        url = "http://monitoring-mimir-gateway.monitoring.svc:80/api/v1/push"
         headers = {
           "X-Scope-OrgID" = "anonymous",
         }

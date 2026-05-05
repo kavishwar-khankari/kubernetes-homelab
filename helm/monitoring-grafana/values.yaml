@@ -28,7 +28,7 @@ datasources:
     datasources:
       - name: Mimir
         type: prometheus
-        url: http://mimir-gateway.monitoring.svc:80/prometheus
+        url: http://monitoring-mimir-gateway.monitoring.svc:80/prometheus
         access: proxy
         isDefault: true
         jsonData:
