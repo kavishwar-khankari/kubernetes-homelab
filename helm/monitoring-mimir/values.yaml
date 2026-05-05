@@ -4,6 +4,12 @@ kafka:
 ingest_storage:
   enabled: false
 
+# ── Gateway DNS resolver for RKE2 ──
+gateway:
+  nginx:
+    config:
+      resolver: rke2-coredns-rke2-coredns.kube-system.svc.cluster.local
+
 # ── Disable built-in MinIO ──
 minio:
   enabled: false
