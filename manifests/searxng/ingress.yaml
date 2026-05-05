@@ -6,7 +6,7 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/auth-type: basic
     nginx.ingress.kubernetes.io/auth-secret: searxng-basic-auth
-    nginx.ingress.kubernetes.io/auth-realm: "SearXNG — authentication required"
+    nginx.ingress.kubernetes.io/auth-realm: "Authentication Required"
 spec:
   ingressClassName: nginx
   tls:
