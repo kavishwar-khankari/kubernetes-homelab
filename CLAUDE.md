@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Web search
 
-Always use the SearXNG MCP tools (`mcp__searxng__searxng_web_search`, `mcp__searxng__web_url_read`) for web searches and URL fetching. Never use the built-in `WebSearch` or `WebFetch` tools — they route through OpenRouter/Exa and incur extra API costs. Your self-hosted SearXNG instance is free.
+Always delegate web searches to the `websearch` subagent via the Task tool. Example: "search the web for X and return the results". The `websearch` subagent uses the cheap `deepseek/deepseek-v4-flash` model and only has SearXNG MCP tools — this avoids the $0.02/query OpenRouter built-in search cost. Never use the built-in `WebSearch` or `WebFetch` tools directly.
 
 # kubernetes-homelab
 
