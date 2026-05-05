@@ -162,8 +162,8 @@ mimir:
     compactor:
       data_dir: /data/compactor
       compaction_interval: 30m
-      blocks_retention_period: 2160h
     limits:
+      compactor_blocks_retention_period: 2160h
       max_global_series_per_user: 500000
       ingestion_rate: 50000
       ingestion_burst_size: 100000

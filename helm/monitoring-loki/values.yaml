@@ -3,6 +3,8 @@ deploymentMode: SingleBinary
 # ── Single replica ──
 singleBinary:
   replicas: 1
+  extraArgs:
+    - "-config.expand-env=true"
   resources:
     requests: { cpu: 300m, memory: 1Gi }
     limits:   { cpu: 1,     memory: 2Gi }
@@ -82,7 +84,7 @@ loki:
         max_recv_msg_size: 67108864
     compactor:
       working_directory: /var/loki/compactor
-      shared_store: s3
+      delete_request_store: s3
       compaction_interval: 10m
       retention_enabled: true
       retention_delete_delay: 2h
@@ -100,10 +102,10 @@ loki:
       cache_results: true
       results_cache:
         cache:
-          enable_fifocache: true
-          fifocache:
-            max_size_bytes: 256MB
-            validity: 30m
+          embedded_cache:
+            enabled: true
+            max_size_mb: 256
+            ttl: 30m
     frontend:
       max_outstanding_per_tenant: 256
     schema_config:
