@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Web search
+
+Always use the SearXNG MCP tools (`mcp__searxng__searxng_web_search`, `mcp__searxng__web_url_read`) for web searches and URL fetching. Never use the built-in `WebSearch` or `WebFetch` tools — they route through OpenRouter/Exa and incur extra API costs. Your self-hosted SearXNG instance is free.
+
 # kubernetes-homelab
 
 GitOps-managed RKE2 homelab synced by ArgoCD. Domain: `*.techtronics.top` (note: `techtronics`, not `techtroics`).
