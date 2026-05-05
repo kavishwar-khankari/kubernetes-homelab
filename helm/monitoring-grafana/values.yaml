@@ -100,8 +100,7 @@ grafana.ini:
   users:
     allow_sign_up: false
   auth.anonymous:
-    enabled: true
-    org_role: Viewer
+    enabled: false
 
 # ── SMTP (disabled) ──
 smtp:
