@@ -60,20 +60,30 @@ dashboardProviders:
 # ── Pre-loaded dashboards via gnetId ──
 dashboards:
   default:
-    kubernetes-cluster:
-      gnetId: 315
+    kubernetes-views-global:
+      gnetId: 15757
+      datasource: Mimir
+    kubernetes-views-nodes:
+      gnetId: 15759
+      datasource: Mimir
+    kubernetes-views-pods:
+      gnetId: 15760
+      datasource: Mimir
+    kubernetes-views-namespaces:
+      gnetId: 15758
       datasource: Mimir
     node-exporter-full:
       gnetId: 1860
-      datasource: Mimir
-    kubernetes-pods:
-      gnetId: 15759
-      datasource: Mimir
-    kubernetes-networking:
-      gnetId: 14314
+      revision: 31
       datasource: Mimir
     kube-state-metrics:
       gnetId: 13332
+      datasource: Mimir
+    longhorn-monitoring:
+      gnetId: 16888
+      datasource: Mimir
+    kubernetes-cluster:
+      gnetId: 315
       datasource: Mimir
     loki-quick-search:
       gnetId: 12019
