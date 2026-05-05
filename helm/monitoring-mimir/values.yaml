@@ -147,6 +147,8 @@ ruler:
 mimir:
   structuredConfig:
     multitenancy_enabled: false
+    ingest_storage:
+      enabled: false
     blocks_storage:
       backend: s3
       s3:

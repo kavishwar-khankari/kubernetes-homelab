@@ -40,19 +40,6 @@ gateway:
 
 # ── Loki config ──
 loki:
-  # Helm template-level storage config (required by chart)
-  storage:
-    bucketNames:
-      chunks: loki-chunks
-      ruler: loki-ruler
-    type: s3
-    s3:
-      endpoint: minio.monitoring.svc:9000
-      accessKeyId: "${MINIO_ROOT_USER}"
-      secretAccessKey: "${MINIO_ROOT_PASSWORD}"
-      insecure: true
-      s3ForcePathStyle: true
-
   # Loki runtime config
   structuredConfig:
     auth_enabled: false
