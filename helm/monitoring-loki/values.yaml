@@ -40,22 +40,24 @@ gateway:
 
 # ── Loki config ──
 loki:
+  # Helm template-level storage (chart 7.x renders this into common.storage)
+  storage:
+    bucketNames:
+      chunks: loki-chunks
+      ruler: loki-ruler
+    type: s3
+    s3:
+      endpoint: minio.monitoring.svc:9000
+      accessKeyId: "${MINIO_ROOT_USER}"
+      secretAccessKey: "${MINIO_ROOT_PASSWORD}"
+      insecure: true
+      s3ForcePathStyle: true
+
   # Loki runtime config
   structuredConfig:
     auth_enabled: false
     server:
       log_level: info
-    storage:
-      type: s3
-      s3:
-        endpoint: minio.monitoring.svc:9000
-        bucketNames:
-          chunks: loki-chunks
-          ruler: loki-ruler
-        access_key_id: "${MINIO_ROOT_USER}"
-        secret_access_key: "${MINIO_ROOT_PASSWORD}"
-        insecure: true
-        s3forcepathstyle: true
     ingester:
       chunk_idle_period: 30m
       chunk_retain_period: 15m
@@ -76,7 +78,6 @@ loki:
       retention_enabled: true
       retention_delete_delay: 2h
       retention_delete_worker_count: 150
-      delete_request_store: s3
     limits_config:
       retention_period: 2160h
       max_entries_limit_per_query: 5000
