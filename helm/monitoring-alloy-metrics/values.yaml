@@ -1,164 +1,165 @@
-clustering:
-  enabled: true
-
-configMap:
-  create: true
-  content: |-
-    discovery.kubernetes "nodes" {
-      role = "node"
-    }
-
-    discovery.kubernetes "services" {
-      role = "service"
-    }
-
-    discovery.kubernetes "pods" {
-      role = "pod"
-    }
-
-    // ── Kubelet metrics ──
-    prometheus.scrape "kubelet" {
-      targets    = discovery.kubernetes.nodes.targets
-      forward_to = [prometheus.relabel.filter.receiver]
-      scheme     = "https"
-      tls_config {
-        insecure_skip_verify = true
+alloy:
+  configMap:
+    create: true
+    content: |-
+      discovery.kubernetes "nodes" {
+        role = "node"
       }
-      bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
-      scrape_interval   = "30s"
-      metrics_path      = "/metrics"
-      job_name          = "kubelet"
-      clustering { enabled = true }
-    }
 
-    // ── cAdvisor (container metrics) ──
-    prometheus.scrape "cadvisor" {
-      targets    = discovery.kubernetes.nodes.targets
-      forward_to = [prometheus.relabel.filter.receiver]
-      scheme     = "https"
-      tls_config {
-        insecure_skip_verify = true
+      discovery.kubernetes "services" {
+        role = "service"
       }
-      bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
-      scrape_interval   = "30s"
-      metrics_path      = "/metrics/cadvisor"
-      job_name          = "cadvisor"
-      clustering { enabled = true }
-    }
 
-    // ── kube-state-metrics ──
-    prometheus.scrape "kube_state_metrics" {
-      targets    = [{
-        __address__ = "monitoring-kube-state-metrics.monitoring.svc:8080",
-      }]
-      forward_to      = [prometheus.relabel.filter.receiver]
-      scrape_interval = "30s"
-      job_name        = "kube-state-metrics"
-      clustering { enabled = true }
-    }
+      discovery.kubernetes "pods" {
+        role = "pod"
+      }
 
-    // ── node-exporter ──
-    prometheus.scrape "node_exporter" {
-      targets    = discovery.kubernetes.services.targets
-      forward_to = [prometheus.relabel.filter.receiver]
-      scrape_interval = "30s"
-      job_name  = "node-exporter"
-      clustering { enabled = true }
-      rule {
-        source_labels = ["__meta_kubernetes_service_name"]
-        regex = "monitoring-node-exporter"
-        action = "keep"
+      // ── Kubelet metrics ──
+      prometheus.scrape "kubelet" {
+        targets    = discovery.kubernetes.nodes.targets
+        forward_to = [prometheus.relabel.filter.receiver]
+        scheme     = "https"
+        tls_config {
+          insecure_skip_verify = true
+        }
+        bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+        scrape_interval   = "30s"
+        metrics_path      = "/metrics"
+        job_name          = "kubelet"
+        clustering { enabled = true }
       }
-    }
 
-    // ── Pod annotations (prometheus.io/scrape: true) ──
-    prometheus.scrape "pod_annotations" {
-      targets    = discovery.kubernetes.pods.targets
-      forward_to = [prometheus.relabel.filter.receiver]
-      scrape_interval = "30s"
-      job_name  = "kubernetes-pods"
-      clustering { enabled = true }
-      rule {
-        source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_scrape"]
-        regex  = "true"
-        action = "keep"
+      // ── cAdvisor (container metrics) ──
+      prometheus.scrape "cadvisor" {
+        targets    = discovery.kubernetes.nodes.targets
+        forward_to = [prometheus.relabel.filter.receiver]
+        scheme     = "https"
+        tls_config {
+          insecure_skip_verify = true
+        }
+        bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+        scrape_interval   = "30s"
+        metrics_path      = "/metrics/cadvisor"
+        job_name          = "cadvisor"
+        clustering { enabled = true }
       }
-      rule {
-        source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_path"]
-        regex  = "(.+)"
-        target_label = "__metrics_path__"
-        replacement  = "$1"
-      }
-      rule {
-        source_labels = ["__address__", "__meta_kubernetes_pod_annotation_prometheus_io_port"]
-        regex  = "([^:]+)(?::\\d+)?;(\\d+)"
-        target_label = "__address__"
-        replacement  = "$1:$2"
-      }
-    }
 
-    // ── Monitoring stack self-scrape ──
-    prometheus.scrape "monitoring_components" {
-      targets = [
-        { __address__ = "monitoring-mimir-gateway.monitoring.svc:80",        job = "mimir" },
-        { __address__ = "monitoring-loki.monitoring.svc:3100",    job = "loki" },
-        { __address__ = "minio.monitoring.svc:9000",              job = "minio" },
-      ]
-      forward_to      = [prometheus.relabel.filter.receiver]
-      scrape_interval = "30s"
-      metrics_path    = "/metrics"
-      clustering { enabled = true }
-    }
+      // ── kube-state-metrics ──
+      prometheus.scrape "kube_state_metrics" {
+        targets    = [{
+          __address__ = "monitoring-kube-state-metrics.monitoring.svc:8080",
+        }]
+        forward_to      = [prometheus.relabel.filter.receiver]
+        scrape_interval = "30s"
+        job_name        = "kube-state-metrics"
+        clustering { enabled = true }
+      }
 
-    // ── Label filtering (drop high-cardinality junk) ──
-    prometheus.relabel "filter" {
-      forward_to = [prometheus.remote_write.mimir.receiver]
-      rule {
-        source_labels = ["__name__"]
-        regex = "etcd_.*"
-        action = "drop"
-      }
-      rule {
-        regex = "container_label_.+"
-        action = "labeldrop"
-      }
-      rule {
-        regex = "pod_label_pod_template_hash"
-        action = "labeldrop"
-      }
-    }
-
-    // ── Remote write to Mimir ──
-    prometheus.remote_write "mimir" {
-      endpoint {
-        url = "http://monitoring-mimir-gateway.monitoring.svc:80/api/v1/push"
-        headers = {
-          "X-Scope-OrgID" = "anonymous",
+      // ── node-exporter ──
+      prometheus.scrape "node_exporter" {
+        targets    = discovery.kubernetes.services.targets
+        forward_to = [prometheus.relabel.filter.receiver]
+        scrape_interval = "30s"
+        job_name  = "node-exporter"
+        clustering { enabled = true }
+        rule {
+          source_labels = ["__meta_kubernetes_service_name"]
+          regex = "monitoring-node-exporter"
+          action = "keep"
         }
       }
-      wal {
-        directory = "/var/lib/alloy/wal"
-      }
-    }
 
-    // ── OTLP receiver for app instrumentation ──
-    otelcol.receiver.otlp "default" {
-      grpc { endpoint = "[IP_ADDRESS]:4317" }
-      http { endpoint = "[IP_ADDRESS]:4318" }
-      output {
-        metrics = [otelcol.processor.batch.default.input]
+      // ── Pod annotations (prometheus.io/scrape: true) ──
+      prometheus.scrape "pod_annotations" {
+        targets    = discovery.kubernetes.pods.targets
+        forward_to = [prometheus.relabel.filter.receiver]
+        scrape_interval = "30s"
+        job_name  = "kubernetes-pods"
+        clustering { enabled = true }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_scrape"]
+          regex  = "true"
+          action = "keep"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_path"]
+          regex  = "(.+)"
+          target_label = "__metrics_path__"
+          replacement  = "$1"
+        }
+        rule {
+          source_labels = ["__address__", "__meta_kubernetes_pod_annotation_prometheus_io_port"]
+          regex  = "([^:]+)(?::\\d+)?;(\\d+)"
+          target_label = "__address__"
+          replacement  = "$1:$2"
+        }
       }
-    }
 
-    otelcol.processor.batch "default" {
-      output {
-        metrics = [otelcol.exporter.prometheus.default.input]
+      // ── Monitoring stack self-scrape ──
+      prometheus.scrape "monitoring_components" {
+        targets = [
+          { __address__ = "monitoring-mimir-gateway.monitoring.svc:80",        job = "mimir" },
+          { __address__ = "monitoring-loki.monitoring.svc:3100",    job = "loki" },
+          { __address__ = "minio.monitoring.svc:9000",              job = "minio" },
+        ]
+        forward_to      = [prometheus.relabel.filter.receiver]
+        scrape_interval = "30s"
+        metrics_path    = "/metrics"
+        clustering { enabled = true }
       }
-    }
 
-    otelcol.exporter.prometheus "default" {
-      forward_to = [prometheus.relabel.filter.receiver]
-    }
+      // ── Label filtering (drop high-cardinality junk) ──
+      prometheus.relabel "filter" {
+        forward_to = [prometheus.remote_write.mimir.receiver]
+        rule {
+          source_labels = ["__name__"]
+          regex = "etcd_.*"
+          action = "drop"
+        }
+        rule {
+          regex = "container_label_.+"
+          action = "labeldrop"
+        }
+        rule {
+          regex = "pod_label_pod_template_hash"
+          action = "labeldrop"
+        }
+      }
+
+      // ── Remote write to Mimir ──
+      prometheus.remote_write "mimir" {
+        endpoint {
+          url = "http://monitoring-mimir-gateway.monitoring.svc:80/api/v1/push"
+          headers = {
+            "X-Scope-OrgID" = "anonymous",
+          }
+        }
+        wal {
+          directory = "/var/lib/alloy/wal"
+        }
+      }
+
+      // ── OTLP receiver for app instrumentation ──
+      otelcol.receiver.otlp "default" {
+        grpc { endpoint = "[IP_ADDRESS]:4317" }
+        http { endpoint = "[IP_ADDRESS]:4318" }
+        output {
+          metrics = [otelcol.processor.batch.default.input]
+        }
+      }
+
+      otelcol.processor.batch "default" {
+        output {
+          metrics = [otelcol.exporter.prometheus.default.input]
+        }
+      }
+
+      otelcol.exporter.prometheus "default" {
+        forward_to = [prometheus.relabel.filter.receiver]
+      }
+
+clustering:
+  enabled: true
 
 controller:
   type: statefulset

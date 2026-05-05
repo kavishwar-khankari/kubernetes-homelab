@@ -1,42 +1,43 @@
-clustering:
-  enabled: false
+alloy:
+  configMap:
+    create: true
+    content: |-
+      discovery.kubernetes "pods" {
+        role = "pod"
+      }
 
-configMap:
-  create: true
-  content: |-
-    discovery.kubernetes "pods" {
-      role = "pod"
-    }
+      // ── Container log collection ──
+      loki.source.kubernetes "pods" {
+        targets    = discovery.kubernetes.pods.targets
+        forward_to = [loki.process.enrich.receiver]
+      }
 
-    // ── Container log collection ──
-    loki.source.kubernetes "pods" {
-      targets    = discovery.kubernetes.pods.targets
-      forward_to = [loki.process.enrich.receiver]
-    }
+      // ── Label enrichment ──
+      loki.process "enrich" {
+        forward_to = [loki.write.loki.receiver]
 
-    // ── Label enrichment ──
-    loki.process "enrich" {
-      forward_to = [loki.write.loki.receiver]
-
-      stage.static_labels {
-        values = {
-          cluster = "homelab",
+        stage.static_labels {
+          values = {
+            cluster = "homelab",
+          }
         }
       }
-    }
 
-    // ── Push to Loki ──
-    loki.write "loki" {
-      endpoint {
-        url = "http://monitoring-loki.monitoring.svc:3100/loki/api/v1/push"
+      // ── Push to Loki ──
+      loki.write "loki" {
+        endpoint {
+          url = "http://monitoring-loki.monitoring.svc:3100/loki/api/v1/push"
+        }
       }
-    }
 
-    // ── Self-logging ──
-    logging {
-      level  = "info"
-      format = "logfmt"
-    }
+      // ── Self-logging ──
+      logging {
+        level  = "info"
+        format = "logfmt"
+      }
+
+clustering:
+  enabled: false
 
 controller:
   type: daemonset
