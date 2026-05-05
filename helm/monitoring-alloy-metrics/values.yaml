@@ -57,7 +57,7 @@ alloy:
 
       // ── node-exporter ──
       discovery.relabel "node_exporter_filter" {
-        targets = discovery.kubernetes.services.targets
+        targets = discovery.kubernetes.endpoints.targets
         rule {
           source_labels = ["__meta_kubernetes_service_name"]
           regex = "monitoring-node-exporter-prometheus-node-exporter"
