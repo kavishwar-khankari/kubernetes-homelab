@@ -15,8 +15,20 @@ alloy:
       }
 
       // ── Kubelet metrics ──
+      discovery.relabel "kubelet_filter" {
+        targets = discovery.kubernetes.nodes.targets
+        rule {
+          source_labels = ["__meta_kubernetes_node_name"]
+          target_label = "node"
+        }
+        rule {
+          target_label = "service"
+          replacement  = "kube-prometheus-stack-kubelet"
+        }
+      }
+
       prometheus.scrape "kubelet" {
-        targets    = discovery.kubernetes.nodes.targets
+        targets    = discovery.relabel.kubelet_filter.output
         forward_to = [prometheus.relabel.filter.receiver]
         scheme     = "https"
         tls_config {
@@ -30,8 +42,20 @@ alloy:
       }
 
       // ── cAdvisor (container metrics) ──
+      discovery.relabel "cadvisor_filter" {
+        targets = discovery.kubernetes.nodes.targets
+        rule {
+          source_labels = ["__meta_kubernetes_node_name"]
+          target_label = "node"
+        }
+        rule {
+          target_label = "service"
+          replacement  = "kube-prometheus-stack-kubelet"
+        }
+      }
+
       prometheus.scrape "cadvisor" {
-        targets    = discovery.kubernetes.nodes.targets
+        targets    = discovery.relabel.cadvisor_filter.output
         forward_to = [prometheus.relabel.filter.receiver]
         scheme     = "https"
         tls_config {
@@ -100,6 +124,14 @@ alloy:
           regex  = "([^:]+)(?::\\d+)?;(\\d+)"
           target_label = "__address__"
           replacement  = "$1:$2"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_node_name"]
+          target_label = "node"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_namespace"]
+          target_label = "namespace"
         }
       }
 
