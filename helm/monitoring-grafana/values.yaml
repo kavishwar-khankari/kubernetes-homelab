@@ -1,0 +1,113 @@
+replicas: 1
+
+resources:
+  requests: { cpu: 50m,  memory: 128Mi }
+  limits:   { cpu: 200m, memory: 256Mi }
+
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values: [k3s-node-1, k3s-node-2]
+
+# ── Ingress ──
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  hosts:
+    - grafana.techtronics.top
+
+# ── Datasources ──
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Mimir
+        type: prometheus
+        url: http://mimir-gateway.monitoring.svc:80/prometheus
+        access: proxy
+        isDefault: true
+        jsonData:
+          httpHeaderName1: X-Scope-OrgID
+        secureJsonData:
+          httpHeaderValue1: anonymous
+
+      - name: Loki
+        type: loki
+        url: http://monitoring-loki.monitoring.svc:3100
+        access: proxy
+        jsonData:
+          maxLines: 1000
+
+# ── Dashboard provider ──
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+      - name: default
+        orgId: 1
+        folder: ""
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/default
+
+# ── Pre-loaded dashboards via gnetId ──
+dashboards:
+  default:
+    kubernetes-cluster:
+      gnetId: 315
+      datasource: Mimir
+    node-exporter-full:
+      gnetId: 1860
+      datasource: Mimir
+    kubernetes-pods:
+      gnetId: 15759
+      datasource: Mimir
+    kubernetes-networking:
+      gnetId: 14314
+      datasource: Mimir
+    kube-state-metrics:
+      gnetId: 13332
+      datasource: Mimir
+    loki-quick-search:
+      gnetId: 12019
+      datasource: Loki
+
+# ── Admin credentials from DopplerSecret ──
+admin:
+  existingSecret: grafana-secrets
+  userKey: admin-user
+  passwordKey: admin-password
+
+# ── Grafana config ──
+grafana.ini:
+  users:
+    allow_sign_up: false
+  auth.anonymous:
+    enabled: true
+    org_role: Viewer
+
+# ── SMTP (disabled) ──
+smtp:
+  enabled: false
+
+# ── Persistence ──
+persistence:
+  enabled: true
+  size: 2Gi
+  storageClassName: longhorn
+
+# ── Sidecar for dashboard ConfigMaps ──
+sidecar:
+  dashboards:
+    enabled: true
+    label: grafana_dashboard
+  datasources:
+    enabled: true
+    label: grafana_datasource

@@ -1,0 +1,125 @@
+deploymentMode: SingleBinary
+
+# ── Single replica ──
+singleBinary:
+  replicas: 1
+  resources:
+    requests: { cpu: 300m, memory: 1Gi }
+    limits:   { cpu: 1,     memory: 2Gi }
+  persistence:
+    enabled: true
+    size: 15Gi
+    storageClass: longhorn
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values: [k3s-node-1, k3s-node-2]
+
+# ── Disable all microservice components ──
+backend:
+  replicas: 0
+read:
+  replicas: 0
+write:
+  replicas: 0
+
+# ── Disable testing ──
+test:
+  enabled: false
+
+# ── Disable gateway (no multi-tenancy) ──
+gateway:
+  enabled: false
+
+# ── Loki config ──
+loki:
+  # Helm template-level storage config (required by chart)
+  storage:
+    bucketNames:
+      chunks: loki-chunks
+      ruler: loki-ruler
+    type: s3
+    s3:
+      endpoint: minio.monitoring.svc:9000
+      accessKeyId: "${MINIO_ROOT_USER}"
+      secretAccessKey: "${MINIO_ROOT_PASSWORD}"
+      insecure: true
+      s3ForcePathStyle: true
+
+  # Loki runtime config
+  structuredConfig:
+    auth_enabled: false
+    server:
+      log_level: info
+    storage:
+      type: s3
+      s3:
+        endpoint: minio.monitoring.svc:9000
+        bucketNames:
+          chunks: loki-chunks
+          ruler: loki-ruler
+        access_key_id: "${MINIO_ROOT_USER}"
+        secret_access_key: "${MINIO_ROOT_PASSWORD}"
+        insecure: true
+        s3forcepathstyle: true
+    ingester:
+      chunk_idle_period: 30m
+      chunk_retain_period: 15m
+      max_chunk_age: 2h
+      chunk_target_size: 1536000
+      chunk_block_size: 262144
+      wal:
+        enabled: true
+        dir: /var/loki/wal
+        replay_memory_ceiling: 512MB
+    ingester_client:
+      grpc_client_config:
+        max_recv_msg_size: 67108864
+    compactor:
+      working_directory: /var/loki/compactor
+      shared_store: s3
+      compaction_interval: 10m
+      retention_enabled: true
+      retention_delete_delay: 2h
+      retention_delete_worker_count: 150
+      delete_request_store: s3
+    limits_config:
+      retention_period: 2160h
+      max_entries_limit_per_query: 5000
+      reject_old_samples: true
+      reject_old_samples_max_age: 168h
+      max_cache_freshness_per_query: 10m
+      split_queries_by_interval: 30m
+    query_range:
+      parallelise_shardable_queries: true
+      cache_results: true
+      results_cache:
+        cache:
+          enable_fifocache: true
+          fifocache:
+            max_size_bytes: 256MB
+            validity: 30m
+    frontend:
+      max_outstanding_per_tenant: 256
+    schema_config:
+      configs:
+        - from: "2025-01-01"
+          store: tsdb
+          object_store: s3
+          schema: v13
+          index:
+            prefix: loki_index_
+            period: 24h
+    analytics:
+      reporting_enabled: false
+
+# ── Inject MinIO credentials ──
+global:
+  extraEnvFrom:
+    - secretRef:
+        name: minio-secrets

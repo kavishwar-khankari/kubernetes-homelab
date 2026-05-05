@@ -1,0 +1,207 @@
+# ── Classic architecture (no Kafka, no ingest storage) ──
+kafka:
+  enabled: false
+ingest_storage:
+  enabled: false
+
+# ── Disable built-in MinIO ──
+minio:
+  enabled: false
+
+# ── Single replicas for homelab ──
+distributor:
+  replicas: 1
+  resources:
+    requests: { cpu: 100m, memory: 128Mi }
+    limits:   { cpu: 500m, memory: 512Mi }
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values: [k3s-node-1, k3s-node-2]
+
+ingester:
+  replicas: 1
+  zoneAwareReplication:
+    enabled: false
+  resources:
+    requests: { cpu: 200m, memory: 1Gi }
+    limits:   { cpu: 1,     memory: 3Gi }
+  persistence:
+    enabled: true
+    size: 20Gi
+    storageClass: longhorn
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values: [k3s-node-1, k3s-node-2]
+
+querier:
+  replicas: 1
+  resources:
+    requests: { cpu: 100m, memory: 128Mi }
+    limits:   { cpu: 500m, memory: 512Mi }
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values: [k3s-node-1, k3s-node-2]
+
+query_frontend:
+  replicas: 1
+  resources:
+    requests: { cpu: 50m,  memory: 64Mi }
+    limits:   { cpu: 200m, memory: 256Mi }
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values: [k3s-node-1, k3s-node-2]
+
+query_scheduler:
+  replicas: 1
+  resources:
+    requests: { cpu: 50m,  memory: 64Mi }
+    limits:   { cpu: 200m, memory: 256Mi }
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values: [k3s-node-1, k3s-node-2]
+
+compactor:
+  replicas: 1
+  resources:
+    requests: { cpu: 100m, memory: 256Mi }
+    limits:   { cpu: 500m, memory: 1Gi }
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClass: longhorn
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values: [k3s-node-1, k3s-node-2]
+
+store_gateway:
+  replicas: 1
+  resources:
+    requests: { cpu: 100m, memory: 256Mi }
+    limits:   { cpu: 500m, memory: 1Gi }
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClass: longhorn
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values: [k3s-node-1, k3s-node-2]
+
+ruler:
+  replicas: 1
+  resources:
+    requests: { cpu: 50m,  memory: 64Mi }
+    limits:   { cpu: 200m, memory: 256Mi }
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values: [k3s-node-1, k3s-node-2]
+
+# ── S3 object storage (custom MinIO) ──
+mimir:
+  structuredConfig:
+    multitenancy_enabled: false
+    blocks_storage:
+      backend: s3
+      s3:
+        endpoint: minio.monitoring.svc:9000
+        bucket_name: mimir-blocks
+        access_key_id: "${MINIO_ROOT_USER}"
+        secret_access_key: "${MINIO_ROOT_PASSWORD}"
+        insecure: true
+      tsdb:
+        dir: /data/tsdb
+      bucket_store:
+        sync_dir: /data/tsdb-cache
+    compactor:
+      data_dir: /data/compactor
+      compaction_interval: 30m
+      blocks_retention_period: 2160h
+    limits:
+      max_global_series_per_user: 500000
+      ingestion_rate: 50000
+      ingestion_burst_size: 100000
+    distributor:
+      ring:
+        kvstore:
+          store: memberlist
+    ingester:
+      ring:
+        kvstore:
+          store: memberlist
+        replication_factor: 1
+    store_gateway:
+      sharding_ring:
+        kvstore:
+          store: memberlist
+        replication_factor: 1
+    ruler_storage:
+      backend: s3
+      s3:
+        endpoint: minio.monitoring.svc:9000
+        bucket_name: mimir-ruler
+        access_key_id: "${MINIO_ROOT_USER}"
+        secret_access_key: "${MINIO_ROOT_PASSWORD}"
+        insecure: true
+    alertmanager_storage:
+      backend: s3
+      s3:
+        endpoint: minio.monitoring.svc:9000
+        bucket_name: mimir-alertmanager
+        access_key_id: "${MINIO_ROOT_USER}"
+        secret_access_key: "${MINIO_ROOT_PASSWORD}"
+        insecure: true
+    server:
+      log_level: info
+
+# ── Inject MinIO credentials as env vars ──
+global:
+  extraEnvFrom:
+    - secretRef:
+        name: minio-secrets

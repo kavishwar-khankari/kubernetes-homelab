@@ -1,0 +1,64 @@
+clustering:
+  enabled: false
+
+configMap:
+  create: true
+  content: |-
+    discovery.kubernetes "pods" {
+      role = "pod"
+    }
+
+    // ── Container log collection ──
+    loki.source.kubernetes "pods" {
+      targets    = discovery.kubernetes.pods.targets
+      forward_to = [loki.process.enrich.receiver]
+    }
+
+    // ── Label enrichment ──
+    loki.process "enrich" {
+      forward_to = [loki.write.loki.receiver]
+
+      stage.static_labels {
+        values = {
+          cluster = "homelab",
+        }
+      }
+    }
+
+    // ── Push to Loki ──
+    loki.write "loki" {
+      endpoint {
+        url = "http://monitoring-loki.monitoring.svc:3100/loki/api/v1/push"
+      }
+    }
+
+    // ── Self-logging ──
+    logging {
+      level  = "info"
+      format = "logfmt"
+    }
+
+controller:
+  type: daemonset
+
+mounts:
+  varlog: true
+  dockerSock: false
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values: [k3s-node-1, k3s-node-2]

@@ -14,7 +14,7 @@ spec:
     driver: smb.csi.k8s.io
     volumeHandle: minio-data
     volumeAttributes:
-      source: "//[IP_ADDRESS]/media_2/monitoring/minio"
+      source: "//192.168.0.75/media_2/media/monitoring/minio"
     nodeStageSecretRef:
       name: smbcreds
       namespace: monitoring
