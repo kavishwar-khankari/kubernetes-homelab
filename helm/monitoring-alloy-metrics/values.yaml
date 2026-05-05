@@ -56,26 +56,26 @@ alloy:
       }
 
       // ── node-exporter ──
-      prometheus.scrape "node_exporter" {
-        targets    = discovery.kubernetes.services.targets
-        forward_to = [prometheus.relabel.filter.receiver]
-        scrape_interval = "30s"
-        job_name  = "node-exporter"
-        clustering { enabled = true }
+      discovery.relabel "node_exporter_filter" {
+        targets = discovery.kubernetes.services.targets
         rule {
           source_labels = ["__meta_kubernetes_service_name"]
-          regex = "monitoring-node-exporter"
+          regex = "monitoring-node-exporter-prometheus-node-exporter"
           action = "keep"
         }
       }
 
-      // ── Pod annotations (prometheus.io/scrape: true) ──
-      prometheus.scrape "pod_annotations" {
-        targets    = discovery.kubernetes.pods.targets
+      prometheus.scrape "node_exporter" {
+        targets    = discovery.relabel.node_exporter_filter.output
         forward_to = [prometheus.relabel.filter.receiver]
         scrape_interval = "30s"
-        job_name  = "kubernetes-pods"
+        job_name  = "node-exporter"
         clustering { enabled = true }
+      }
+
+      // ── Pod annotations (prometheus.io/scrape: true) ──
+      discovery.relabel "pod_annotations_filter" {
+        targets = discovery.kubernetes.pods.targets
         rule {
           source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_scrape"]
           regex  = "true"
@@ -93,6 +93,14 @@ alloy:
           target_label = "__address__"
           replacement  = "$1:$2"
         }
+      }
+
+      prometheus.scrape "pod_annotations" {
+        targets    = discovery.relabel.pod_annotations_filter.output
+        forward_to = [prometheus.relabel.filter.receiver]
+        scrape_interval = "30s"
+        job_name  = "kubernetes-pods"
+        clustering { enabled = true }
       }
 
       // ── Monitoring stack self-scrape ──
