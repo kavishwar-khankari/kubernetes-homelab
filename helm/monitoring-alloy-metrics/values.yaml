@@ -142,9 +142,6 @@ alloy:
             "X-Scope-OrgID" = "anonymous",
           }
         }
-        wal {
-          directory = "/var/lib/alloy/wal"
-        }
       }
 
       // ── OTLP receiver for app instrumentation ──
