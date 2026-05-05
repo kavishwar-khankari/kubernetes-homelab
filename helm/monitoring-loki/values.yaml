@@ -78,6 +78,8 @@ loki:
       s3ForcePathStyle: true
 
   # Loki runtime config
+  commonConfig:
+    replication_factor: 1
   structuredConfig:
     auth_enabled: false
     server:
