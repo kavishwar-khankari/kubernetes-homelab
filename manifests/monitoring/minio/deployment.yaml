@@ -75,7 +75,7 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 10
         - name: bucket-setup
-          image: minio/mc@sha256:3f44d78099010e8c0176fa3fb7335759c004eda04c94e8613d3c77b276ee26e9  # RELEASE.2025-08-13T08-35-41Z
+          image: minio/mc:RELEASE.2025-08-13T08-35-41Z
           imagePullPolicy: IfNotPresent
           command:
             - /bin/sh
