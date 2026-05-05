@@ -6,6 +6,8 @@ metadata:
 spec:
   sourceRepos:
     - "https://github.com/kavishwar-khankari/kubernetes-homelab.git"
+    - "https://grafana.github.io/helm-charts"
+    - "https://prometheus-community.github.io/helm-charts"
   destinations:
     - namespace: "*"
       server: https://kubernetes.default.svc
