@@ -1,0 +1,41 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: minio-data-pv
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  persistentVolumeReclaimPolicy: Retain
+  csi:
+    driver: smb.csi.k8s.io
+    volumeHandle: minio-data
+    volumeAttributes:
+      source: "//[IP_ADDRESS]/media_2/monitoring/minio"
+    nodeStageSecretRef:
+      name: smbcreds
+      namespace: monitoring
+  mountOptions:
+    - dir_mode=0777
+    - file_mode=0777
+    - noperm
+    - mfsymlinks
+    - cache=strict
+    - noserverino
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minio-data
+  namespace: monitoring
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  volumeName: minio-data-pv
+  resources:
+    requests:
+      storage: 500Gi

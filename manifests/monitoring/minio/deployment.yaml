@@ -1,0 +1,117 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+  namespace: monitoring
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k3s-node-1
+                      - k3s-node-2
+      containers:
+        - name: minio
+          image: pgsty/minio@sha256:36382abe97cb0947728faf2c03049d4e483b9f5ba10f57c233b96962c4e29eb2  # RELEASE.2026-03-25T00-00-00Z
+          imagePullPolicy: IfNotPresent
+          command:
+            - minio
+            - server
+            - /data
+            - --console-address
+            - :9001
+          ports:
+            - name: api
+              containerPort: 9000
+            - name: console
+              containerPort: 9001
+          env:
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secrets
+                  key: root-user
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secrets
+                  key: root-password
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          readinessProbe:
+            httpGet:
+              path: /minio/health/ready
+              port: 9000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /minio/health/live
+              port: 9000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+        - name: bucket-setup
+          image: minio/mc@sha256:3f44d78099010e8c0176fa3fb7335759c004eda04c94e8613d3c77b276ee26e9  # RELEASE.2025-08-13T08-35-41Z
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Waiting for MinIO to be ready..."
+              until mc alias set local http://localhost:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD 2>/dev/null; do
+                sleep 2
+              done
+              echo "MinIO ready, creating buckets..."
+              mc mb local/mimir-blocks --ignore-existing
+              mc mb local/mimir-ruler --ignore-existing
+              mc mb local/mimir-alertmanager --ignore-existing
+              mc mb local/loki-chunks --ignore-existing
+              mc mb local/loki-ruler --ignore-existing
+              echo "Buckets created, bucket-setup done."
+              sleep infinity
+          env:
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secrets
+                  key: root-user
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secrets
+                  key: root-password
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: minio-data
