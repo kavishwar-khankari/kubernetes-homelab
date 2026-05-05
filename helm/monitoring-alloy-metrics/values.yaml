@@ -63,6 +63,14 @@ alloy:
           regex = "prometheus-node-exporter"
           action = "keep"
         }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_node_name"]
+          target_label = "node"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_namespace"]
+          target_label = "namespace"
+        }
       }
 
       prometheus.scrape "node_exporter" {
@@ -146,8 +154,8 @@ alloy:
 
       // ── OTLP receiver for app instrumentation ──
       otelcol.receiver.otlp "default" {
-        grpc { endpoint = "[IP_ADDRESS]:4317" }
-        http { endpoint = "[IP_ADDRESS]:4318" }
+        grpc { endpoint = "0.0.0.0:4317" }
+        http { endpoint = "0.0.0.0:4318" }
         output {
           metrics = [otelcol.processor.batch.default.input]
         }
