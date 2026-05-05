@@ -1,0 +1,135 @@
+{
+  "dashboard": {
+    "title": "PVC Storage Usage",
+    "uid": "pvc-storage-usage",
+    "timezone": "browser",
+    "schemaVersion": 38,
+    "tags": ["storage", "pvc"],
+    "refresh": "5m",
+    "panels": [
+      {
+        "title": "PVC Usage %",
+        "type": "barchart",
+        "gridPos": {"h": 12, "w": 12, "x": 0, "y": 0},
+        "targets": [{
+          "datasource": {"type": "prometheus", "uid": "PAE45454D0EDB9216"},
+          "expr": "(kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes) * 100",
+          "legendFormat": "{{namespace}}/{{persistentvolumeclaim}}",
+          "refId": "A"
+        }],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0, "max": 100,
+            "color": {"mode": "thresholds"},
+            "thresholds": {"steps": [
+              {"color": "green", "value": null},
+              {"color": "orange", "value": 70},
+              {"color": "red", "value": 90}
+            ]}
+          }
+        }
+      },
+      {
+        "title": "PVC Usage (bytes)",
+        "type": "table",
+        "gridPos": {"h": 12, "w": 12, "x": 12, "y": 0},
+        "targets": [{
+          "datasource": {"type": "prometheus", "uid": "PAE45454D0EDB9216"},
+          "expr": "kubelet_volume_stats_used_bytes",
+          "legendFormat": "Used",
+          "refId": "A",
+          "format": "table",
+          "instant": true
+        }, {
+          "datasource": {"type": "prometheus", "uid": "PAE45454D0EDB9216"},
+          "expr": "kubelet_volume_stats_capacity_bytes",
+          "legendFormat": "Capacity",
+          "refId": "B",
+          "format": "table",
+          "instant": true
+        }],
+        "transformations": [
+          {"id": "merge"},
+          {"id": "organize", "options": {
+            "excludeByName": {"Time": true, "job": true, "instance": true, "volume": true, "__name__": true},
+            "indexByName": {
+              "namespace": 0, "persistentvolumeclaim": 1,
+              "Value #A": 2, "Value #B": 3
+            },
+            "renameByName": {
+              "Value #A": "Used", "Value #B": "Capacity"
+            }
+          }}
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "bytes"
+          },
+          "overrides": [
+            {"matcher": {"id": "byName", "options": "Used"}, "properties": [{"id": "unit", "value": "bytes"}]},
+            {"matcher": {"id": "byName", "options": "Capacity"}, "properties": [{"id": "unit", "value": "bytes"}]}
+          ]
+        }
+      },
+      {
+        "title": "PVC Usage Over Time",
+        "type": "timeseries",
+        "gridPos": {"h": 10, "w": 12, "x": 0, "y": 12},
+        "targets": [{
+          "datasource": {"type": "prometheus", "uid": "PAE45454D0EDB9216"},
+          "expr": "(kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes) * 100",
+          "legendFormat": "{{namespace}}/{{persistentvolumeclaim}}",
+          "refId": "A"
+        }],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0, "max": 100,
+            "color": {"mode": "palette-classic"}
+          }
+        }
+      },
+      {
+        "title": "MinIO Data Usage (NAS)",
+        "type": "stat",
+        "gridPos": {"h": 5, "w": 6, "x": 0, "y": 22},
+        "targets": [{
+          "datasource": {"type": "prometheus", "uid": "PAE45454D0EDB9216"},
+          "expr": "kubelet_volume_stats_used_bytes{persistentvolumeclaim=\"minio-data\"}",
+          "refId": "A"
+        }, {
+          "datasource": {"type": "prometheus", "uid": "PAE45454D0EDB9216"},
+          "expr": "kubelet_volume_stats_capacity_bytes{persistentvolumeclaim=\"minio-data\"}",
+          "refId": "B"
+        }],
+        "fieldConfig": {
+          "defaults": {"unit": "bytes"}
+        }
+      },
+      {
+        "title": "MinIO Usage %",
+        "type": "gauge",
+        "gridPos": {"h": 5, "w": 6, "x": 6, "y": 22},
+        "targets": [{
+          "datasource": {"type": "prometheus", "uid": "PAE45454D0EDB9216"},
+          "expr": "(kubelet_volume_stats_used_bytes{persistentvolumeclaim=\"minio-data\"} / kubelet_volume_stats_capacity_bytes{persistentvolumeclaim=\"minio-data\"}) * 100",
+          "refId": "A"
+        }],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0, "max": 100,
+            "thresholds": {"steps": [
+              {"color": "green", "value": null},
+              {"color": "orange", "value": 70},
+              {"color": "red", "value": 90}
+            ]}
+          }
+        }
+      }
+    ]
+  },
+  "message": "PVC storage usage dashboard",
+  "overwrite": true
+}
