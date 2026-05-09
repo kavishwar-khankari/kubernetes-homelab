@@ -66,3 +66,13 @@ For exposing a non-k8s service (Proxmox node, TrueNAS, etc.) under `<app>.techtr
 - `restore-pod.yaml`: standalone pod with various tools (kubectl, velero, rclone, etc.) for cluster restore/migration tasks. Run with `kubectl apply -f restore-pod.yaml` then `kubectl exec -it restore-pod -- bash`. `.gitignore` excludes `/restore-*.yaml` so you can create variants without committing them.
 - `argo-master-app/master-project.yaml`: ArgoCD `AppProject` defining permissive access (all namespaces, all resources) for all apps under `master-app`.
 - `.gitignore` also excludes `/helm/**/charts/` and `/helm/**/Chart.lock` — chart dependencies are committed as `.tgz` files.
+
+## Incidents
+
+Documented in [`incidents/`](./incidents/). Read the [`README.md`](./incidents/README.md) index first, then the relevant incident file.
+
+When you solve an incident:
+1. Create a new `incidents/<NNN>-<slug>.md` using the next available number (check `README.md` for the last used).
+2. Follow the structure in [`001-longhorn-mount-failures.md`](./incidents/001-longhorn-mount-failures.md) (Date, Symptoms, Affected, Root Cause, Fix Steps, Prevention).
+3. If the incident is a recurrence or variation of a previous one, update the existing incident file with the new details instead of creating a new one.
+4. Append a row to the index table in `incidents/README.md`.
