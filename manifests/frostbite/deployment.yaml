@@ -15,6 +15,15 @@ spec:
       labels:
         app: frostbite
     spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values: [k3s-node-1, k3s-node-2]
       # hostNetwork required — Frostbite talks to rclone RC daemons on
       # 127.0.0.1:5572 (transfers) and 127.0.0.1:5573 (VFS cache).
       # Pod must be scheduled on the node that runs those daemons.
