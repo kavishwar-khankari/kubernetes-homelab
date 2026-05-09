@@ -15,6 +15,15 @@ spec:
       labels:
         app: openwebui
     spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values: [k3s-node-1, k3s-node-2]
       containers:
         - name: open-webui
           image: ghcr.io/open-webui/open-webui@sha256:413b729adc8797f5f248fb1ec68898de85c19894cc5114565994a724cd4becda # v0.9.4
