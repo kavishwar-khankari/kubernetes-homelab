@@ -5,6 +5,8 @@ metadata:
   namespace: tachidesk
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: tachidesk
@@ -13,6 +15,15 @@ spec:
       labels:
         app: tachidesk
     spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values: [k3s-node-1, k3s-node-2]
       containers:
       - name: tachidesk
         image: ghcr.io/suwayomi/tachidesk:latest
