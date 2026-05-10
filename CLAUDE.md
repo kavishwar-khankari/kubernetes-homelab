@@ -6,6 +6,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Always delegate web searches to the `websearch` subagent via the Task tool. Example: "search the web for X and return the results". The `websearch` subagent uses the cheap `deepseek/deepseek-v4-flash` model and only has SearXNG MCP tools — this avoids the $0.02/query OpenRouter built-in search cost. Never use the built-in `WebSearch` or `WebFetch` tools directly.
 
+## Reading Reddit threads
+
+The new Reddit UI (`www.reddit.com`) blocks direct fetch with a verification wall. Use either of these instead:
+- **JSON API**: append `.json` to the URL (e.g. `https://www.reddit.com/r/subreddit/comments/.../.json`) — use `webfetch` with `format: text`.
+- **Old Reddit**: replace `www.reddit.com` with `old.reddit.com` — use `webfetch` with `format: markdown`.
+
 # kubernetes-homelab
 
 GitOps-managed RKE2 homelab synced by ArgoCD. Domain: `*.techtronics.top` (note: `techtronics`, not `techtroics`).
