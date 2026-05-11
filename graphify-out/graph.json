@@ -247,43 +247,445 @@
   },
   "nodes": [
     {
-      "label": "AGENTS.md \u00e2\u20ac\u201d Agent Instructions",
+      "label": "AGENTS.md",
       "file_type": "document",
       "source_file": "AGENTS.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
+      "source_location": "L1",
       "id": "agents_md",
-      "community": 9,
-      "norm_label": "agents.md a\u20ac\u201d agent instructions"
+      "community": 6,
+      "norm_label": "agents.md"
     },
     {
-      "label": "CLAUDE.md \u00e2\u20ac\u201d Repo Conventions & Patterns",
+      "label": "AGENTS.md",
+      "file_type": "document",
+      "source_file": "AGENTS.md",
+      "source_location": "L1",
+      "id": "kubernetes_homelab_agents_agents_md",
+      "community": 6,
+      "norm_label": "agents.md"
+    },
+    {
+      "label": "Watch for",
+      "file_type": "document",
+      "source_file": "AGENTS.md",
+      "source_location": "L5",
+      "id": "kubernetes_homelab_agents_watch_for",
+      "community": 6,
+      "norm_label": "watch for"
+    },
+    {
+      "label": "Two deployment patterns",
+      "file_type": "document",
+      "source_file": "AGENTS.md",
+      "source_location": "L14",
+      "id": "kubernetes_homelab_agents_two_deployment_patterns",
+      "community": 6,
+      "norm_label": "two deployment patterns"
+    },
+    {
+      "label": "Bootstrap",
+      "file_type": "document",
+      "source_file": "AGENTS.md",
+      "source_location": "L19",
+      "id": "kubernetes_homelab_agents_bootstrap",
+      "community": 6,
+      "norm_label": "bootstrap"
+    },
+    {
+      "label": "graphify",
+      "file_type": "document",
+      "source_file": "AGENTS.md",
+      "source_location": "L23",
+      "id": "kubernetes_homelab_agents_graphify",
+      "community": 6,
+      "norm_label": "graphify"
+    },
+    {
+      "label": "CLAUDE.md",
       "file_type": "document",
       "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
+      "source_location": "L1",
       "id": "claude_md",
-      "community": 9,
-      "norm_label": "claude.md a\u20ac\u201d repo conventions & patterns"
+      "community": 6,
+      "norm_label": "claude.md"
     },
     {
-      "label": "README.md \u00e2\u20ac\u201d Homelab Overview",
+      "label": "CLAUDE.md",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L1",
+      "id": "kubernetes_homelab_claude_claude_md",
+      "community": 6,
+      "norm_label": "claude.md"
+    },
+    {
+      "label": "Web search",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L5",
+      "id": "kubernetes_homelab_claude_web_search",
+      "community": 6,
+      "norm_label": "web search"
+    },
+    {
+      "label": "Reading Reddit threads",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L9",
+      "id": "kubernetes_homelab_claude_reading_reddit_threads",
+      "community": 6,
+      "norm_label": "reading reddit threads"
+    },
+    {
+      "label": "kubernetes-homelab",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L15",
+      "id": "kubernetes_homelab_claude_kubernetes_homelab",
+      "community": 10,
+      "norm_label": "kubernetes-homelab"
+    },
+    {
+      "label": "Repo layout \u2014 two deployment patterns coexist",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L19",
+      "id": "kubernetes_homelab_claude_repo_layout_two_deployment_patterns_coexist",
+      "community": 10,
+      "norm_label": "repo layout \u2014 two deployment patterns coexist"
+    },
+    {
+      "label": "1. In-cluster apps (`manifests/<app>/` + `argo-apps/<app>.yaml`)",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L21",
+      "id": "kubernetes_homelab_claude_1_in_cluster_apps_manifests_app_argo_apps_app_yaml",
+      "community": 10,
+      "norm_label": "1. in-cluster apps (`manifests/<app>/` + `argo-apps/<app>.yaml`)"
+    },
+    {
+      "label": "2. External-service reverse proxies (`reverse-proxy/<app>/`)",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L30",
+      "id": "kubernetes_homelab_claude_2_external_service_reverse_proxies_reverse_proxy_app",
+      "community": 10,
+      "norm_label": "2. external-service reverse proxies (`reverse-proxy/<app>/`)"
+    },
+    {
+      "label": "Bootstrap",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L37",
+      "id": "kubernetes_homelab_claude_bootstrap",
+      "community": 10,
+      "norm_label": "bootstrap"
+    },
+    {
+      "label": "Patterns",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L41",
+      "id": "kubernetes_homelab_claude_patterns",
+      "community": 10,
+      "norm_label": "patterns"
+    },
+    {
+      "label": "Conventions",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L60",
+      "id": "kubernetes_homelab_claude_conventions",
+      "community": 10,
+      "norm_label": "conventions"
+    },
+    {
+      "label": "Utilities",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L70",
+      "id": "kubernetes_homelab_claude_utilities",
+      "community": 10,
+      "norm_label": "utilities"
+    },
+    {
+      "label": "Incidents",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L76",
+      "id": "kubernetes_homelab_claude_incidents",
+      "community": 10,
+      "norm_label": "incidents"
+    },
+    {
+      "label": "README.md",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
+      "source_location": "L1",
       "id": "readme_md",
-      "community": 9,
-      "norm_label": "readme.md a\u20ac\u201d homelab overview"
+      "community": 6,
+      "norm_label": "readme.md"
+    },
+    {
+      "label": "Kubernetes Homelab",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L1",
+      "id": "kubernetes_homelab_readme_kubernetes_homelab",
+      "community": 4,
+      "norm_label": "kubernetes homelab"
+    },
+    {
+      "label": "Cluster Overview",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L5",
+      "id": "kubernetes_homelab_readme_cluster_overview",
+      "community": 4,
+      "norm_label": "cluster overview"
+    },
+    {
+      "label": "code:block1 (ArgoCD (app-of-apps))",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L7",
+      "id": "kubernetes_homelab_readme_codeblock_1",
+      "community": 4,
+      "norm_label": "code:block1 (argocd (app-of-apps))"
+    },
+    {
+      "label": "Services",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L20",
+      "id": "kubernetes_homelab_readme_services",
+      "community": 4,
+      "norm_label": "services"
+    },
+    {
+      "label": "Media Stack",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L22",
+      "id": "kubernetes_homelab_readme_media_stack",
+      "community": 4,
+      "norm_label": "media stack"
+    },
+    {
+      "label": "Download Stack (VPN-protected)",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L36",
+      "id": "kubernetes_homelab_readme_download_stack_vpn_protected",
+      "community": 4,
+      "norm_label": "download stack (vpn-protected)"
+    },
+    {
+      "label": "Other",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L46",
+      "id": "kubernetes_homelab_readme_other",
+      "community": 4,
+      "norm_label": "other"
+    },
+    {
+      "label": "Reverse-Proxied Infrastructure",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L54",
+      "id": "kubernetes_homelab_readme_reverse_proxied_infrastructure",
+      "community": 4,
+      "norm_label": "reverse-proxied infrastructure"
+    },
+    {
+      "label": "Architecture",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L68",
+      "id": "kubernetes_homelab_readme_architecture",
+      "community": 4,
+      "norm_label": "architecture"
+    },
+    {
+      "label": "GitOps",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L70",
+      "id": "kubernetes_homelab_readme_gitops",
+      "community": 4,
+      "norm_label": "gitops"
+    },
+    {
+      "label": "code:block2 (argo-master-app/          # Bootstrap \u2014 single app that mana)",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L74",
+      "id": "kubernetes_homelab_readme_codeblock_2",
+      "community": 4,
+      "norm_label": "code:block2 (argo-master-app/          # bootstrap \u2014 single app that mana)"
+    },
+    {
+      "label": "Networking",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L107",
+      "id": "kubernetes_homelab_readme_networking",
+      "community": 4,
+      "norm_label": "networking"
+    },
+    {
+      "label": "Storage",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L115",
+      "id": "kubernetes_homelab_readme_storage",
+      "community": 4,
+      "norm_label": "storage"
+    },
+    {
+      "label": "Media Storage Tiers",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L124",
+      "id": "kubernetes_homelab_readme_media_storage_tiers",
+      "community": 4,
+      "norm_label": "media storage tiers"
+    },
+    {
+      "label": "code:block3 (/mnt/merged/media  \u2190 mergerfs union (read from both))",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L126",
+      "id": "kubernetes_homelab_readme_codeblock_3",
+      "community": 4,
+      "norm_label": "code:block3 (/mnt/merged/media  \u2190 mergerfs union (read from both))"
+    },
+    {
+      "label": "GPU",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L134",
+      "id": "kubernetes_homelab_readme_gpu",
+      "community": 4,
+      "norm_label": "gpu"
+    },
+    {
+      "label": "Multi-Container Pods",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L140",
+      "id": "kubernetes_homelab_readme_multi_container_pods",
+      "community": 4,
+      "norm_label": "multi-container pods"
+    },
+    {
+      "label": "Tech Stack",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L151",
+      "id": "kubernetes_homelab_readme_tech_stack",
+      "community": 4,
+      "norm_label": "tech stack"
+    },
+    {
+      "label": "Node Topology",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L166",
+      "id": "kubernetes_homelab_readme_node_topology",
+      "community": 4,
+      "norm_label": "node topology"
+    },
+    {
+      "label": "README.md",
+      "file_type": "document",
+      "source_file": "incidents/README.md",
+      "source_location": "L1",
+      "id": "incidents_readme_md",
+      "community": 14,
+      "norm_label": "readme.md"
+    },
+    {
+      "label": "Incidents",
+      "file_type": "document",
+      "source_file": "incidents/README.md",
+      "source_location": "L1",
+      "id": "incidents_readme_incidents",
+      "community": 14,
+      "norm_label": "incidents"
+    },
+    {
+      "label": "Index",
+      "file_type": "document",
+      "source_file": "incidents/README.md",
+      "source_location": "L5",
+      "id": "incidents_readme_index",
+      "community": 14,
+      "norm_label": "index"
+    },
+    {
+      "label": "001-longhorn-mount-failures.md",
+      "file_type": "document",
+      "source_file": "incidents/001-longhorn-mount-failures.md",
+      "source_location": "L1",
+      "id": "incidents_001_longhorn_mount_failures_md",
+      "community": 12,
+      "norm_label": "001-longhorn-mount-failures.md"
+    },
+    {
+      "label": "Incident 001: Longhorn mount failures on k3s-node-3",
+      "file_type": "document",
+      "source_file": "incidents/001-longhorn-mount-failures.md",
+      "source_location": "L1",
+      "id": "incidents_001_longhorn_mount_failures_incident_001_longhorn_mount_failures_on_k3s_node_3",
+      "community": 12,
+      "norm_label": "incident 001: longhorn mount failures on k3s-node-3"
+    },
+    {
+      "label": "Symptoms",
+      "file_type": "document",
+      "source_file": "incidents/001-longhorn-mount-failures.md",
+      "source_location": "L8",
+      "id": "incidents_001_longhorn_mount_failures_symptoms",
+      "community": 12,
+      "norm_label": "symptoms"
+    },
+    {
+      "label": "Affected",
+      "file_type": "document",
+      "source_file": "incidents/001-longhorn-mount-failures.md",
+      "source_location": "L15",
+      "id": "incidents_001_longhorn_mount_failures_affected",
+      "community": 12,
+      "norm_label": "affected"
+    },
+    {
+      "label": "Root Cause",
+      "file_type": "document",
+      "source_file": "incidents/001-longhorn-mount-failures.md",
+      "source_location": "L25",
+      "id": "incidents_001_longhorn_mount_failures_root_cause",
+      "community": 12,
+      "norm_label": "root cause"
+    },
+    {
+      "label": "Fix Steps",
+      "file_type": "document",
+      "source_file": "incidents/001-longhorn-mount-failures.md",
+      "source_location": "L35",
+      "id": "incidents_001_longhorn_mount_failures_fix_steps",
+      "community": 12,
+      "norm_label": "fix steps"
+    },
+    {
+      "label": "Prevention",
+      "file_type": "document",
+      "source_file": "incidents/001-longhorn-mount-failures.md",
+      "source_location": "L46",
+      "id": "incidents_001_longhorn_mount_failures_prevention",
+      "community": 12,
+      "norm_label": "prevention"
     },
     {
       "label": "restore-pod.yaml \u00e2\u20ac\u201d Standalone Restore Pod",
@@ -294,9 +696,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "restore_pod",
-      "community": 9,
-      "norm_label": "restore-pod.yaml a\u20ac\u201d standalone restore pod"
+      "community": 6,
+      "norm_label": "restore-pod.yaml a\u20ac\u201d standalone restore pod",
+      "id": "restore_pod"
     },
     {
       "label": "Monitoring & Observability Design Conversation",
@@ -307,9 +709,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "monitoring_plan",
-      "community": 6,
-      "norm_label": "monitoring & observability design conversation"
+      "community": 8,
+      "norm_label": "monitoring & observability design conversation",
+      "id": "monitoring_plan"
     },
     {
       "label": "ArgoCD Master Application (app-of-apps)",
@@ -320,9 +722,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "master_app",
-      "community": 9,
-      "norm_label": "argocd master application (app-of-apps)"
+      "community": 6,
+      "norm_label": "argocd master application (app-of-apps)",
+      "id": "master_app"
     },
     {
       "label": "ArgoCD Master Project",
@@ -333,9 +735,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "master_project",
       "community": 2,
-      "norm_label": "argocd master project"
+      "norm_label": "argocd master project",
+      "id": "master_project"
     },
     {
       "label": "Incident 001: Longhorn Mount Failures",
@@ -346,9 +748,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "incident_001",
-      "community": 9,
-      "norm_label": "incident 001: longhorn mount failures"
+      "community": 6,
+      "norm_label": "incident 001: longhorn mount failures",
+      "id": "incident_001"
     },
     {
       "label": "Incidents Index",
@@ -359,9 +761,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "incidents_readme",
-      "community": 9,
-      "norm_label": "incidents index"
+      "community": 6,
+      "norm_label": "incidents index",
+      "id": "incidents_readme"
     },
     {
       "label": "ArgoCD Helm Chart",
@@ -372,9 +774,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "argocd_helm_chart",
-      "community": 9,
-      "norm_label": "argocd helm chart"
+      "community": 6,
+      "norm_label": "argocd helm chart",
+      "id": "argocd_helm_chart"
     },
     {
       "label": "LibreSpeed Helm Chart",
@@ -385,9 +787,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "librespeed_helm_chart",
       "community": 6,
-      "norm_label": "librespeed helm chart"
+      "norm_label": "librespeed helm chart",
+      "id": "librespeed_helm_chart"
     },
     {
       "label": "Alloy Logs Collector Config",
@@ -398,9 +800,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "monitoring_alloy_logs",
-      "community": 6,
-      "norm_label": "alloy logs collector config"
+      "community": 8,
+      "norm_label": "alloy logs collector config",
+      "id": "monitoring_alloy_logs"
     },
     {
       "label": "Alloy Metrics Collector Config",
@@ -411,9 +813,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "monitoring_alloy_metrics",
-      "community": 6,
-      "norm_label": "alloy metrics collector config"
+      "community": 8,
+      "norm_label": "alloy metrics collector config",
+      "id": "monitoring_alloy_metrics"
     },
     {
       "label": "Grafana Config",
@@ -424,9 +826,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "monitoring_grafana",
-      "community": 6,
-      "norm_label": "grafana config"
+      "community": 8,
+      "norm_label": "grafana config",
+      "id": "monitoring_grafana"
     },
     {
       "label": "Kube State Metrics Config",
@@ -437,9 +839,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "monitoring_ksm",
-      "community": 6,
-      "norm_label": "kube state metrics config"
+      "community": 8,
+      "norm_label": "kube state metrics config",
+      "id": "monitoring_ksm"
     },
     {
       "label": "Loki Config (monolithic mode)",
@@ -450,9 +852,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "monitoring_loki",
-      "community": 6,
-      "norm_label": "loki config (monolithic mode)"
+      "community": 8,
+      "norm_label": "loki config (monolithic mode)",
+      "id": "monitoring_loki"
     },
     {
       "label": "Mimir Config (classic architecture)",
@@ -463,9 +865,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "monitoring_mimir",
-      "community": 6,
-      "norm_label": "mimir config (classic architecture)"
+      "community": 8,
+      "norm_label": "mimir config (classic architecture)",
+      "id": "monitoring_mimir"
     },
     {
       "label": "Node Exporter Config",
@@ -476,9 +878,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "monitoring_node_exporter",
-      "community": 6,
-      "norm_label": "node exporter config"
+      "community": 8,
+      "norm_label": "node exporter config",
+      "id": "monitoring_node_exporter"
     },
     {
       "label": "Tiered Storage Design (30d Longhorn hot \u00e2\u2020\u2019 60d MinIO/NAS cold)",
@@ -489,9 +891,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "tiered_storage_design",
-      "community": 6,
-      "norm_label": "tiered storage design (30d longhorn hot a\u2020\u2019 60d minio/nas cold)"
+      "community": 8,
+      "norm_label": "tiered storage design (30d longhorn hot a\u2020\u2019 60d minio/nas cold)",
+      "id": "tiered_storage_design"
     },
     {
       "label": "ArgoCD Multi-Source Pattern (Helm chart from upstream + values from git)",
@@ -502,9 +904,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "argocd_multisource_pattern",
-      "community": 6,
-      "norm_label": "argocd multi-source pattern (helm chart from upstream + values from git)"
+      "community": 8,
+      "norm_label": "argocd multi-source pattern (helm chart from upstream + values from git)",
+      "id": "argocd_multisource_pattern"
     },
     {
       "label": "Sync Wave Ordering for Monitoring Stack",
@@ -515,9 +917,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "sync_wave_ordering",
-      "community": 6,
-      "norm_label": "sync wave ordering for monitoring stack"
+      "community": 8,
+      "norm_label": "sync wave ordering for monitoring stack",
+      "id": "sync_wave_ordering"
     },
     {
       "label": "arr-stack Argo Application",
@@ -528,9 +930,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "argoapps_arr_stack",
       "community": 2,
-      "norm_label": "arr-stack argo application"
+      "norm_label": "arr-stack argo application",
+      "id": "argoapps_arr_stack"
     },
     {
       "label": "cert-manager Argo Application",
@@ -541,9 +943,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "argoapps_cert_manager",
       "community": 2,
-      "norm_label": "cert-manager argo application"
+      "norm_label": "cert-manager argo application",
+      "id": "argoapps_cert_manager"
     },
     {
       "label": "crafty/minecraft Argo Application",
@@ -554,9 +956,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "argoapps_crafty",
       "community": 2,
-      "norm_label": "crafty/minecraft argo application"
+      "norm_label": "crafty/minecraft argo application",
+      "id": "argoapps_crafty"
     },
     {
       "label": "dashy Argo Application",
@@ -567,9 +969,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "argoapps_dashy",
       "community": 2,
-      "norm_label": "dashy argo application"
+      "norm_label": "dashy argo application",
+      "id": "argoapps_dashy"
     },
     {
       "label": "frostbite Argo Application",
@@ -580,9 +982,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "argoapps_frostbite",
       "community": 2,
-      "norm_label": "frostbite argo application"
+      "norm_label": "frostbite argo application",
+      "id": "argoapps_frostbite"
     },
     {
       "label": "jellyfin Argo Application",
@@ -593,9 +995,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "argoapps_jellyfin",
       "community": 2,
-      "norm_label": "jellyfin argo application"
+      "norm_label": "jellyfin argo application",
+      "id": "argoapps_jellyfin"
     },
     {
       "label": "librespeed Argo Application",
@@ -606,9 +1008,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "argoapps_librespeed",
       "community": 2,
-      "norm_label": "librespeed argo application"
+      "norm_label": "librespeed argo application",
+      "id": "argoapps_librespeed"
     },
     {
       "label": "longhorn Argo Application",
@@ -619,9 +1021,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "argoapps_longhorn",
       "community": 2,
-      "norm_label": "longhorn argo application"
+      "norm_label": "longhorn argo application",
+      "id": "argoapps_longhorn"
     },
     {
       "label": "metal-lb Argo Application",
@@ -632,9 +1034,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "argoapps_metal_lb",
       "community": 2,
-      "norm_label": "metal-lb argo application"
+      "norm_label": "metal-lb argo application",
+      "id": "argoapps_metal_lb"
     },
     {
       "label": "monitoring-alloy-logs Argo Application",
@@ -645,9 +1047,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "argoapps_monitoring_alloy_logs",
       "community": 2,
-      "norm_label": "monitoring-alloy-logs argo application"
+      "norm_label": "monitoring-alloy-logs argo application",
+      "id": "argoapps_monitoring_alloy_logs"
     },
     {
       "label": "monitoring-alloy-metrics Argo Application",
@@ -658,9 +1060,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "argoapps_monitoring_alloy_metrics",
       "community": 2,
-      "norm_label": "monitoring-alloy-metrics argo application"
+      "norm_label": "monitoring-alloy-metrics argo application",
+      "id": "argoapps_monitoring_alloy_metrics"
     },
     {
       "label": "monitoring-grafana Argo Application",
@@ -671,9 +1073,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "argoapps_monitoring_grafana",
       "community": 2,
-      "norm_label": "monitoring-grafana argo application"
+      "norm_label": "monitoring-grafana argo application",
+      "id": "argoapps_monitoring_grafana"
     },
     {
       "label": "monitoring-kube-state-metrics Argo Application",
@@ -684,9 +1086,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "argoapps_monitoring_kube_state_metrics",
       "community": 2,
-      "norm_label": "monitoring-kube-state-metrics argo application"
+      "norm_label": "monitoring-kube-state-metrics argo application",
+      "id": "argoapps_monitoring_kube_state_metrics"
     },
     {
       "label": "monitoring-loki Argo Application",
@@ -697,9 +1099,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "argoapps_monitoring_loki",
       "community": 2,
-      "norm_label": "monitoring-loki argo application"
+      "norm_label": "monitoring-loki argo application",
+      "id": "argoapps_monitoring_loki"
     },
     {
       "label": "monitoring-mimir Argo Application",
@@ -710,9 +1112,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "argoapps_monitoring_mimir",
       "community": 2,
-      "norm_label": "monitoring-mimir argo application"
+      "norm_label": "monitoring-mimir argo application",
+      "id": "argoapps_monitoring_mimir"
     },
     {
       "label": "monitoring-minio Argo Application",
@@ -723,9 +1125,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "argoapps_monitoring_minio",
       "community": 2,
-      "norm_label": "monitoring-minio argo application"
+      "norm_label": "monitoring-minio argo application",
+      "id": "argoapps_monitoring_minio"
     },
     {
       "label": "monitoring-node-exporter Argo Application",
@@ -736,9 +1138,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "argoapps_monitoring_node_exporter",
       "community": 2,
-      "norm_label": "monitoring-node-exporter argo application"
+      "norm_label": "monitoring-node-exporter argo application",
+      "id": "argoapps_monitoring_node_exporter"
     },
     {
       "label": "openwebui Argo Application",
@@ -749,9 +1151,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "argoapps_openwebui",
       "community": 2,
-      "norm_label": "openwebui argo application"
+      "norm_label": "openwebui argo application",
+      "id": "argoapps_openwebui"
     },
     {
       "label": "reverse-proxy Argo ApplicationSet",
@@ -762,9 +1164,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "argoapps_reverse_proxy",
       "community": 2,
-      "norm_label": "reverse-proxy argo applicationset"
+      "norm_label": "reverse-proxy argo applicationset",
+      "id": "argoapps_reverse_proxy"
     },
     {
       "label": "searxng Argo Application",
@@ -775,9 +1177,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "argoapps_searxng",
       "community": 2,
-      "norm_label": "searxng argo application"
+      "norm_label": "searxng argo application",
+      "id": "argoapps_searxng"
     },
     {
       "label": "tachidesk Argo Application",
@@ -788,9 +1190,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "argoapps_tachidesk",
       "community": 2,
-      "norm_label": "tachidesk argo application"
+      "norm_label": "tachidesk argo application",
+      "id": "argoapps_tachidesk"
     },
     {
       "label": "tailscale Argo Application",
@@ -801,9 +1203,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "argoapps_tailscale",
       "community": 2,
-      "norm_label": "tailscale argo application"
+      "norm_label": "tailscale argo application",
+      "id": "argoapps_tailscale"
     },
     {
       "label": "tdarr Argo Application",
@@ -814,9 +1216,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "argoapps_tdarr",
       "community": 2,
-      "norm_label": "tdarr argo application"
+      "norm_label": "tdarr argo application",
+      "id": "argoapps_tdarr"
     },
     {
       "label": "vaultwarden Argo Application",
@@ -827,9 +1229,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "argoapps_vaultwarden",
       "community": 2,
-      "norm_label": "vaultwarden argo application"
+      "norm_label": "vaultwarden argo application",
+      "id": "argoapps_vaultwarden"
     },
     {
       "label": "vpn-torr Argo Application",
@@ -840,9 +1242,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "argoapps_vpn_torr",
       "community": 2,
-      "norm_label": "vpn-torr argo application"
+      "norm_label": "vpn-torr argo application",
+      "id": "argoapps_vpn_torr"
     },
     {
       "label": "Monitoring Telemetry Pipeline",
@@ -854,9 +1256,9 @@
       "author": null,
       "contributor": null,
       "rationale": "Minio (S3 backend) at sync-wave -2 \u00e2\u2020\u2019 kube-state-metrics/node-exporter (collectors) at -1 \u00e2\u2020\u2019 Loki/Mimir (storage) at 0 \u00e2\u2020\u2019 Alloy (agents) at 1 \u00e2\u2020\u2019 Grafana (visualization) at 2. Explicit sync-wave ordering enforces this dataflow dependency chain.",
-      "id": "monitoring_telemetry_pipeline",
-      "community": 12,
-      "norm_label": "monitoring telemetry pipeline"
+      "community": 16,
+      "norm_label": "monitoring telemetry pipeline",
+      "id": "monitoring_telemetry_pipeline"
     },
     {
       "label": "Helm Chart Multi-Source Deploy Pattern",
@@ -868,9 +1270,9 @@
       "author": null,
       "contributor": null,
       "rationale": "7 monitoring apps use ArgoCD multi-source: a helm chart from an upstream repo + inline values file from the local git repo. Separates chart version management from configuration.",
-      "id": "helm_multi_source_pattern",
-      "community": 13,
-      "norm_label": "helm chart multi-source deploy pattern"
+      "community": 17,
+      "norm_label": "helm chart multi-source deploy pattern",
+      "id": "helm_multi_source_pattern"
     },
     {
       "label": "arr-stack Namespace Co-location",
@@ -882,9 +1284,9 @@
       "author": null,
       "contributor": null,
       "rationale": "tailscale (VPN networking) and tdarr (transcoding) deploy into the arr-stack namespace alongside the arr media management apps, sharing network and storage context.",
-      "id": "arr_stack_namespace_group",
-      "community": 14,
-      "norm_label": "arr-stack namespace co-location"
+      "community": 18,
+      "norm_label": "arr-stack namespace co-location",
+      "id": "arr_stack_namespace_group"
     },
     {
       "label": "Reverse-Proxy Auto-Discovery Pattern",
@@ -896,9 +1298,9 @@
       "author": null,
       "contributor": null,
       "rationale": "ApplicationSet with git directory generator auto-discovers subdirectories under reverse-proxy/ and creates per-app ArgoCD Applications. No per-app manifest needed.",
-      "id": "reverse_proxy_auto_discovery",
       "community": 2,
-      "norm_label": "reverse-proxy auto-discovery pattern"
+      "norm_label": "reverse-proxy auto-discovery pattern",
+      "id": "reverse_proxy_auto_discovery"
     },
     {
       "label": "arr-stack Deployment",
@@ -909,9 +1311,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "arr-stack_deployment",
       "community": 1,
-      "norm_label": "arr-stack deployment"
+      "norm_label": "arr-stack deployment",
+      "id": "arr-stack_deployment"
     },
     {
       "label": "arr-stack Namespace",
@@ -922,9 +1324,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "arr-stack_namespace",
       "community": 1,
-      "norm_label": "arr-stack namespace"
+      "norm_label": "arr-stack namespace",
+      "id": "arr-stack_namespace"
     },
     {
       "label": "arr-stack-service",
@@ -935,9 +1337,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "arr-stack_service",
       "community": 1,
-      "norm_label": "arr-stack-service"
+      "norm_label": "arr-stack-service",
+      "id": "arr-stack_service"
     },
     {
       "label": "arr-stack-ingress",
@@ -948,9 +1350,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "arr-stack_ingress",
       "community": 1,
-      "norm_label": "arr-stack-ingress"
+      "norm_label": "arr-stack-ingress",
+      "id": "arr-stack_ingress"
     },
     {
       "label": "arr-stack SMB PV media-pv",
@@ -961,9 +1363,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "arr-stack_smb-pv",
-      "community": 10,
-      "norm_label": "arr-stack smb pv media-pv"
+      "community": 13,
+      "norm_label": "arr-stack smb pv media-pv",
+      "id": "arr-stack_smb-pv"
     },
     {
       "label": "Radarr Config PVC",
@@ -974,9 +1376,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "arr-stack_radarr-pvc",
-      "community": 4,
-      "norm_label": "radarr config pvc"
+      "community": 5,
+      "norm_label": "radarr config pvc",
+      "id": "arr-stack_radarr-pvc"
     },
     {
       "label": "Sonarr Config PVC",
@@ -987,9 +1389,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "arr-stack_sonarr-pvc",
-      "community": 4,
-      "norm_label": "sonarr config pvc"
+      "community": 5,
+      "norm_label": "sonarr config pvc",
+      "id": "arr-stack_sonarr-pvc"
     },
     {
       "label": "Lidarr Config PVC",
@@ -1000,9 +1402,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "arr-stack_lidarr-pvc",
-      "community": 4,
-      "norm_label": "lidarr config pvc"
+      "community": 5,
+      "norm_label": "lidarr config pvc",
+      "id": "arr-stack_lidarr-pvc"
     },
     {
       "label": "Wizarr Data PVC",
@@ -1013,9 +1415,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "arr-stack_wizarr-pvc",
-      "community": 4,
-      "norm_label": "wizarr data pvc"
+      "community": 5,
+      "norm_label": "wizarr data pvc",
+      "id": "arr-stack_wizarr-pvc"
     },
     {
       "label": "Jellyseerr Config PVC",
@@ -1026,9 +1428,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "arr-stack_jellyseerr-pvc",
-      "community": 4,
-      "norm_label": "jellyseerr config pvc"
+      "community": 5,
+      "norm_label": "jellyseerr config pvc",
+      "id": "arr-stack_jellyseerr-pvc"
     },
     {
       "label": "Radarr container",
@@ -1039,9 +1441,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "arr-stack_radarr",
       "community": 1,
-      "norm_label": "radarr container"
+      "norm_label": "radarr container",
+      "id": "arr-stack_radarr"
     },
     {
       "label": "Sonarr container",
@@ -1052,9 +1454,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "arr-stack_sonarr",
       "community": 1,
-      "norm_label": "sonarr container"
+      "norm_label": "sonarr container",
+      "id": "arr-stack_sonarr"
     },
     {
       "label": "Lidarr container",
@@ -1065,9 +1467,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "arr-stack_lidarr",
       "community": 1,
-      "norm_label": "lidarr container"
+      "norm_label": "lidarr container",
+      "id": "arr-stack_lidarr"
     },
     {
       "label": "Wizarr container",
@@ -1078,9 +1480,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "arr-stack_wizarr",
       "community": 1,
-      "norm_label": "wizarr container"
+      "norm_label": "wizarr container",
+      "id": "arr-stack_wizarr"
     },
     {
       "label": "Jellyseerr container",
@@ -1091,9 +1493,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "arr-stack_jellyseerr",
       "community": 1,
-      "norm_label": "jellyseerr container"
+      "norm_label": "jellyseerr container",
+      "id": "arr-stack_jellyseerr"
     },
     {
       "label": "FlareSolverr container",
@@ -1104,9 +1506,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "arr-stack_flaresolverr",
       "community": 1,
-      "norm_label": "flaresolverr container"
+      "norm_label": "flaresolverr container",
+      "id": "arr-stack_flaresolverr"
     },
     {
       "label": "letsencrypt-prod ClusterIssuer",
@@ -1117,9 +1519,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "cert-manager_cluster-issuer",
-      "community": 11,
-      "norm_label": "letsencrypt-prod clusterissuer"
+      "community": 15,
+      "norm_label": "letsencrypt-prod clusterissuer",
+      "id": "cert-manager_cluster-issuer"
     },
     {
       "label": "techtronics-wildcard Certificate",
@@ -1130,9 +1532,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "cert-manager_wildcard-cert",
-      "community": 11,
-      "norm_label": "techtronics-wildcard certificate"
+      "community": 15,
+      "norm_label": "techtronics-wildcard certificate",
+      "id": "cert-manager_wildcard-cert"
     },
     {
       "label": "minecraft-server StatefulSet",
@@ -1143,9 +1545,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "minecraft_server",
-      "community": 7,
-      "norm_label": "minecraft-server statefulset"
+      "community": 9,
+      "norm_label": "minecraft-server statefulset",
+      "id": "minecraft_server"
     },
     {
       "label": "minecraft Namespace",
@@ -1156,9 +1558,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "minecraft_namespace",
-      "community": 7,
-      "norm_label": "minecraft namespace"
+      "community": 9,
+      "norm_label": "minecraft namespace",
+      "id": "minecraft_namespace"
     },
     {
       "label": "Crafty Controller container",
@@ -1169,9 +1571,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "minecraft_crafty",
-      "community": 7,
-      "norm_label": "crafty controller container"
+      "community": 9,
+      "norm_label": "crafty controller container",
+      "id": "minecraft_crafty"
     },
     {
       "label": "Tailscale sidecar container",
@@ -1182,9 +1584,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "minecraft_tailscale",
-      "community": 7,
-      "norm_label": "tailscale sidecar container"
+      "community": 9,
+      "norm_label": "tailscale sidecar container",
+      "id": "minecraft_tailscale"
     },
     {
       "label": "minecraft-server headless Service",
@@ -1195,9 +1597,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "minecraft_headless-service",
-      "community": 7,
-      "norm_label": "minecraft-server headless service"
+      "community": 9,
+      "norm_label": "minecraft-server headless service",
+      "id": "minecraft_headless-service"
     },
     {
       "label": "crafty-web ClusterIP Service",
@@ -1208,9 +1610,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "minecraft_crafty-web",
-      "community": 7,
-      "norm_label": "crafty-web clusterip service"
+      "community": 9,
+      "norm_label": "crafty-web clusterip service",
+      "id": "minecraft_crafty-web"
     },
     {
       "label": "minecraft-lan LoadBalancer Service",
@@ -1221,9 +1623,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "minecraft_lb-service",
-      "community": 7,
-      "norm_label": "minecraft-lan loadbalancer service"
+      "community": 9,
+      "norm_label": "minecraft-lan loadbalancer service",
+      "id": "minecraft_lb-service"
     },
     {
       "label": "crafty-ingress",
@@ -1234,9 +1636,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "minecraft_ingress",
-      "community": 7,
-      "norm_label": "crafty-ingress"
+      "community": 9,
+      "norm_label": "crafty-ingress",
+      "id": "minecraft_ingress"
     },
     {
       "label": "crafty-data PVC",
@@ -1247,9 +1649,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "minecraft_crafty-pvc",
-      "community": 4,
-      "norm_label": "crafty-data pvc"
+      "community": 5,
+      "norm_label": "crafty-data pvc",
+      "id": "minecraft_crafty-pvc"
     },
     {
       "label": "tailscale-state PVC",
@@ -1260,9 +1662,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "minecraft_tailscale-pvc",
-      "community": 4,
-      "norm_label": "tailscale-state pvc"
+      "community": 5,
+      "norm_label": "tailscale-state pvc",
+      "id": "minecraft_tailscale-pvc"
     },
     {
       "label": "dashy Deployment",
@@ -1273,9 +1675,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "dashy_deployment",
-      "community": 4,
-      "norm_label": "dashy deployment"
+      "community": 5,
+      "norm_label": "dashy deployment",
+      "id": "dashy_deployment"
     },
     {
       "label": "dashy Namespace",
@@ -1286,9 +1688,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "dashy_namespace",
-      "community": 4,
-      "norm_label": "dashy namespace"
+      "community": 5,
+      "norm_label": "dashy namespace",
+      "id": "dashy_namespace"
     },
     {
       "label": "dashy Service",
@@ -1299,9 +1701,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "dashy_service",
-      "community": 4,
-      "norm_label": "dashy service"
+      "community": 5,
+      "norm_label": "dashy service",
+      "id": "dashy_service"
     },
     {
       "label": "dashy Ingress",
@@ -1312,9 +1714,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "dashy_ingress",
-      "community": 4,
-      "norm_label": "dashy ingress"
+      "community": 5,
+      "norm_label": "dashy ingress",
+      "id": "dashy_ingress"
     },
     {
       "label": "dashy-config PVC",
@@ -1325,9 +1727,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "dashy_pvc",
-      "community": 4,
-      "norm_label": "dashy-config pvc"
+      "community": 5,
+      "norm_label": "dashy-config pvc",
+      "id": "dashy_pvc"
     },
     {
       "label": "frostbite Deployment",
@@ -1338,9 +1740,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "frostbite_deployment",
       "community": 1,
-      "norm_label": "frostbite deployment"
+      "norm_label": "frostbite deployment",
+      "id": "frostbite_deployment"
     },
     {
       "label": "frostbite Namespace",
@@ -1351,9 +1753,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "frostbite_namespace",
       "community": 1,
-      "norm_label": "frostbite namespace"
+      "norm_label": "frostbite namespace",
+      "id": "frostbite_namespace"
     },
     {
       "label": "frostbite-service",
@@ -1364,9 +1766,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "frostbite_service",
       "community": 1,
-      "norm_label": "frostbite-service"
+      "norm_label": "frostbite-service",
+      "id": "frostbite_service"
     },
     {
       "label": "frostbite-ingress",
@@ -1377,9 +1779,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "frostbite_ingress",
       "community": 1,
-      "norm_label": "frostbite-ingress"
+      "norm_label": "frostbite-ingress",
+      "id": "frostbite_ingress"
     },
     {
       "label": "jellyfin Deployment",
@@ -1390,9 +1792,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "jellyfin_deployment",
       "community": 1,
-      "norm_label": "jellyfin deployment"
+      "norm_label": "jellyfin deployment",
+      "id": "jellyfin_deployment"
     },
     {
       "label": "jellyfin Namespace",
@@ -1403,9 +1805,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "jellyfin_namespace",
       "community": 1,
-      "norm_label": "jellyfin namespace"
+      "norm_label": "jellyfin namespace",
+      "id": "jellyfin_namespace"
     },
     {
       "label": "jellyfin Service",
@@ -1416,9 +1818,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "jellyfin_service",
       "community": 1,
-      "norm_label": "jellyfin service"
+      "norm_label": "jellyfin service",
+      "id": "jellyfin_service"
     },
     {
       "label": "jellyfin-ingress",
@@ -1429,9 +1831,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "jellyfin_ingress",
       "community": 1,
-      "norm_label": "jellyfin-ingress"
+      "norm_label": "jellyfin-ingress",
+      "id": "jellyfin_ingress"
     },
     {
       "label": "Jellyfin container",
@@ -1442,9 +1844,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "jellyfin_container",
       "community": 1,
-      "norm_label": "jellyfin container"
+      "norm_label": "jellyfin container",
+      "id": "jellyfin_container"
     },
     {
       "label": "Meilisearch container",
@@ -1455,9 +1857,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "jellyfin_meilisearch",
       "community": 1,
-      "norm_label": "meilisearch container"
+      "norm_label": "meilisearch container",
+      "id": "jellyfin_meilisearch"
     },
     {
       "label": "Threadfin container",
@@ -1468,9 +1870,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "jellyfin_threadfin",
       "community": 1,
-      "norm_label": "threadfin container"
+      "norm_label": "threadfin container",
+      "id": "jellyfin_threadfin"
     },
     {
       "label": "jellyfin-config PVC",
@@ -1481,9 +1883,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "jellyfin_config-pvc",
-      "community": 4,
-      "norm_label": "jellyfin-config pvc"
+      "community": 5,
+      "norm_label": "jellyfin-config pvc",
+      "id": "jellyfin_config-pvc"
     },
     {
       "label": "meilisearch-data PVC",
@@ -1494,9 +1896,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "jellyfin_meili-pvc",
-      "community": 4,
-      "norm_label": "meilisearch-data pvc"
+      "community": 5,
+      "norm_label": "meilisearch-data pvc",
+      "id": "jellyfin_meili-pvc"
     },
     {
       "label": "threadfin-config PVC",
@@ -1507,9 +1909,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "jellyfin_threadfin-pvc",
-      "community": 4,
-      "norm_label": "threadfin-config pvc"
+      "community": 5,
+      "norm_label": "threadfin-config pvc",
+      "id": "jellyfin_threadfin-pvc"
     },
     {
       "label": "jellyfin SMB PV media2",
@@ -1520,9 +1922,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "jellyfin_smb-pv",
-      "community": 10,
-      "norm_label": "jellyfin smb pv media2"
+      "community": 13,
+      "norm_label": "jellyfin smb pv media2",
+      "id": "jellyfin_smb-pv"
     },
     {
       "label": "longhorn-ingress",
@@ -1533,9 +1935,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "longhorn_ingress",
-      "community": 4,
-      "norm_label": "longhorn-ingress"
+      "community": 5,
+      "norm_label": "longhorn-ingress",
+      "id": "longhorn_ingress"
     },
     {
       "label": "Longhorn Helm values",
@@ -1546,9 +1948,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "longhorn_values",
-      "community": 4,
-      "norm_label": "longhorn helm values"
+      "community": 5,
+      "norm_label": "longhorn helm values",
+      "id": "longhorn_values"
     },
     {
       "label": "lan-pool IPAddressPool",
@@ -1559,9 +1961,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "metallb_pool",
-      "community": 7,
-      "norm_label": "lan-pool ipaddresspool"
+      "community": 9,
+      "norm_label": "lan-pool ipaddresspool",
+      "id": "metallb_pool"
     },
     {
       "label": "monitoring Namespace",
@@ -1572,9 +1974,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "monitoring_namespace",
       "community": 1,
-      "norm_label": "monitoring namespace"
+      "norm_label": "monitoring namespace",
+      "id": "monitoring_namespace"
     },
     {
       "label": "MinIO Deployment",
@@ -1585,9 +1987,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "minio_deployment",
       "community": 1,
-      "norm_label": "minio deployment"
+      "norm_label": "minio deployment",
+      "id": "minio_deployment"
     },
     {
       "label": "minio Service",
@@ -1598,9 +2000,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "minio_service",
       "community": 1,
-      "norm_label": "minio service"
+      "norm_label": "minio service",
+      "id": "minio_service"
     },
     {
       "label": "MinIO bucket-setup init container",
@@ -1611,9 +2013,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "minio_bucket-setup",
       "community": 1,
-      "norm_label": "minio bucket-setup init container"
+      "norm_label": "minio bucket-setup init container",
+      "id": "minio_bucket-setup"
     },
     {
       "label": "minio-data SMB PV",
@@ -1624,9 +2026,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "minio_smb-pv",
-      "community": 10,
-      "norm_label": "minio-data smb pv"
+      "community": 13,
+      "norm_label": "minio-data smb pv",
+      "id": "minio_smb-pv"
     },
     {
       "label": "minio-data PVC",
@@ -1637,9 +2039,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "minio_pvc",
       "community": 1,
-      "norm_label": "minio-data pvc"
+      "norm_label": "minio-data pvc",
+      "id": "minio_pvc"
     },
     {
       "label": "Longhorn distributed block storage",
@@ -1651,9 +2053,9 @@
       "author": null,
       "contributor": null,
       "rationale": "Default storage class with 2 replicas; used by most app PVCs for RWO config/state volumes",
-      "id": "infra_longhorn",
-      "community": 4,
-      "norm_label": "longhorn distributed block storage"
+      "community": 5,
+      "norm_label": "longhorn distributed block storage",
+      "id": "infra_longhorn"
     },
     {
       "label": "SMB CSI RWX shared storage",
@@ -1665,9 +2067,9 @@
       "author": null,
       "contributor": null,
       "rationale": "RWX media shares served from 192.168.0.75 via smb.csi.k8s.io; used by arrs, jellyfin, minio for bulk media/data that must be writable from any node",
-      "id": "infra_smb-csi",
-      "community": 10,
-      "norm_label": "smb csi rwx shared storage"
+      "community": 13,
+      "norm_label": "smb csi rwx shared storage",
+      "id": "infra_smb-csi"
     },
     {
       "label": "cert-manager ACME TLS automation",
@@ -1679,9 +2081,9 @@
       "author": null,
       "contributor": null,
       "rationale": "LetsEncrypt prod issuer via Cloudflare DNS01; wildcard cert *.techtronics.top in kube-system",
-      "id": "infra_cert-manager",
-      "community": 15,
-      "norm_label": "cert-manager acme tls automation"
+      "community": 19,
+      "norm_label": "cert-manager acme tls automation",
+      "id": "infra_cert-manager"
     },
     {
       "label": "MetalLB L2 load balancer",
@@ -1693,9 +2095,9 @@
       "author": null,
       "contributor": null,
       "rationale": "LAN IP pool 192.168.0.40-70 + IPv6 range; used by minecraft-lan LoadBalancer service",
-      "id": "infra_metallb",
-      "community": 16,
-      "norm_label": "metallb l2 load balancer"
+      "community": 20,
+      "norm_label": "metallb l2 load balancer",
+      "id": "infra_metallb"
     },
     {
       "label": "Co-located tightly-coupled containers",
@@ -1707,9 +2109,9 @@
       "author": null,
       "contributor": null,
       "rationale": "Multiple apps use a single Pod with sidecars sharing networking: arr-stack (6 containers), jellyfin (3), minecraft-server (2)",
-      "id": "pattern_multi-container-pod",
       "community": 1,
-      "norm_label": "co-located tightly-coupled containers"
+      "norm_label": "co-located tightly-coupled containers",
+      "id": "pattern_multi-container-pod"
     },
     {
       "label": "Recreate strategy for RWO volumes",
@@ -1721,9 +2123,9 @@
       "author": null,
       "contributor": null,
       "rationale": "Deployments using RWO PVCs use Recreate strategy to avoid RollingUpdate deadlock; seen in arrs, dashy, frostbite, jellyfin, minio",
-      "id": "pattern_recreate",
       "community": 1,
-      "norm_label": "recreate strategy for rwo volumes"
+      "norm_label": "recreate strategy for rwo volumes",
+      "id": "pattern_recreate"
     },
     {
       "label": "Tailscale kernel-mode sidecar",
@@ -1735,9 +2137,9 @@
       "author": null,
       "contributor": null,
       "rationale": "minecraft-server uses Tailscale sidecar in kernel TUN mode (TS_USERSPACE=false) with persistent state PVC for node identity",
-      "id": "pattern_tailscale-sidecar",
-      "community": 7,
-      "norm_label": "tailscale kernel-mode sidecar"
+      "community": 9,
+      "norm_label": "tailscale kernel-mode sidecar",
+      "id": "pattern_tailscale-sidecar"
     },
     {
       "label": "Open WebUI Deployment",
@@ -1748,9 +2150,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "openwebui_deployment",
       "community": 3,
-      "norm_label": "open webui deployment"
+      "norm_label": "open webui deployment",
+      "id": "openwebui_deployment"
     },
     {
       "label": "Open WebUI Ingress",
@@ -1761,9 +2163,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "openwebui_ingress",
       "community": 3,
-      "norm_label": "open webui ingress"
+      "norm_label": "open webui ingress",
+      "id": "openwebui_ingress"
     },
     {
       "label": "Open WebUI ClusterIP Service",
@@ -1774,9 +2176,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "openwebui_service",
       "community": 3,
-      "norm_label": "open webui clusterip service"
+      "norm_label": "open webui clusterip service",
+      "id": "openwebui_service"
     },
     {
       "label": "Open WebUI PVC 10Gi Longhorn",
@@ -1787,9 +2189,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "openwebui_pvc",
       "community": 3,
-      "norm_label": "open webui pvc 10gi longhorn"
+      "norm_label": "open webui pvc 10gi longhorn",
+      "id": "openwebui_pvc"
     },
     {
       "label": "SearXNG Deployment",
@@ -1800,9 +2202,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "searxng_deployment",
       "community": 3,
-      "norm_label": "searxng deployment"
+      "norm_label": "searxng deployment",
+      "id": "searxng_deployment"
     },
     {
       "label": "SearXNG Settings ConfigMap",
@@ -1813,9 +2215,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "searxng_configmap",
       "community": 3,
-      "norm_label": "searxng settings configmap"
+      "norm_label": "searxng settings configmap",
+      "id": "searxng_configmap"
     },
     {
       "label": "SearXNG Ingress (basic auth)",
@@ -1826,9 +2228,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "searxng_ingress",
       "community": 3,
-      "norm_label": "searxng ingress (basic auth)"
+      "norm_label": "searxng ingress (basic auth)",
+      "id": "searxng_ingress"
     },
     {
       "label": "SearXNG ClusterIP Service",
@@ -1839,9 +2241,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "searxng_service",
       "community": 3,
-      "norm_label": "searxng clusterip service"
+      "norm_label": "searxng clusterip service",
+      "id": "searxng_service"
     },
     {
       "label": "Tachidesk Deployment",
@@ -1852,9 +2254,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "tachidesk_deployment",
       "community": 3,
-      "norm_label": "tachidesk deployment"
+      "norm_label": "tachidesk deployment",
+      "id": "tachidesk_deployment"
     },
     {
       "label": "Tachidesk Ingress",
@@ -1865,9 +2267,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "tachidesk_ingress",
       "community": 3,
-      "norm_label": "tachidesk ingress"
+      "norm_label": "tachidesk ingress",
+      "id": "tachidesk_ingress"
     },
     {
       "label": "Tachidesk DualStack Service",
@@ -1878,9 +2280,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "tachidesk_service",
       "community": 3,
-      "norm_label": "tachidesk dualstack service"
+      "norm_label": "tachidesk dualstack service",
+      "id": "tachidesk_service"
     },
     {
       "label": "Tachidesk PVC 50Gi Longhorn",
@@ -1891,9 +2293,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "tachidesk_pvc",
       "community": 3,
-      "norm_label": "tachidesk pvc 50gi longhorn"
+      "norm_label": "tachidesk pvc 50gi longhorn",
+      "id": "tachidesk_pvc"
     },
     {
       "label": "Tailscale Subnet Router DaemonSet",
@@ -1904,9 +2306,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "tailscale_daemonset",
-      "community": 17,
-      "norm_label": "tailscale subnet router daemonset"
+      "community": 21,
+      "norm_label": "tailscale subnet router daemonset",
+      "id": "tailscale_daemonset"
     },
     {
       "label": "Tdarr Server StatefulSet",
@@ -1917,9 +2319,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "tdarr_server_statefulset",
-      "community": 5,
-      "norm_label": "tdarr server statefulset"
+      "community": 7,
+      "norm_label": "tdarr server statefulset",
+      "id": "tdarr_server_statefulset"
     },
     {
       "label": "Tdarr Worker (Node) Deployment",
@@ -1930,9 +2332,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "tdarr_worker_deployment",
-      "community": 5,
-      "norm_label": "tdarr worker (node) deployment"
+      "community": 7,
+      "norm_label": "tdarr worker (node) deployment",
+      "id": "tdarr_worker_deployment"
     },
     {
       "label": "Tdarr Ingress",
@@ -1943,9 +2345,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "tdarr_ingress",
       "community": 3,
-      "norm_label": "tdarr ingress"
+      "norm_label": "tdarr ingress",
+      "id": "tdarr_ingress"
     },
     {
       "label": "Tdarr Server Headless Service",
@@ -1956,9 +2358,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "tdarr_headless_service",
-      "community": 5,
-      "norm_label": "tdarr server headless service"
+      "community": 7,
+      "norm_label": "tdarr server headless service",
+      "id": "tdarr_headless_service"
     },
     {
       "label": "Tdarr Server LoadBalancer Service",
@@ -1969,9 +2371,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "tdarr_lb_service",
       "community": 3,
-      "norm_label": "tdarr server loadbalancer service"
+      "norm_label": "tdarr server loadbalancer service",
+      "id": "tdarr_lb_service"
     },
     {
       "label": "Tdarr Cache PV+PVC hostPath 90Gi",
@@ -1982,9 +2384,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "tdarr_cache_storage",
-      "community": 5,
-      "norm_label": "tdarr cache pv+pvc hostpath 90gi"
+      "community": 7,
+      "norm_label": "tdarr cache pv+pvc hostpath 90gi",
+      "id": "tdarr_cache_storage"
     },
     {
       "label": "Tdarr Media PV+PVC SMB 10Ti RWX",
@@ -1995,9 +2397,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "tdarr_media_storage",
-      "community": 5,
-      "norm_label": "tdarr media pv+pvc smb 10ti rwx"
+      "community": 7,
+      "norm_label": "tdarr media pv+pvc smb 10ti rwx",
+      "id": "tdarr_media_storage"
     },
     {
       "label": "Vaultwarden Deployment",
@@ -2008,9 +2410,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "vaultwarden_deployment",
       "community": 3,
-      "norm_label": "vaultwarden deployment"
+      "norm_label": "vaultwarden deployment",
+      "id": "vaultwarden_deployment"
     },
     {
       "label": "Vaultwarden Ingress",
@@ -2021,9 +2423,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "vaultwarden_ingress",
       "community": 3,
-      "norm_label": "vaultwarden ingress"
+      "norm_label": "vaultwarden ingress",
+      "id": "vaultwarden_ingress"
     },
     {
       "label": "Vaultwarden ClusterIP Service",
@@ -2034,9 +2436,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "vaultwarden_service",
       "community": 3,
-      "norm_label": "vaultwarden clusterip service"
+      "norm_label": "vaultwarden clusterip service",
+      "id": "vaultwarden_service"
     },
     {
       "label": "Vaultwarden PVC 5Gi Longhorn + RecurringJob",
@@ -2047,9 +2449,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "vaultwarden_pvc",
       "community": 3,
-      "norm_label": "vaultwarden pvc 5gi longhorn + recurringjob"
+      "norm_label": "vaultwarden pvc 5gi longhorn + recurringjob",
+      "id": "vaultwarden_pvc"
     },
     {
       "label": "VPN Torrent Multi-Container Deployment",
@@ -2060,9 +2462,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "vpn_torr_deployment",
-      "community": 5,
-      "norm_label": "vpn torrent multi-container deployment"
+      "community": 7,
+      "norm_label": "vpn torrent multi-container deployment",
+      "id": "vpn_torr_deployment"
     },
     {
       "label": "VPN Torr Multi-Host Ingress",
@@ -2073,9 +2475,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "vpn_torr_ingress",
       "community": 3,
-      "norm_label": "vpn torr multi-host ingress"
+      "norm_label": "vpn torr multi-host ingress",
+      "id": "vpn_torr_ingress"
     },
     {
       "label": "Gluetun VPN Proxy Container",
@@ -2086,9 +2488,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "vpn_torr_gluetun",
-      "community": 5,
-      "norm_label": "gluetun vpn proxy container"
+      "community": 7,
+      "norm_label": "gluetun vpn proxy container",
+      "id": "vpn_torr_gluetun"
     },
     {
       "label": "qBittorrent Container",
@@ -2099,9 +2501,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "vpn_torr_qbittorrent",
-      "community": 5,
-      "norm_label": "qbittorrent container"
+      "community": 7,
+      "norm_label": "qbittorrent container",
+      "id": "vpn_torr_qbittorrent"
     },
     {
       "label": "Prowlarr Container",
@@ -2112,9 +2514,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "vpn_torr_prowlarr",
-      "community": 5,
-      "norm_label": "prowlarr container"
+      "community": 7,
+      "norm_label": "prowlarr container",
+      "id": "vpn_torr_prowlarr"
     },
     {
       "label": "JDownloader2 Container",
@@ -2125,9 +2527,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "vpn_torr_jdownloader2",
-      "community": 5,
-      "norm_label": "jdownloader2 container"
+      "community": 7,
+      "norm_label": "jdownloader2 container",
+      "id": "vpn_torr_jdownloader2"
     },
     {
       "label": "RDTClient Container",
@@ -2138,9 +2540,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "vpn_torr_rdtclient",
-      "community": 5,
-      "norm_label": "rdtclient container"
+      "community": 7,
+      "norm_label": "rdtclient container",
+      "id": "vpn_torr_rdtclient"
     },
     {
       "label": "Aria2 Container",
@@ -2151,9 +2553,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "vpn_torr_aria2",
-      "community": 5,
-      "norm_label": "aria2 container"
+      "community": 7,
+      "norm_label": "aria2 container",
+      "id": "vpn_torr_aria2"
     },
     {
       "label": "AriaNg Container",
@@ -2164,9 +2566,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "vpn_torr_ariang",
-      "community": 5,
-      "norm_label": "ariang container"
+      "community": 7,
+      "norm_label": "ariang container",
+      "id": "vpn_torr_ariang"
     },
     {
       "label": "VPN Torr SMB Media PV+PVC 10Ti RWX",
@@ -2177,9 +2579,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "vpn_torr_media_storage",
-      "community": 5,
-      "norm_label": "vpn torr smb media pv+pvc 10ti rwx"
+      "community": 7,
+      "norm_label": "vpn torr smb media pv+pvc 10ti rwx",
+      "id": "vpn_torr_media_storage"
     },
     {
       "label": "HostPath /mnt/nas/media Volume",
@@ -2190,9 +2592,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "hostpath_media_share",
-      "community": 5,
-      "norm_label": "hostpath /mnt/nas/media volume"
+      "community": 7,
+      "norm_label": "hostpath /mnt/nas/media volume",
+      "id": "hostpath_media_share"
     },
     {
       "label": "Shared nginx Ingress Pattern (techtronics.top)",
@@ -2203,9 +2605,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "shared_nginx_ingress_pattern",
       "community": 3,
-      "norm_label": "shared nginx ingress pattern (techtronics.top)"
+      "norm_label": "shared nginx ingress pattern (techtronics.top)",
+      "id": "shared_nginx_ingress_pattern"
     },
     {
       "label": "RWO PVC + Recreate strategy deadlock avoidance",
@@ -2216,9 +2618,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "rwo_recreate_pattern",
       "community": 3,
-      "norm_label": "rwo pvc + recreate strategy deadlock avoidance"
+      "norm_label": "rwo pvc + recreate strategy deadlock avoidance",
+      "id": "rwo_recreate_pattern"
     },
     {
       "label": "Gluetun VPN sidecar provides network for torrent containers",
@@ -2229,9 +2631,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "vpn_sidecar_pattern",
-      "community": 5,
-      "norm_label": "gluetun vpn sidecar provides network for torrent containers"
+      "community": 7,
+      "norm_label": "gluetun vpn sidecar provides network for torrent containers",
+      "id": "vpn_sidecar_pattern"
     },
     {
       "label": "code-server Endpoints",
@@ -2242,9 +2644,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "reverse_proxy_code_server_endpoint",
       "community": 0,
-      "norm_label": "code-server endpoints"
+      "norm_label": "code-server endpoints",
+      "id": "reverse_proxy_code_server_endpoint"
     },
     {
       "label": "code-server Ingress",
@@ -2255,9 +2657,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "reverse_proxy_code_server_ingress",
       "community": 0,
-      "norm_label": "code-server ingress"
+      "norm_label": "code-server ingress",
+      "id": "reverse_proxy_code_server_ingress"
     },
     {
       "label": "code-server Service",
@@ -2268,9 +2670,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "reverse_proxy_code_server_service",
       "community": 0,
-      "norm_label": "code-server service"
+      "norm_label": "code-server service",
+      "id": "reverse_proxy_code_server_service"
     },
     {
       "label": "files-2 Endpoints",
@@ -2281,9 +2683,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "reverse_proxy_files2_endpoint",
       "community": 0,
-      "norm_label": "files-2 endpoints"
+      "norm_label": "files-2 endpoints",
+      "id": "reverse_proxy_files2_endpoint"
     },
     {
       "label": "files-2 Ingress",
@@ -2294,9 +2696,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "reverse_proxy_files2_ingress",
       "community": 0,
-      "norm_label": "files-2 ingress"
+      "norm_label": "files-2 ingress",
+      "id": "reverse_proxy_files2_ingress"
     },
     {
       "label": "files-2 Service",
@@ -2307,9 +2709,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "reverse_proxy_files2_service",
       "community": 0,
-      "norm_label": "files-2 service"
+      "norm_label": "files-2 service",
+      "id": "reverse_proxy_files2_service"
     },
     {
       "label": "immich Endpoints",
@@ -2320,9 +2722,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "reverse_proxy_immich_endpoint",
       "community": 0,
-      "norm_label": "immich endpoints"
+      "norm_label": "immich endpoints",
+      "id": "reverse_proxy_immich_endpoint"
     },
     {
       "label": "immich Ingress",
@@ -2333,9 +2735,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "reverse_proxy_immich_ingress",
       "community": 0,
-      "norm_label": "immich ingress"
+      "norm_label": "immich ingress",
+      "id": "reverse_proxy_immich_ingress"
     },
     {
       "label": "immich Service",
@@ -2346,9 +2748,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "reverse_proxy_immich_service",
       "community": 0,
-      "norm_label": "immich service"
+      "norm_label": "immich service",
+      "id": "reverse_proxy_immich_service"
     },
     {
       "label": "letter Endpoints",
@@ -2359,9 +2761,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "reverse_proxy_letter_endpoint",
       "community": 0,
-      "norm_label": "letter endpoints"
+      "norm_label": "letter endpoints",
+      "id": "reverse_proxy_letter_endpoint"
     },
     {
       "label": "letter Ingress",
@@ -2372,9 +2774,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "reverse_proxy_letter_ingress",
       "community": 0,
-      "norm_label": "letter ingress"
+      "norm_label": "letter ingress",
+      "id": "reverse_proxy_letter_ingress"
     },
     {
       "label": "letter Service",
@@ -2385,9 +2787,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "reverse_proxy_letter_service",
       "community": 0,
-      "norm_label": "letter service"
+      "norm_label": "letter service",
+      "id": "reverse_proxy_letter_service"
     },
     {
       "label": "nextcloud Endpoints",
@@ -2398,9 +2800,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "reverse_proxy_nextcloud_endpoint",
       "community": 0,
-      "norm_label": "nextcloud endpoints"
+      "norm_label": "nextcloud endpoints",
+      "id": "reverse_proxy_nextcloud_endpoint"
     },
     {
       "label": "nextcloud Ingress",
@@ -2411,9 +2813,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "reverse_proxy_nextcloud_ingress",
       "community": 0,
-      "norm_label": "nextcloud ingress"
+      "norm_label": "nextcloud ingress",
+      "id": "reverse_proxy_nextcloud_ingress"
     },
     {
       "label": "nextcloud Service",
@@ -2424,9 +2826,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "reverse_proxy_nextcloud_service",
       "community": 0,
-      "norm_label": "nextcloud service"
+      "norm_label": "nextcloud service",
+      "id": "reverse_proxy_nextcloud_service"
     },
     {
       "label": "obsidian-livesync Endpoints",
@@ -2437,9 +2839,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "reverse_proxy_obsidian_livesync_endpoint",
       "community": 0,
-      "norm_label": "obsidian-livesync endpoints"
+      "norm_label": "obsidian-livesync endpoints",
+      "id": "reverse_proxy_obsidian_livesync_endpoint"
     },
     {
       "label": "obsidian-livesync Ingress",
@@ -2450,9 +2852,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "reverse_proxy_obsidian_livesync_ingress",
       "community": 0,
-      "norm_label": "obsidian-livesync ingress"
+      "norm_label": "obsidian-livesync ingress",
+      "id": "reverse_proxy_obsidian_livesync_ingress"
     },
     {
       "label": "obsidian-livesync Service",
@@ -2463,9 +2865,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "reverse_proxy_obsidian_livesync_service",
       "community": 0,
-      "norm_label": "obsidian-livesync service"
+      "norm_label": "obsidian-livesync service",
+      "id": "reverse_proxy_obsidian_livesync_service"
     },
     {
       "label": "pbs Endpoints",
@@ -2476,9 +2878,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "reverse_proxy_pbs_endpoint",
       "community": 0,
-      "norm_label": "pbs endpoints"
+      "norm_label": "pbs endpoints",
+      "id": "reverse_proxy_pbs_endpoint"
     },
     {
       "label": "pbs Ingress",
@@ -2489,9 +2891,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "reverse_proxy_pbs_ingress",
       "community": 0,
-      "norm_label": "pbs ingress"
+      "norm_label": "pbs ingress",
+      "id": "reverse_proxy_pbs_ingress"
     },
     {
       "label": "pbs Service",
@@ -2502,9 +2904,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "reverse_proxy_pbs_service",
       "community": 0,
-      "norm_label": "pbs service"
+      "norm_label": "pbs service",
+      "id": "reverse_proxy_pbs_service"
     },
     {
       "label": "pve-1 Endpoints",
@@ -2515,9 +2917,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "reverse_proxy_pve1_endpoint",
       "community": 0,
-      "norm_label": "pve-1 endpoints"
+      "norm_label": "pve-1 endpoints",
+      "id": "reverse_proxy_pve1_endpoint"
     },
     {
       "label": "pve-1 Ingress",
@@ -2528,9 +2930,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "reverse_proxy_pve1_ingress",
       "community": 0,
-      "norm_label": "pve-1 ingress"
+      "norm_label": "pve-1 ingress",
+      "id": "reverse_proxy_pve1_ingress"
     },
     {
       "label": "pve-1 Service",
@@ -2541,9 +2943,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "reverse_proxy_pve1_service",
       "community": 0,
-      "norm_label": "pve-1 service"
+      "norm_label": "pve-1 service",
+      "id": "reverse_proxy_pve1_service"
     },
     {
       "label": "Host 192.168.0.30",
@@ -2554,9 +2956,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "revproxy_host_192_168_0_30",
       "community": 0,
-      "norm_label": "host 192.168.0.30"
+      "norm_label": "host 192.168.0.30",
+      "id": "revproxy_host_192_168_0_30"
     },
     {
       "label": "Host 192.168.0.75",
@@ -2567,9 +2969,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "revproxy_host_192_168_0_75",
       "community": 0,
-      "norm_label": "host 192.168.0.75"
+      "norm_label": "host 192.168.0.75",
+      "id": "revproxy_host_192_168_0_75"
     },
     {
       "label": "Host 192.168.0.197",
@@ -2580,9 +2982,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "revproxy_host_192_168_0_197",
       "community": 0,
-      "norm_label": "host 192.168.0.197"
+      "norm_label": "host 192.168.0.197",
+      "id": "revproxy_host_192_168_0_197"
     },
     {
       "label": "Host 192.168.0.15",
@@ -2593,9 +2995,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "revproxy_host_192_168_0_15",
       "community": 0,
-      "norm_label": "host 192.168.0.15"
+      "norm_label": "host 192.168.0.15",
+      "id": "revproxy_host_192_168_0_15"
     },
     {
       "label": "Host 192.168.0.150",
@@ -2606,9 +3008,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "revproxy_host_192_168_0_150",
       "community": 0,
-      "norm_label": "host 192.168.0.150"
+      "norm_label": "host 192.168.0.150",
+      "id": "revproxy_host_192_168_0_150"
     },
     {
       "label": "Host 192.168.0.211",
@@ -2619,9 +3021,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "revproxy_host_192_168_0_211",
       "community": 0,
-      "norm_label": "host 192.168.0.211"
+      "norm_label": "host 192.168.0.211",
+      "id": "revproxy_host_192_168_0_211"
     },
     {
       "label": "code-server.techtronics.top",
@@ -2632,9 +3034,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "revproxy_domain_code_server_techtronics_top",
       "community": 0,
-      "norm_label": "code-server.techtronics.top"
+      "norm_label": "code-server.techtronics.top",
+      "id": "revproxy_domain_code_server_techtronics_top"
     },
     {
       "label": "files-2.techtronics.top",
@@ -2645,9 +3047,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "revproxy_domain_files2_techtronics_top",
       "community": 0,
-      "norm_label": "files-2.techtronics.top"
+      "norm_label": "files-2.techtronics.top",
+      "id": "revproxy_domain_files2_techtronics_top"
     },
     {
       "label": "immich.techtronics.top",
@@ -2658,9 +3060,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "revproxy_domain_immich_techtronics_top",
       "community": 0,
-      "norm_label": "immich.techtronics.top"
+      "norm_label": "immich.techtronics.top",
+      "id": "revproxy_domain_immich_techtronics_top"
     },
     {
       "label": "letter.techtronics.top",
@@ -2671,9 +3073,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "revproxy_domain_letter_techtronics_top",
       "community": 0,
-      "norm_label": "letter.techtronics.top"
+      "norm_label": "letter.techtronics.top",
+      "id": "revproxy_domain_letter_techtronics_top"
     },
     {
       "label": "nextcloud.techtronics.top",
@@ -2684,9 +3086,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "revproxy_domain_nextcloud_techtronics_top",
       "community": 0,
-      "norm_label": "nextcloud.techtronics.top"
+      "norm_label": "nextcloud.techtronics.top",
+      "id": "revproxy_domain_nextcloud_techtronics_top"
     },
     {
       "label": "ob-lsync.techtronics.top",
@@ -2697,9 +3099,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "revproxy_domain_obsidian_livesync_techtronics_top",
       "community": 0,
-      "norm_label": "ob-lsync.techtronics.top"
+      "norm_label": "ob-lsync.techtronics.top",
+      "id": "revproxy_domain_obsidian_livesync_techtronics_top"
     },
     {
       "label": "pbs.techtronics.top",
@@ -2710,9 +3112,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "revproxy_domain_pbs_techtronics_top",
       "community": 0,
-      "norm_label": "pbs.techtronics.top"
+      "norm_label": "pbs.techtronics.top",
+      "id": "revproxy_domain_pbs_techtronics_top"
     },
     {
       "label": "proxmox-1.techtronics.top",
@@ -2723,9 +3125,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "revproxy_domain_proxmox1_techtronics_top",
       "community": 0,
-      "norm_label": "proxmox-1.techtronics.top"
+      "norm_label": "proxmox-1.techtronics.top",
+      "id": "revproxy_domain_proxmox1_techtronics_top"
     },
     {
       "label": "Reverse-Proxy External Backend Pattern",
@@ -2736,9 +3138,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "revproxy_pattern_external_backend",
       "community": 0,
-      "norm_label": "reverse-proxy external backend pattern"
+      "norm_label": "reverse-proxy external backend pattern",
+      "id": "revproxy_pattern_external_backend"
     },
     {
       "label": "Proxmox VE Node 2",
@@ -2750,9 +3152,9 @@
       "author": null,
       "contributor": null,
       "rationale": "Exposes Proxmox VE node 2 web UI at 192.168.0.212:8006 (HTTPS) via proxmox-2.techtronics.top. Uses Endpoints+Service+Ingress triple pattern with nginx backend-protocol:HTTPS and proxy-ssl-verify:false for self-signed certs.",
-      "id": "pve-2",
-      "community": 8,
-      "norm_label": "proxmox ve node 2"
+      "community": 11,
+      "norm_label": "proxmox ve node 2",
+      "id": "pve-2"
     },
     {
       "label": "Proxmox VE Node 3",
@@ -2764,9 +3166,9 @@
       "author": null,
       "contributor": null,
       "rationale": "Exposes Proxmox VE node 3 web UI at 192.168.0.213:8006 (HTTPS) via proxmox-3.techtronics.top.",
-      "id": "pve-3",
-      "community": 8,
-      "norm_label": "proxmox ve node 3"
+      "community": 11,
+      "norm_label": "proxmox ve node 3",
+      "id": "pve-3"
     },
     {
       "label": "Proxmox VE Node 4",
@@ -2778,9 +3180,9 @@
       "author": null,
       "contributor": null,
       "rationale": "Exposes Proxmox VE node 4 web UI at 192.168.0.214:8006 (HTTPS) via proxmox-4.techtronics.top.",
-      "id": "pve-4",
-      "community": 8,
-      "norm_label": "proxmox ve node 4"
+      "community": 11,
+      "norm_label": "proxmox ve node 4",
+      "id": "pve-4"
     },
     {
       "label": "Router Web Interface",
@@ -2792,9 +3194,9 @@
       "author": null,
       "contributor": null,
       "rationale": "Exposes router web UI at 192.168.0.1:80 (HTTP) via router.techtronics.top.",
-      "id": "router",
-      "community": 8,
-      "norm_label": "router web interface"
+      "community": 11,
+      "norm_label": "router web interface",
+      "id": "router"
     },
     {
       "label": "Speed Test Server",
@@ -2806,9 +3208,9 @@
       "author": null,
       "contributor": null,
       "rationale": "Exposes speed test service at 192.168.0.197:30003 (HTTP) via speed.techtronics.top. Uses proxy-buffering:off and proxy-body-size:100m for throughput testing.",
-      "id": "speed",
-      "community": 8,
-      "norm_label": "speed test server"
+      "community": 11,
+      "norm_label": "speed test server",
+      "id": "speed"
     },
     {
       "label": "TrueNAS 2 Web Interface",
@@ -2820,9 +3222,9 @@
       "author": null,
       "contributor": null,
       "rationale": "Exposes TrueNAS 2 web UI at 192.168.0.75:80 (HTTP) via truenas-2.techtronics.top.",
-      "id": "truenas-2",
-      "community": 8,
-      "norm_label": "truenas 2 web interface"
+      "community": 11,
+      "norm_label": "truenas 2 web interface",
+      "id": "truenas-2"
     },
     {
       "label": "Ubuntu Server 1",
@@ -2834,9 +3236,9 @@
       "author": null,
       "contributor": null,
       "rationale": "Exposes Ubuntu server 1 service at 192.168.0.237:8082 (HTTP) via ubuntu-server-1.techtronics.top.",
-      "id": "ubuntu-server-1",
-      "community": 8,
-      "norm_label": "ubuntu server 1"
+      "community": 11,
+      "norm_label": "ubuntu server 1",
+      "id": "ubuntu-server-1"
     },
     {
       "label": "Ubuntu Server 2",
@@ -2848,9 +3250,9 @@
       "author": null,
       "contributor": null,
       "rationale": "Exposes Ubuntu server 2 service at 192.168.0.197:8080 (HTTP) via ubuntu-server-2.techtronics.top.",
-      "id": "ubuntu-server-2",
-      "community": 8,
-      "norm_label": "ubuntu server 2"
+      "community": 11,
+      "norm_label": "ubuntu server 2",
+      "id": "ubuntu-server-2"
     },
     {
       "label": "Reverse Proxy External Service Pattern",
@@ -2862,12 +3264,22 @@
       "author": null,
       "contributor": null,
       "rationale": "Design pattern for exposing external (non-cluster) services through Kubernetes: a manually-created Endpoints resource points to an external IP:port, a headless-like Service (ClusterIP, no selector) references the Endpoints by name, and an Ingress with nginx ingressClassName exposes the service at a *.techtronics.top subdomain. Avoids per-app ArgoCD yaml \u00e2\u20ac\u201d auto-discovered by reverse-proxy pattern.",
-      "id": "reverse-proxy-pattern",
-      "community": 8,
-      "norm_label": "reverse proxy external service pattern"
+      "community": 11,
+      "norm_label": "reverse proxy external service pattern",
+      "id": "reverse-proxy-pattern"
     }
   ],
   "links": [
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "AGENTS.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "agents_md",
+      "target": "kubernetes_homelab_agents_agents_md",
+      "confidence_score": 1.0
+    },
     {
       "relation": "references",
       "confidence": "EXTRACTED",
@@ -2877,6 +3289,66 @@
       "weight": 1.0,
       "source": "agents_md",
       "target": "claude_md"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "AGENTS.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_agents_agents_md",
+      "target": "kubernetes_homelab_agents_watch_for",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "AGENTS.md",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_agents_agents_md",
+      "target": "kubernetes_homelab_agents_two_deployment_patterns",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "AGENTS.md",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_agents_agents_md",
+      "target": "kubernetes_homelab_agents_bootstrap",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "AGENTS.md",
+      "source_location": "L23",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_agents_agents_md",
+      "target": "kubernetes_homelab_agents_graphify",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "claude_md",
+      "target": "kubernetes_homelab_claude_claude_md",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L15",
+      "weight": 1.0,
+      "source": "claude_md",
+      "target": "kubernetes_homelab_claude_kubernetes_homelab",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -2959,6 +3431,116 @@
       "target": "claude_md"
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_claude_claude_md",
+      "target": "kubernetes_homelab_claude_web_search",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_claude_claude_md",
+      "target": "kubernetes_homelab_claude_reading_reddit_threads",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_claude_kubernetes_homelab",
+      "target": "kubernetes_homelab_claude_repo_layout_two_deployment_patterns_coexist",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L41",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_claude_kubernetes_homelab",
+      "target": "kubernetes_homelab_claude_patterns",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L60",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_claude_kubernetes_homelab",
+      "target": "kubernetes_homelab_claude_conventions",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L70",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_claude_kubernetes_homelab",
+      "target": "kubernetes_homelab_claude_utilities",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L76",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_claude_kubernetes_homelab",
+      "target": "kubernetes_homelab_claude_incidents",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_claude_repo_layout_two_deployment_patterns_coexist",
+      "target": "kubernetes_homelab_claude_1_in_cluster_apps_manifests_app_argo_apps_app_yaml",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L30",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_claude_repo_layout_two_deployment_patterns_coexist",
+      "target": "kubernetes_homelab_claude_2_external_service_reverse_proxies_reverse_proxy_app",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L37",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_claude_repo_layout_two_deployment_patterns_coexist",
+      "target": "kubernetes_homelab_claude_bootstrap",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "readme_md",
+      "target": "kubernetes_homelab_readme_kubernetes_homelab",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "references",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
@@ -2967,6 +3549,266 @@
       "weight": 1.0,
       "source": "readme_md",
       "target": "master_app"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_readme_kubernetes_homelab",
+      "target": "kubernetes_homelab_readme_cluster_overview",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_readme_kubernetes_homelab",
+      "target": "kubernetes_homelab_readme_services",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L68",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_readme_kubernetes_homelab",
+      "target": "kubernetes_homelab_readme_architecture",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L151",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_readme_kubernetes_homelab",
+      "target": "kubernetes_homelab_readme_tech_stack",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L166",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_readme_kubernetes_homelab",
+      "target": "kubernetes_homelab_readme_node_topology",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_readme_cluster_overview",
+      "target": "kubernetes_homelab_readme_codeblock_1",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_readme_services",
+      "target": "kubernetes_homelab_readme_media_stack",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L36",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_readme_services",
+      "target": "kubernetes_homelab_readme_download_stack_vpn_protected",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L46",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_readme_services",
+      "target": "kubernetes_homelab_readme_other",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L54",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_readme_services",
+      "target": "kubernetes_homelab_readme_reverse_proxied_infrastructure",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L70",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_readme_architecture",
+      "target": "kubernetes_homelab_readme_gitops",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L107",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_readme_architecture",
+      "target": "kubernetes_homelab_readme_networking",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L115",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_readme_architecture",
+      "target": "kubernetes_homelab_readme_storage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L124",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_readme_architecture",
+      "target": "kubernetes_homelab_readme_media_storage_tiers",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L134",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_readme_architecture",
+      "target": "kubernetes_homelab_readme_gpu",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L140",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_readme_architecture",
+      "target": "kubernetes_homelab_readme_multi_container_pods",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L74",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_readme_gitops",
+      "target": "kubernetes_homelab_readme_codeblock_2",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L126",
+      "weight": 1.0,
+      "source": "kubernetes_homelab_readme_media_storage_tiers",
+      "target": "kubernetes_homelab_readme_codeblock_3",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "incidents/README.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "incidents_readme_md",
+      "target": "incidents_readme_incidents",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "incidents/README.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "incidents_readme_incidents",
+      "target": "incidents_readme_index",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "incidents/001-longhorn-mount-failures.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "incidents_001_longhorn_mount_failures_md",
+      "target": "incidents_001_longhorn_mount_failures_incident_001_longhorn_mount_failures_on_k3s_node_3",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "incidents/001-longhorn-mount-failures.md",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "incidents_001_longhorn_mount_failures_incident_001_longhorn_mount_failures_on_k3s_node_3",
+      "target": "incidents_001_longhorn_mount_failures_symptoms",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "incidents/001-longhorn-mount-failures.md",
+      "source_location": "L15",
+      "weight": 1.0,
+      "source": "incidents_001_longhorn_mount_failures_incident_001_longhorn_mount_failures_on_k3s_node_3",
+      "target": "incidents_001_longhorn_mount_failures_affected",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "incidents/001-longhorn-mount-failures.md",
+      "source_location": "L25",
+      "weight": 1.0,
+      "source": "incidents_001_longhorn_mount_failures_incident_001_longhorn_mount_failures_on_k3s_node_3",
+      "target": "incidents_001_longhorn_mount_failures_root_cause",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "incidents/001-longhorn-mount-failures.md",
+      "source_location": "L35",
+      "weight": 1.0,
+      "source": "incidents_001_longhorn_mount_failures_incident_001_longhorn_mount_failures_on_k3s_node_3",
+      "target": "incidents_001_longhorn_mount_failures_fix_steps",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "incidents/001-longhorn-mount-failures.md",
+      "source_location": "L46",
+      "weight": 1.0,
+      "source": "incidents_001_longhorn_mount_failures_incident_001_longhorn_mount_failures_on_k3s_node_3",
+      "target": "incidents_001_longhorn_mount_failures_prevention",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -5721,5 +6563,5 @@
       "source_file": "reverse-proxy/"
     }
   ],
-  "built_at_commit": "0802d41872c163755813578de24456f4fab5aa21"
+  "built_at_commit": "c24887057f9db4cdbc6a2b0d330d06826715550b"
 }
