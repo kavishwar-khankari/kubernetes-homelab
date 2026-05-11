@@ -1,0 +1,618 @@
+{
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\AGENTS.md": {
+    "mtime": 1778492856.378917,
+    "hash": "d07c9e77519b57c7644b3dbab1c04079"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\CLAUDE.md": {
+    "mtime": 1778492997.429914,
+    "hash": "b2275ca1f130ad43a4bcca2ecc7a55f2"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\README.md": {
+    "mtime": 1777139758.8063254,
+    "hash": "5ebdcb3f8de3cc1bd9164a31ccf9e7e1"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\restore-pod.yaml": {
+    "mtime": 1767561569.556139,
+    "hash": "0808670d6ebef69b21d61009cd0c6cf4"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\argo-apps\\arr-stack.yaml": {
+    "mtime": 1769581413.0116124,
+    "hash": "6bb7e75faf08bd98f45d9e0bb9bb9b76"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\argo-apps\\cert-manager.yaml": {
+    "mtime": 1766781720.1070943,
+    "hash": "985b655fd32ae14afce25b2a41f8f396"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\argo-apps\\crafty.yaml": {
+    "mtime": 1777139758.8083253,
+    "hash": "fbfd9431f156bc6673b0330d14f84c6c"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\argo-apps\\dashy.yaml": {
+    "mtime": 1777881594.6554062,
+    "hash": "25b65c66784f50cb85f510649df3bfa2"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\argo-apps\\frostbite.yaml": {
+    "mtime": 1777139758.8093266,
+    "hash": "9bbbeabb6ce8c5207e81befa04fcd655"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\argo-apps\\jellyfin.yaml": {
+    "mtime": 1766838323.3431532,
+    "hash": "b8ba225961914b5d118971a4ddb1d6b7"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\argo-apps\\librespeed.yaml": {
+    "mtime": 1766784908.1561613,
+    "hash": "5777ccca43edae9f4ab615dc87813652"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\argo-apps\\longhorn.yaml": {
+    "mtime": 1766781880.8785284,
+    "hash": "bc3db271de781db11021e0ab289816ed"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\argo-apps\\metal-lb.yaml": {
+    "mtime": 1766781955.1873374,
+    "hash": "82f36186a4f47fc19f53b1002f7e2d21"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\argo-apps\\monitoring-alloy-logs.yaml": {
+    "mtime": 1777973821.107669,
+    "hash": "a71f5042a67da3afc87e47d42a5a710a"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\argo-apps\\monitoring-alloy-metrics.yaml": {
+    "mtime": 1777973819.2837746,
+    "hash": "59ad0433640443b86197fd69db0353bc"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\argo-apps\\monitoring-grafana.yaml": {
+    "mtime": 1777973822.2776546,
+    "hash": "eb370909df618d5e07478004a10b8795"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\argo-apps\\monitoring-kube-state-metrics.yaml": {
+    "mtime": 1777973810.5650115,
+    "hash": "ee565f3961a7396c517b5beee200461f"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\argo-apps\\monitoring-loki.yaml": {
+    "mtime": 1777973816.192795,
+    "hash": "8ab548645cf40fe0ab78a043f6a58c2f"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\argo-apps\\monitoring-mimir.yaml": {
+    "mtime": 1777973814.7215195,
+    "hash": "eb1f61512085c5ee2b4acbee901446e2"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\argo-apps\\monitoring-minio.yaml": {
+    "mtime": 1777973807.4104187,
+    "hash": "02fc9665f04ed9c7630c98aa77adc291"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\argo-apps\\monitoring-node-exporter.yaml": {
+    "mtime": 1777973812.9206803,
+    "hash": "9fee886db9cb206f13b811dffca7cb34"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\argo-apps\\openwebui.yaml": {
+    "mtime": 1778339645.8807194,
+    "hash": "5c300040d662dbb8a4203e2f42eb7a20"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\argo-apps\\reverse-proxy.yaml": {
+    "mtime": 1767534468.7775154,
+    "hash": "16f0ac38e96e1725792bd83f17d371c6"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\argo-apps\\searxng.yaml": {
+    "mtime": 1777962669.4459906,
+    "hash": "8daccc0236b0b6d69eb9fbfd195378ee"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\argo-apps\\tachidesk.yaml": {
+    "mtime": 1769581413.0126133,
+    "hash": "632b2009e7ea94dc73221cbba41effce"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\argo-apps\\tailscale.yaml": {
+    "mtime": 1777139758.8112903,
+    "hash": "e65d8e48631146f96b17a8fe5cf6f2e4"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\argo-apps\\tdarr.yaml": {
+    "mtime": 1772369619.0855834,
+    "hash": "02efb18f5b02ee0f698194526528578e"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\argo-apps\\vaultwarden.yaml": {
+    "mtime": 1777881594.6554062,
+    "hash": "8cea368b7695142586fe039d7c65a190"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\argo-apps\\vpn-torr.yaml": {
+    "mtime": 1769581413.0126133,
+    "hash": "4e9c9b8ac1b0add1a42634383bff7b4a"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\argo-master-app\\master-app.yaml": {
+    "mtime": 1766781021.925347,
+    "hash": "110f4fa538bfd7b63c8b4c46229b86ed"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\argo-master-app\\master-project.yaml": {
+    "mtime": 1777974831.8916452,
+    "hash": "08d092cbd4ca27fbdbe13d57c2a62c70"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\helm\\ArgoCD\\Chart.yaml": {
+    "mtime": 1766775351.340667,
+    "hash": "f4d6ba0d89e0ecfc8c9c69068b5aa99b"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\helm\\ArgoCD\\values.yaml": {
+    "mtime": 1766775392.1427128,
+    "hash": "1e3e24d2cb52b8dce4aecb756745d21c"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\helm\\ArgoCD\\templates\\ingress.yaml": {
+    "mtime": 1766776307.4398944,
+    "hash": "1ef7c64ece57902257679a1cc78474e8"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\helm\\librespeed\\Chart.yaml": {
+    "mtime": 1766784004.595294,
+    "hash": "feb8b2fa5cce474851d8fbc44f34665e"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\helm\\librespeed\\values.yaml": {
+    "mtime": 1777274869.854483,
+    "hash": "0e881ddcf9f57b73366264186e2296ce"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\helm\\librespeed\\templates\\deployment.yaml": {
+    "mtime": 1769581413.0136137,
+    "hash": "f211e3ff815acba47d8e5570ac411b55"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\helm\\librespeed\\templates\\ingress.yaml": {
+    "mtime": 1777274869.8534818,
+    "hash": "1b2cb2bbc6e13a9c9c85d2171082d287"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\helm\\librespeed\\templates\\pv.yaml": {
+    "mtime": 1766784277.5096743,
+    "hash": "f2593278e0963314ab406784c65724cc"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\helm\\librespeed\\templates\\pvc.yaml": {
+    "mtime": 1766785797.9053037,
+    "hash": "7e174b251fcc4c6ffe8bf7644cb76fb6"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\helm\\librespeed\\templates\\service.yaml": {
+    "mtime": 1767131760.726534,
+    "hash": "a5a071965a5c1d9769239e4863fd860b"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\helm\\monitoring-alloy-logs\\values.yaml": {
+    "mtime": 1777986915.8962648,
+    "hash": "63875a8ee22bd3383374800972a4da0a"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\helm\\monitoring-alloy-metrics\\values.yaml": {
+    "mtime": 1777991189.7712593,
+    "hash": "9349bfeb2895afc84528ed3f971ace34"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\helm\\monitoring-grafana\\values.yaml": {
+    "mtime": 1778007424.6100438,
+    "hash": "3a1b76904ac589c7e1861a373eb058bd"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\helm\\monitoring-kube-state-metrics\\values.yaml": {
+    "mtime": 1777973528.2770398,
+    "hash": "220b203a9a598aeb996032fb13f09ce8"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\helm\\monitoring-loki\\values.yaml": {
+    "mtime": 1777988291.3047826,
+    "hash": "a4be6edafd0d1a522cb4b8a1c6af4c08"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\helm\\monitoring-mimir\\values.yaml": {
+    "mtime": 1777984184.0863066,
+    "hash": "4d21cc38cecfc41d5907a827a744ee57"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\helm\\monitoring-node-exporter\\values.yaml": {
+    "mtime": 1777973532.1101904,
+    "hash": "57c33a3f2aa5c16d71b94f595d6334b8"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\incidents\\001-longhorn-mount-failures.md": {
+    "mtime": 1778337389.2039814,
+    "hash": "1662351a3b16cd91bcd80118fb7dfe2e"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\incidents\\README.md": {
+    "mtime": 1778337354.946235,
+    "hash": "dfbcdff9b579d5c83141bc624cc793d9"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\arrs\\deployment.yaml": {
+    "mtime": 1777139758.8127544,
+    "hash": "c08c4fa79cec0d3c3305e32dd1fb13cc"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\arrs\\ingress.yaml": {
+    "mtime": 1777139758.8149319,
+    "hash": "bbaec0034376f84e5cc293d4fcc2dd83"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\arrs\\service.yaml": {
+    "mtime": 1777139758.8176239,
+    "hash": "c64cb0ce56807214c9b2b54d28e4becb"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\arrs\\storage.yaml": {
+    "mtime": 1777139758.8189516,
+    "hash": "1fcbea97c00236f8c97b2cf3ad6999ff"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\cert-manager\\cluster-issuer.yaml": {
+    "mtime": 1766823131.5011563,
+    "hash": "e8dbb5f93621945fbdc91c09e8ec815d"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\cert-manager\\wildcard-cert.yaml": {
+    "mtime": 1766764153.8517902,
+    "hash": "4d42c29de670f7795f5352d3ae738862"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\crafty\\crafty+tailscale.yaml": {
+    "mtime": 1778492997.4334602,
+    "hash": "686f4b64512e3d798e3b0125a22baa57"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\crafty\\ingress.yaml": {
+    "mtime": 1777139758.821673,
+    "hash": "2d01bcf5d2cede44c00021895b664bde"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\crafty\\service.yaml": {
+    "mtime": 1777139758.8258796,
+    "hash": "166820a889167ba6bf5f335cd570931d"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\crafty\\storage.yaml": {
+    "mtime": 1777139758.8258796,
+    "hash": "1b41e6ff5d94b3e5b555faa82171c3b2"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\dashy\\deployment.yaml": {
+    "mtime": 1778334282.8563616,
+    "hash": "dba8e5afd795e842781caf847d43b000"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\dashy\\ingress.yaml": {
+    "mtime": 1777881594.6596138,
+    "hash": "d573391a65de29478f4fc588d506446e"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\dashy\\service.yaml": {
+    "mtime": 1777881594.6605585,
+    "hash": "9d984f10cad322fbd91e81e8672b9cb4"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\dashy\\storage.yaml": {
+    "mtime": 1777881594.6630926,
+    "hash": "fecf84bb1c2cbad30ecc2e23ab507fc2"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\frostbite\\deployment.yaml": {
+    "mtime": 1778340678.5626001,
+    "hash": "387c64958a002b988c75808c711bc02d"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\frostbite\\ingress.yaml": {
+    "mtime": 1777139758.8306158,
+    "hash": "9df72b0edf60c778dad340a107d1d6a5"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\frostbite\\service.yaml": {
+    "mtime": 1777139758.8331473,
+    "hash": "38f2ec55cfe61ba1c1af6235a5bbcb98"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\frostbite\\storage.yaml": {
+    "mtime": 1777139758.8331473,
+    "hash": "70d13624f012b27f6294a6c1ecd310c6"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\jellyfin\\deployment.yaml": {
+    "mtime": 1777139758.8358915,
+    "hash": "ce289ebf5300cb9a36289f2e5fcf550c"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\jellyfin\\ingress.yaml": {
+    "mtime": 1777139758.837188,
+    "hash": "689582c0e045e41f48b044c6f72f1822"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\jellyfin\\service.yaml": {
+    "mtime": 1769581413.020646,
+    "hash": "35af15797038816c5f19589766460a93"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\jellyfin\\storage.yaml": {
+    "mtime": 1777139758.8394966,
+    "hash": "491b8198b55c2a6e0247e7238bbca6b4"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\longhorn\\longhorn-ingress.yml": {
+    "mtime": 1766766040.5559268,
+    "hash": "05936ebdade9c04a8bda3e9cda9f1370"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\longhorn\\values.yaml": {
+    "mtime": 1766761433.7108586,
+    "hash": "935fb12ec06f1ace30994dfe6a3049de"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\metal-lb\\metallb-ip-pool.yaml": {
+    "mtime": 1769581413.022647,
+    "hash": "286f94849cc910620efd9a8f3901cdf5"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\monitoring\\minio\\deployment.yaml": {
+    "mtime": 1777974630.63834,
+    "hash": "4d66fffe48a13af6e85c27f89395670c"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\monitoring\\minio\\namespace.yaml": {
+    "mtime": 1777971590.1396341,
+    "hash": "e4ed9789a379222ba6bb8837eb190cc0"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\monitoring\\minio\\service.yaml": {
+    "mtime": 1777971660.2502728,
+    "hash": "db6a864515a0b7cff204af69fef69507"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\monitoring\\minio\\storage.yaml": {
+    "mtime": 1777974092.599748,
+    "hash": "eda686b1d38e1d66f8cca8e58bde6dd8"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\openwebui\\deployment.yaml": {
+    "mtime": 1778340766.248595,
+    "hash": "9e661fe2d712182c2076abe9f9f14482"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\openwebui\\ingress.yaml": {
+    "mtime": 1778339638.6900578,
+    "hash": "b8c4c70707bd63d79ba92445e25f57c0"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\openwebui\\service.yaml": {
+    "mtime": 1778339631.029347,
+    "hash": "4869f2efb16735bfb56b441ffa8795b4"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\openwebui\\storage.yaml": {
+    "mtime": 1778339626.8001943,
+    "hash": "80432b8b484704887bb7f374cae2b3fe"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\searxng\\configmap.yaml": {
+    "mtime": 1777962669.4469907,
+    "hash": "1553eaae4684957506ca95c38f390e28"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\searxng\\deployment.yaml": {
+    "mtime": 1778340669.5902205,
+    "hash": "b0193a431ea2a526d662bbd37164733c"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\searxng\\ingress.yaml": {
+    "mtime": 1777962669.4479895,
+    "hash": "4288ee45b00a469aa95686f67a5dca46"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\searxng\\service.yaml": {
+    "mtime": 1777962669.4489894,
+    "hash": "ab637cf6e3789a3c6790ba93ce8f7c57"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\tachidesk\\deployment.yaml": {
+    "mtime": 1778334270.3432825,
+    "hash": "ae90964f8e740c4432f19ca4ff88aacb"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\tachidesk\\ingress.yaml": {
+    "mtime": 1769581413.0246472,
+    "hash": "a606232472df56e0ea170c2cf0c4633c"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\tachidesk\\service.yaml": {
+    "mtime": 1769581413.0317838,
+    "hash": "5b70634c283e50d020ab1b4aae9d918b"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\tachidesk\\storage.yaml": {
+    "mtime": 1769581413.0327833,
+    "hash": "60f8c31fc80491fc8c60c9431cd812e5"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\tailscale\\ds.yaml": {
+    "mtime": 1777139758.8407803,
+    "hash": "d9b52cec4a11eb1aa527ff7595e9b7a3"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\tdarr\\ingress.yaml": {
+    "mtime": 1772369619.0865781,
+    "hash": "fd5b707430aa08b6501b2cecf3b3ea44"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\tdarr\\node-deployment.yaml": {
+    "mtime": 1777139758.8447351,
+    "hash": "dca06202cbdcbd1ae20fe8c7a36e72a2"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\tdarr\\server-statefulset.yaml": {
+    "mtime": 1777139758.846759,
+    "hash": "d05149da667f0550c1f4587254080725"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\tdarr\\service-lb.yaml": {
+    "mtime": 1777139758.8479514,
+    "hash": "102417426779d64057bf4d2aa113dd96"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\tdarr\\service.yaml": {
+    "mtime": 1777139758.8484569,
+    "hash": "9391cf1ee3ea177369ed0e281ab75e5a"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\tdarr\\storage.yaml": {
+    "mtime": 1772369619.0885797,
+    "hash": "10e1b84c0f39b682eaece30f388c484f"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\vaultwarden\\deployment.yaml": {
+    "mtime": 1778334276.6973267,
+    "hash": "fff23076f7d625efd062fe0ba3f5e18c"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\vaultwarden\\ingress.yaml": {
+    "mtime": 1777881594.6666262,
+    "hash": "0632749553ae2ad1bcf06622b7763969"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\vaultwarden\\service.yaml": {
+    "mtime": 1777881594.6708047,
+    "hash": "726f3963215677808554aac2a05f4e45"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\vaultwarden\\storage.yaml": {
+    "mtime": 1777881594.672016,
+    "hash": "6203839fb9bf06fde9256b7f14aca779"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\vpn-torr\\deployment.yaml": {
+    "mtime": 1777274504.659521,
+    "hash": "d7c397e2c3783f6b51ffb47f889570eb"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\vpn-torr\\ingress.yaml": {
+    "mtime": 1777144295.9909294,
+    "hash": "060b3e7a1ee35ef063455b111cca9636"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\vpn-torr\\service.yaml": {
+    "mtime": 1777144295.9944854,
+    "hash": "127e7abf9cc94794e887964d3a6f1089"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\manifests\\vpn-torr\\storage.yaml": {
+    "mtime": 1777144295.9965992,
+    "hash": "838d7a6996355906bdc9849625d4030f"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\code-server\\endpoint.yaml": {
+    "mtime": 1777139758.854377,
+    "hash": "c6d2dc472657a19cd084ba195d319133"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\code-server\\ingress.yaml": {
+    "mtime": 1777139758.854377,
+    "hash": "4741bb992d5440266f86b5bd75d003d7"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\code-server\\service.yaml": {
+    "mtime": 1777139758.8558474,
+    "hash": "027f84782fd005dca9972ff17bdb5bc6"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\files-2\\endpoint.yaml": {
+    "mtime": 1767131760.7360616,
+    "hash": "f018c54cd994eae256123d323f6614ee"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\files-2\\ingress.yaml": {
+    "mtime": 1769581413.037909,
+    "hash": "1091ddf10137e42ce6cb7fa845369caf"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\files-2\\service.yaml": {
+    "mtime": 1767131760.7380767,
+    "hash": "530c25206e1ca3bcdbac8479299bb76b"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\immich\\endpoint.yaml": {
+    "mtime": 1767131760.7390761,
+    "hash": "a40ba4a96cd612220467695933539cad"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\immich\\ingress.yaml": {
+    "mtime": 1777274869.8564796,
+    "hash": "d57527ab8761aad83b5acfebc82b8055"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\immich\\service.yaml": {
+    "mtime": 1767131760.7421155,
+    "hash": "8b401bddb49ce58a57fbad5a7dd3501d"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\letter\\endpoint.yaml": {
+    "mtime": 1767131760.7431233,
+    "hash": "96d10c4808471a02e87c20393d908b0a"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\letter\\ingress.yaml": {
+    "mtime": 1767131760.7441285,
+    "hash": "4dafea1b0db7fbcf4ce8868b08ac6d7d"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\letter\\service.yaml": {
+    "mtime": 1767131760.7441285,
+    "hash": "c4244dd214f22588b55892b697664942"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\nextcloud\\endpoint.yaml": {
+    "mtime": 1767131760.746534,
+    "hash": "dd045f6e981d831bed33db159e10271b"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\nextcloud\\ingress.yaml": {
+    "mtime": 1777274869.8579934,
+    "hash": "0516f007eea9c7efb2ba8d9471c62d3e"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\nextcloud\\service.yaml": {
+    "mtime": 1767131760.7477713,
+    "hash": "42daca151378c7ba3b45a066570bf2b8"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\obsidian-livesync\\endpoint.yaml": {
+    "mtime": 1777881594.6725445,
+    "hash": "6b6f86ec31b87232ccabc6ed0187aec7"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\obsidian-livesync\\ingress.yaml": {
+    "mtime": 1777881594.6732328,
+    "hash": "083916ecda489985eb0e7c88f678706b"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\obsidian-livesync\\service.yaml": {
+    "mtime": 1777881594.6738622,
+    "hash": "bfe5e7b26a5c79828bd4a9dc03b549e3"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\pbs\\endpoint.yaml": {
+    "mtime": 1767131760.7489996,
+    "hash": "c544438c06b042ce300dfcb237f98cba"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\pbs\\ingress.yaml": {
+    "mtime": 1767131760.7489996,
+    "hash": "132fdc7239f6f7f05cf1e184d40b1a25"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\pbs\\service.yaml": {
+    "mtime": 1767131760.7500856,
+    "hash": "d6b8f57c20921aa00b564f9db3d2e19e"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\pve-1\\endpoint.yaml": {
+    "mtime": 1767131760.7510848,
+    "hash": "33d1e9bac803a2688c0ab8118c0e9bbc"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\pve-1\\ingress.yaml": {
+    "mtime": 1767131760.7525067,
+    "hash": "16d31eefcba2fcd333abdab0e4f5a58f"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\pve-1\\service.yaml": {
+    "mtime": 1767131760.753658,
+    "hash": "8aadff178ed7db7068bdc812dc0a71e7"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\pve-2\\endpoint.yaml": {
+    "mtime": 1767131760.7549884,
+    "hash": "ccc7da8dbf07e931ce89b0bfd05a767b"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\pve-2\\ingress.yaml": {
+    "mtime": 1767131760.7549884,
+    "hash": "f602084e63b5bc5b39ccb983f0846c47"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\pve-2\\service.yaml": {
+    "mtime": 1767131760.7564964,
+    "hash": "062878973f0b5fe24919f3b2d8d08188"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\pve-3\\endpoint.yaml": {
+    "mtime": 1767131760.7578554,
+    "hash": "01d1715e77f73a258968ca14387f48c2"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\pve-3\\ingress.yaml": {
+    "mtime": 1767131760.7578554,
+    "hash": "0f1115733831b27a7f9cf21eedb04fe4"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\pve-3\\service.yaml": {
+    "mtime": 1767131760.7591903,
+    "hash": "cdbe81944f31a5bf8e6b808fcfd9ae58"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\pve-4\\endpoint.yaml": {
+    "mtime": 1767131760.7591903,
+    "hash": "000c4a33312c16f583821cce84739a01"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\pve-4\\ingress.yaml": {
+    "mtime": 1767131760.7606924,
+    "hash": "b0c938bdafa661d4c0232149ca4cb121"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\pve-4\\service.yaml": {
+    "mtime": 1767131760.7616935,
+    "hash": "9bbbf5e4907122dd27b3fb7b93c80b66"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\router\\endpoint.yaml": {
+    "mtime": 1767131760.767506,
+    "hash": "b68046935a6ccfba9c0d9e9bd8f62336"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\router\\ingress.yaml": {
+    "mtime": 1767131760.767506,
+    "hash": "7afe7736be61965905ad8ecb0d98f61f"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\router\\service.yaml": {
+    "mtime": 1767131760.7687316,
+    "hash": "6e05ddce37dd7468fde994a598456202"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\speed\\endpoint.yaml": {
+    "mtime": 1767131760.770239,
+    "hash": "de4f78572bfd6f70778aaea2f26f73a6"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\speed\\ingress.yaml": {
+    "mtime": 1777274869.8590364,
+    "hash": "4b7a708d80a85d389f2390e4e2ba345f"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\speed\\service.yaml": {
+    "mtime": 1767131760.7717583,
+    "hash": "ea635dc1f095276cd41090c5f36f84e6"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\truenas-2\\endpoint.yaml": {
+    "mtime": 1767131760.7759118,
+    "hash": "261934ccc0c18b13c8ba2faca9a58e9e"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\truenas-2\\ingress.yaml": {
+    "mtime": 1767131760.7771118,
+    "hash": "990497318d6c28af5e031f5e4d558dde"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\truenas-2\\service.yaml": {
+    "mtime": 1767131760.7781174,
+    "hash": "f23a02f8df3b0ca7df766b6013fd701f"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\ubuntu-server-1\\endpoint.yaml": {
+    "mtime": 1767131760.7793796,
+    "hash": "73e617d73ac20ef89e9212eddff89e84"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\ubuntu-server-1\\ingress.yaml": {
+    "mtime": 1767131760.780382,
+    "hash": "0db00d5a8e33e121ac3b37bda6207057"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\ubuntu-server-1\\service.yaml": {
+    "mtime": 1767131760.780382,
+    "hash": "8cdc8c5f18b27fae4fa281b70d5ce9ce"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\ubuntu-server-2\\endpoint.yaml": {
+    "mtime": 1767131760.7826984,
+    "hash": "dc6a2f551ab15d7d3c8ff10354aa6000"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\ubuntu-server-2\\ingress.yaml": {
+    "mtime": 1767131760.7826984,
+    "hash": "9ca1d5ca0be29545324eeddd0148fa9c"
+  },
+  "C:\\Users\\coooo\\Documents\\kubernetes-homelab\\reverse-proxy\\ubuntu-server-2\\service.yaml": {
+    "mtime": 1767131760.7839482,
+    "hash": "56bb9f9f964c3a5099eb7ebd532acea0"
+  }
+}

@@ -2,3 +2,8 @@
 /helm/**/Chart.lock
 /restore-*.yaml
 .claude
+.opencode/
+
+# graphify — machine-specific, rebuilt locally
+graphify-out/cache/
+graphify-out/.graphify_python
