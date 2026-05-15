@@ -57,6 +57,9 @@ spec:
             - mountPath: /app/config/kubernetes.yaml
               name: config
               subPath: kubernetes.yaml
+            - mountPath: /app/config/docker.yaml
+              name: config
+              subPath: docker.yaml
             - mountPath: /app/config/custom.css
               name: config
               subPath: custom.css
@@ -111,4 +114,5 @@ spec:
           configMap:
             name: homepage
         - name: logs
-          emptyDir: {}
+          emptyDir:
+            sizeLimit: 50Mi
