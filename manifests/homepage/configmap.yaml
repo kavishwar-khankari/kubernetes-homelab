@@ -43,6 +43,8 @@ data:
 
   docker.yaml: ""
 
+  proxmox.yaml: ""
+
   widgets.yaml: |
     - kubernetes:
         cluster:
