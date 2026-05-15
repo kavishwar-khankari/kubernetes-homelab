@@ -15,7 +15,7 @@ data:
     background:
       image: https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80
       blur: sm
-      opacity: 85
+      opacity: 100
     layout:
       Networking:
         tab: Infrastructure
