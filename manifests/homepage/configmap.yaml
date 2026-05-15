@@ -7,49 +7,47 @@ data:
   settings.yaml: |
     title: // HOMELAB
     theme: dark
-    color: stone
-    cardBlur: md
-    headerStyle: underlined
+    color: gray
+    headerStyle: clean
     statusStyle: dot
     target: _blank
-    background:
-      image: https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=1920&q=80
-      blur: sm
-      opacity: 60
+    hideVersion: true
+    hideErrors: true
+    fullWidth: true
+    useEqualHeights: true
+    iconStyle: theme
+    fiveColumns: true
     layout:
       Networking:
-        tab: Infrastructure
+        style: row
+        columns: 2
       DevOps:
-        tab: Infrastructure
+        style: row
+        columns: 2
       Monitoring:
-        tab: Infrastructure
+        style: row
+        columns: 2
       Media:
-        tab: Media
         style: row
         columns: 2
       VM Controllers:
-        tab: Servers
         style: row
         columns: 2
       Oracle:
-        tab: Servers
         style: row
         columns: 2
       Cloud:
-        tab: Apps
         style: row
         columns: 2
       Smart Home:
-        tab: Apps
+        style: row
+        columns: 2
       AI:
-        tab: Apps
+        style: row
+        columns: 2
     quicklaunch:
       provider: duckduckgo
       searchDescriptions: true
-    fullWidth: true
-    useEqualHeights: true
-    iconStyle: gradient
-    fiveColumns: true
 
   kubernetes.yaml: |
     mode: cluster
@@ -59,6 +57,14 @@ data:
   proxmox.yaml: ""
 
   widgets.yaml: |
+    - resources:
+        backend: resources
+        expanded: true
+        cpu: true
+        memory: true
+        disk: /
+        network: true
+        uptime: true
     - kubernetes:
         cluster:
           show: true
@@ -486,363 +492,1571 @@ data:
             - href: https://xdmovies.com/
 
   custom.css: |
-    /* ===== TYPOGRAPHY ===== */
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&display=swap');
-    @import url('https://cdn.jsdelivr.net/npm/@fontsource/cascadia-mono@4.2.1/index.min.css');
-
-    /* ===== BACKGROUND — override broken Tailwind gradient ===== */
-    #background {
+    /* ════════════════════════════════════════════════════════════════════
+       chonker homepage — shadcn × Linear aesthetic
+       2026-05-15 (aesthetic rewrite)
+    
+       All rules scoped under .theme-gray (activated by `color: gray` in
+       settings.yaml). Pairs with custom.js (severity classes, Tailscale
+       status swap, queue scroll wrap).
+       ════════════════════════════════════════════════════════════════════ */
+    
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap');
+    
+    /* ──────────────────────────────────────────────────────────────────
+       DESIGN TOKENS
+       ────────────────────────────────────────────────────────────────── */
+    
+    :root {
+      /* Catppuccin Mocha base */
+      --base:     #1e1e2e;
+      --mantle:   #181825;
+      --crust:    #11111b;
+      --surface0: #313244;
+      --surface1: #45475a;
+      --surface2: #585b70;
+      --overlay0: #6c7086;
+      --overlay1: #7f849c;
+      --subtext0: #a6adc8;
+      --subtext1: #bac2de;
+      --text:     #cdd6f4;
+    
+      /* Accent — mauve */
+      --accent:        #cba6f7;
+      --accent-soft:   rgba(203, 166, 247, 0.10);
+      --accent-glow:   rgba(203, 166, 247, 0.25);
+      --accent-strong: rgba(203, 166, 247, 0.40);
+    
+      /* Status colors */
+      --green:      #a6e3a1;
+      --green-glow: rgba(166, 227, 161, 0.35);
+      --yellow:     #f9e2af;
+      --yellow-glow:rgba(249, 226, 175, 0.35);
+      --red:        #f38ba8;
+      --red-glow:   rgba(243, 139, 168, 0.35);
+      --blue:       #89b4fa;
+      --teal:       #94e2d5;
+    
+      /* Hairline borders */
+      --hair:        rgba(205, 214, 244, 0.06);
+      --hair-strong: rgba(205, 214, 244, 0.12);
+    
+      /* Typography — single-family mono treatment (terminal/console vibe) */
+      --font-ui:      "IBM Plex Mono", "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+      --font-mono:    "IBM Plex Mono", "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+      --font-display: "IBM Plex Mono", "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+      --mono: var(--font-mono);
+      --sans: var(--font-ui);
+    }
+    
+    /* ──────────────────────────────────────────────────────────────────
+       PER-SECTION ACCENT COLORS
+       ──────────────────────────────────────────────────────────────────
+       Override --accent (and friends) inside each .services-group so the
+       section header diamond, big numbers, card top accent, and hover
+       glow all pick up a per-section color via cascade. Hero
+       (#information-widgets) and #bookmarks are OUTSIDE #layout-groups,
+       so they keep the root mauve — "chonker brand".
+       ────────────────────────────────────────────────────────────────── */
+    
+    /* 1) Media → mauve (root default; explicit for documentation) */
+    .theme-gray #layout-groups > .services-group:nth-of-type(1) {
+      --accent:        #cba6f7;
+      --accent-soft:   rgba(203, 166, 247, 0.10);
+      --accent-glow:   rgba(203, 166, 247, 0.25);
+      --accent-strong: rgba(203, 166, 247, 0.40);
+    }
+    
+    /* 2) Servarrs → blue */
+    .theme-gray #layout-groups > .services-group:nth-of-type(2) {
+      --accent:        #89b4fa;
+      --accent-soft:   rgba(137, 180, 250, 0.10);
+      --accent-glow:   rgba(137, 180, 250, 0.25);
+      --accent-strong: rgba(137, 180, 250, 0.40);
+    }
+    
+    /* 3) Downloads → peach */
+    .theme-gray #layout-groups > .services-group:nth-of-type(3) {
+      --accent:        #fab387;
+      --accent-soft:   rgba(250, 179, 135, 0.10);
+      --accent-glow:   rgba(250, 179, 135, 0.25);
+      --accent-strong: rgba(250, 179, 135, 0.40);
+    }
+    
+    /* 4) Photos → green */
+    .theme-gray #layout-groups > .services-group:nth-of-type(4) {
+      --accent:        #a6e3a1;
+      --accent-soft:   rgba(166, 227, 161, 0.10);
+      --accent-glow:   rgba(166, 227, 161, 0.25);
+      --accent-strong: rgba(166, 227, 161, 0.40);
+    }
+    
+    /* 5) Monitoring → teal */
+    .theme-gray #layout-groups > .services-group:nth-of-type(5) {
+      --accent:        #94e2d5;
+      --accent-soft:   rgba(148, 226, 213, 0.10);
+      --accent-glow:   rgba(148, 226, 213, 0.25);
+      --accent-strong: rgba(148, 226, 213, 0.40);
+    }
+    
+    /* ──────────────────────────────────────────────────────────────────
+       BACKGROUND — layered radial gradients (Linear-inspired)
+       ────────────────────────────────────────────────────────────────── */
+    
+    .theme-gray,
+    .theme-gray body {
+      background:
+        radial-gradient(ellipse 1400px 900px at 15% -10%, rgba(203, 166, 247, 0.10), transparent 60%),
+        radial-gradient(ellipse 1000px 700px at 95% 110%, rgba(116, 199, 236, 0.05), transparent 60%),
+        linear-gradient(180deg, #1a1a26 0%, #16161f 100%) !important;
+      background-attachment: fixed !important;
+      min-height: 100vh;
+      color: var(--text);
+    }
+    
+    /* Very subtle film grain */
+    .theme-gray body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.025 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+      pointer-events: none;
+      opacity: 0.3;
+    }
+    
+    /* ──────────────────────────────────────────────────────────────────
+       TYPOGRAPHY RESET
+       ────────────────────────────────────────────────────────────────── */
+    
+    .theme-gray *,
+    .theme-gray *::before,
+    .theme-gray *::after {
+      font-family: var(--font-ui);
+    }
+    .theme-gray h1, .theme-gray h2, .theme-gray h3 {
+      font-family: var(--font-display);
+    }
+    
+    /* ──────────────────────────────────────────────────────────────────
+       PAGE WRAPPERS
+       ────────────────────────────────────────────────────────────────── */
+    
+    .theme-gray #page_wrapper,
+    .theme-gray #inner_wrapper {
+      background: transparent !important;
+    }
+    
+    /* Hide synthesised topbar (deprecated) + debug + right-side search cluster */
+    .theme-gray #hp-topbar,
+    .theme-gray #hp-debug-probe,
+    .theme-gray #information-widgets-right { display: none !important; }
+    
+    /* Hide the orphaned "chonker" label below the resource widget */
+    .theme-gray #widgets-wrap .widget-container > .text-center,
+    .theme-gray #widgets-wrap .ml-6.pt-1.text-center { display: none !important; }
+    
+    /* Hide footer (auto-polling handles refresh; empty #version wastes space) */
+    .theme-gray #footer { display: none !important; }
+    
+    /* Hide scrollbars (functional scroll preserved) */
+    .theme-gray *::-webkit-scrollbar { width: 0 !important; height: 0 !important; }
+    .theme-gray *                    { scrollbar-width: none !important; }
+    
+    /* Focus ring */
+    .theme-gray *:focus-visible {
+      outline: 2px solid var(--accent) !important;
+      outline-offset: 2px !important;
+    }
+    
+    /* (Entry fade animations removed — they interacted badly with React
+       re-renders, making cards flicker between renders. The hover
+       transitions + pulsing section diamonds already provide motion.) */
+    
+    /* ──────────────────────────────────────────────────────────────────
+       TOP-LEVEL SECTION LAYOUT
+       ────────────────────────────────────────────────────────────────── */
+    
+    
+    .theme-gray #information-widgets {
+      width: min(100%, 1320px) !important;
+      flex: 0 0 auto !important;
+      margin: 16px auto 4px !important;
+      padding: 0 32px !important;
+      background: transparent !important;
+      border: none !important;
+      box-sizing: border-box !important;
+    }
+    
+    /* Flex-row+wrap so adjacent groups can share a row when sized < 100%.
+       Default to stretch for equal-height Photos + Monitoring. While either
+       half-width panel is animating or collapsed (its inline style contains
+       "px"), drop to flex-start so the other half doesn't drag along. */
+    .theme-gray #layout-groups {
+      width: min(100%, 1320px) !important;
+      padding: 16px 32px 16px !important;
+      margin: 0 auto !important;
+      display: flex !important;
+      flex-direction: row !important;
+      flex-wrap: wrap !important;
+      align-items: stretch !important;
+      gap: 16px !important;
+      box-sizing: border-box !important;
+    }
+    
+    /* When EITHER half-width panel is mid-animation or collapsed, stop
+       stretching so one section's height change doesn't pull the other. */
+    .theme-gray #layout-groups:has(> .services-group:nth-last-child(1) [id^="headlessui-disclosure-panel"][style*="px"]),
+    .theme-gray #layout-groups:has(> .services-group:nth-last-child(2) [id^="headlessui-disclosure-panel"][style*="px"]) {
+      align-items: flex-start !important;
+    }
+    
+    /* Snappier disclosure animation. Three things going on here:
+       - duration 300ms → 140ms (homepage's default felt heavy)
+       - `contain: layout paint` tells the browser the panel's height
+         change doesn't affect ancestor layout, so it skips re-laying-out
+         anything else on the page — big perf win for height transitions.
+       - Opacity fade alongside the height: when the content fades AS the
+         panel clips, the eye reads it as smooth motion instead of the
+         hard clipping that makes height-only transitions feel choppy. */
+    .theme-gray .services-group > div[id^="headlessui-disclosure-panel"],
+    .theme-gray .bookmark-group > div[id^="headlessui-disclosure-panel"] {
+      transition-property: height, opacity !important;
+      transition-duration: 140ms !important;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+      contain: layout paint;
+      will-change: height;
+    }
+    
+    /* Panel fades to 0 when its parent group has aria-expanded="false". */
+    .theme-gray .services-group:has(> button[aria-expanded="false"]) > div[id^="headlessui-disclosure-panel"],
+    .theme-gray .bookmark-group:has(> button[aria-expanded="false"]) > div[id^="headlessui-disclosure-panel"] {
+      opacity: 0;
+    }
+    
+    /* Make BOTH side-by-side sections' content fill their (stretched) heights
+       so cards inside grow to match each other.
+       The wrapper div uses Tailwind's `block!` class (display: block !important
+       in @layer utilities) which beats unlayered !important. So we don't fight
+       the display — instead we use the wrapper's explicit (flex-derived) height
+       and chain height: 100% down to the card.
+    
+       IMPORTANT: equal-height stretching is GATED on both panels being fully
+       open. When a panel is collapsed OR mid-transition, Headless UI puts an
+       inline `style="height: 0px"` on the panel. The `[style]` attribute
+       selector picks that up, and we drop the stretch/flex hacks so the
+       disclosure's height animation can play out naturally. When both
+       panels are fully open, Headless UI removes the inline style entirely,
+       the :has() match goes away, and stretch/flex/height-fill restore. */
+    .theme-gray #layout-groups > .services-group:nth-last-child(2),
+    .theme-gray #layout-groups > .services-group:nth-last-child(1) {
+      display: flex !important;
+      flex-direction: column !important;
+    }
+    
+    /* Default: equal-heights flex on, ul fills.
+       Headless UI panel inline-style state markers:
+         fully open (initial)     → no style attribute
+         fully open (post-open)   → style="height: auto"
+         mid-open / mid-close     → style="height: Npx" (animating)
+         fully closed             → style="height: 0px; display: none"
+       "px" appears in style ONLY during animation OR when closed — using
+       [style*="px"] as the negative-match gates the flex hacks off in the
+       exact moments they'd block the disclosure transition. */
+    .theme-gray #layout-groups > .services-group:nth-last-child(2) > div,
+    .theme-gray #layout-groups > .services-group:nth-last-child(1) > div {
+      flex: 1 1 auto !important;
+    }
+    .theme-gray #layout-groups > .services-group:nth-last-child(2) ul.services-list,
+    .theme-gray #layout-groups > .services-group:nth-last-child(1) ul.services-list {
+      /* `100% - 12px` subtracts Tailwind's mt-3 (12px) on this ul so the
+         card+margin-bottom chain fits inside the wrapper's clipping box. */
+      height: calc(100% - 12px) !important;
+    }
+    
+    /* Disable flex stretching while panel is animating or collapsed, so
+       Headless UI's inline `height: Npx` actually animates the wrapper. */
+    .theme-gray #layout-groups > .services-group:nth-last-child(2):has([id^="headlessui-disclosure-panel"][style*="px"]) > div,
+    .theme-gray #layout-groups > .services-group:nth-last-child(1):has([id^="headlessui-disclosure-panel"][style*="px"]) > div {
+      flex: 0 0 auto !important;
+    }
+    .theme-gray #layout-groups > .services-group:nth-last-child(2):has([id^="headlessui-disclosure-panel"][style*="px"]) ul.services-list,
+    .theme-gray #layout-groups > .services-group:nth-last-child(1):has([id^="headlessui-disclosure-panel"][style*="px"]) ul.services-list {
+      height: auto !important;
+    }
+    
+    /* Default each group is full-width (so the section stacks vertically) */
+    .theme-gray .services-group {
+      flex: 0 0 100% !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+    
+    /* Last two groups (Photos + Monitoring) share a row at 50/50 */
+    .theme-gray #layout-groups > .services-group:nth-last-child(2),
+    .theme-gray #layout-groups > .services-group:nth-last-child(1) {
+      flex: 0 0 calc(50% - 8px) !important;
+      width: calc(50% - 8px) !important;
+      max-width: calc(50% - 8px) !important;
+    }
+    
+    /* Photos group (2nd from last): force Immich's 4 stats into 2x2 grid */
+    .theme-gray #layout-groups > .services-group:nth-last-child(2) .service-container {
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+    
+    /* Monitoring group (last): force 2 cards per row (Beszel + Tailscale).
+       Override needed because homepage caches columns:2 → columns:4 at SSR. */
+    .theme-gray #layout-groups > .services-group:nth-last-child(1) ul.services-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+    
+    .theme-gray #bookmarks {
+      width: min(100%, 1320px) !important;
+      padding: 8px 32px 48px !important;
+      margin: 0 auto !important;
+      box-sizing: border-box !important;
+    }
+    
+    /* ──────────────────────────────────────────────────────────────────
+       HERO — 4 separate cards (each .information-widget-resource is a card)
+       ────────────────────────────────────────────────────────────────── */
+    
+    /* Hero row: collapse wrappers via display:contents so the 4 cards lay out
+       directly inside #widgets-wrap as a 4-equal-column grid */
+    .theme-gray #widgets-wrap {
+      display: grid !important;
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+      gap: 16px !important;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      width: 100% !important;
+    }
+    
+    .theme-gray #widgets-wrap > .widget-container,
+    .theme-gray #widgets-wrap > .widget-container > .flex.flex-row {
+      display: contents !important;
+    }
+    
+    .theme-gray .information-widget-resource {
+      background: rgba(38, 38, 56, 0.6) !important;
+      border: 1px solid var(--hair) !important;
+      border-radius: 10px !important;
+      padding: 12px 16px !important;
+    
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      gap: 14px !important;
+      margin: 0 !important;
+      width: 100% !important;
+      min-width: 0 !important;
+      flex: unset !important;
+    
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    
+      position: relative;
+      overflow: hidden;
+      transition:
+        border-color 200ms ease,
+        box-shadow 220ms ease,
+        transform 180ms ease;
+    }
+    
+    /* Hero sparkline canvas — sits behind everything via z-index, custom.js
+       appends it and feeds it with a rolling ring buffer of pct samples.
+       Card children get z-index:1 to float above the sparkline. */
+    .theme-gray .information-widget-resource > .hp-sparkline {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      pointer-events: none !important;
+      z-index: 0 !important;
+      border-radius: inherit;
+    }
+    .theme-gray .information-widget-resource > .resource-icon,
+    .theme-gray .information-widget-resource > .flex.flex-col {
+      position: relative !important;
+      z-index: 1 !important;
+    }
+    
+    .theme-gray .information-widget-resource:hover {
+      transform: translateY(-1px) !important;
+      border-color: var(--accent-strong) !important;
+      box-shadow:
+        0 0 0 1px var(--accent-glow),
+        0 6px 18px -6px var(--accent-strong) !important;
+    }
+    
+    /* Resource icon (CPU chip / RAM / disk) — visible, mauve-tinted */
+    .theme-gray .information-widget-resource .resource-icon {
       display: block !important;
-      visibility: visible !important;
-      background-image: url('https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=1920&q=80') !important;
-      background-size: cover !important;
-      background-position: center !important;
-      background-repeat: no-repeat !important;
+      width: 26px !important;
+      height: 26px !important;
+      flex-shrink: 0 !important;
+      color: var(--accent) !important;
+      opacity: 0.7;
+      margin: 0 !important;
     }
-
-    /* ===== GLASS CARDS — read through the aurora ===== */
-    .service-card {
-      background: rgba(6, 10, 20, 0.55) !important;
-      backdrop-filter: blur(18px) saturate(120%);
-      -webkit-backdrop-filter: blur(18px) saturate(120%);
-      border-radius: 14px !important;
-      border: 1px solid rgba(255, 255, 255, 0.1) !important;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    .theme-gray .information-widget-resource > .flex.flex-col {
+      flex: 1 !important;
+      min-width: 0 !important;
+      margin: 0 !important;
+      gap: 3px !important;
+      display: flex !important;
+      flex-direction: column !important;
     }
-    .service-card:hover {
-      background: rgba(10, 16, 30, 0.65) !important;
-      border-color: rgba(255, 255, 255, 0.25) !important;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 80px rgba(100, 200, 255, 0.06);
-      transform: translateY(-2px);
+    
+    /* Value rows — default (smaller, neutral) */
+    .theme-gray .information-widget-resource .text-xs {
+      display: flex !important;
+      align-items: baseline !important;
+      justify-content: space-between !important;
+      gap: 10px !important;
+      margin: 0 !important;
+      padding: 0 !important;
     }
-    .service-name {
-      font-family: 'Cascadia Mono', 'JetBrains Mono', monospace !important;
-      font-size: 0.82rem !important;
+    .theme-gray .information-widget-resource .text-xs > div:first-child {
+      font-family: var(--font-mono) !important;
+      font-size: 13px !important;
       font-weight: 500 !important;
-      color: rgba(255, 255, 255, 0.95) !important;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+      color: rgba(205, 214, 244, 0.85) !important;
+      padding: 0 !important;
+      letter-spacing: -0.01em !important;
     }
-    .service-description {
-      font-family: 'Cascadia Mono', 'JetBrains Mono', monospace !important;
-      font-size: 0.65rem !important;
-      color: rgba(255, 255, 255, 0.5) !important;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    .theme-gray .information-widget-resource .text-xs > div:last-child {
+      font-family: var(--font-mono) !important;
+      font-size: 10.5px !important;
+      font-weight: 500 !important;
+      letter-spacing: 0.14em !important;
+      color: rgba(205, 214, 244, 0.55) !important;
+      text-transform: uppercase !important;
+      padding: 0 !important;
     }
-
-    /* ===== GROUP HEADERS ===== */
-    .service-group-name {
-      font-family: 'Playfair Display', Georgia, serif !important;
-      font-size: 0.88rem !important;
+    
+    /* First value row override — big mauve number (subtle glow) */
+    .theme-gray .information-widget-resource .text-xs:first-of-type > div:first-child {
+      font-size: 24px !important;
       font-weight: 600 !important;
-      font-style: italic;
-      letter-spacing: 0.01em;
-      color: rgba(255, 255, 255, 0.88) !important;
-      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
-      padding-bottom: 8px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      margin-bottom: 6px;
+      color: var(--accent) !important;
+      letter-spacing: -0.02em !important;
+      text-shadow: 0 0 4px var(--accent-glow);
+      line-height: 1.1 !important;
     }
-
-    /* ===== GLASS TABS ===== */
-    nav[class*="tab"], .tab-container {
-      gap: 4px;
-      padding: 4px;
-      background: rgba(6, 10, 20, 0.45);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+    
+    /* Progress bar — mauve gradient with glow */
+    .theme-gray .information-widget-resource .resource-usage {
+      background: rgba(205, 214, 244, 0.06) !important;
+      border-radius: 999px !important;
+      height: 3px !important;
+      margin: 8px 0 0 !important;
+      border: none !important;
+      width: 100% !important;
+      padding: 0 !important;
     }
-    nav[class*="tab"] button, .tab-container button {
-      padding: 6px 18px !important;
-      border-radius: 9px !important;
-      font-size: 0.68rem !important;
-      font-weight: 500 !important;
-      letter-spacing: 0.04em;
-      color: rgba(255, 255, 255, 0.65) !important;
-      transition: all 0.2s ease;
+    .theme-gray .information-widget-resource .resource-usage > div {
+      background: var(--accent) !important;
+      box-shadow: none !important;
+      height: 100% !important;
+      border-radius: 999px !important;
     }
-    nav[class*="tab"] button[data-headlessui-state="selected"],
-    .tab-container button[aria-selected="true"] {
-      background: rgba(255, 255, 255, 0.1) !important;
-      color: rgba(255, 255, 255, 0.95) !important;
-      text-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
+    
+    /* Severity overrides on hero (custom.js applies .hp-warn / .hp-bad) */
+    .theme-gray .information-widget-resource.hp-warn .resource-usage > div {
+      background: linear-gradient(90deg, rgba(249, 226, 175, 0.6), rgba(249, 226, 175, 0.95)) !important;
+      box-shadow: 0 0 10px var(--yellow-glow) !important;
     }
-
-    /* ===== GLASS BOOKMARKS ===== */
-    .bookmark a, .bookmark-card {
-      background: rgba(6, 10, 20, 0.45) !important;
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+    .theme-gray .information-widget-resource.hp-warn .text-xs:first-of-type > div:first-child {
+      color: var(--yellow) !important;
+      text-shadow: 0 0 12px var(--yellow-glow);
+    }
+    .theme-gray .information-widget-resource.hp-bad .resource-usage > div {
+      background: linear-gradient(90deg, rgba(243, 139, 168, 0.7), rgba(243, 139, 168, 1)) !important;
+      box-shadow: 0 0 10px var(--red-glow) !important;
+    }
+    .theme-gray .information-widget-resource.hp-bad .text-xs:first-of-type > div:first-child {
+      color: var(--red) !important;
+      text-shadow: 0 0 12px var(--red-glow);
+    }
+    
+    /* ──────────────────────────────────────────────────────────────────
+       SECTION HEADERS — Linear-style mauve diamond + caps label
+       ────────────────────────────────────────────────────────────────── */
+    
+    .theme-gray .services-group,
+    .theme-gray .bookmark-group {
+      padding-top: 4px !important;
+      margin-bottom: 0 !important;
+    }
+    
+    .theme-gray .services-group > button,
+    .theme-gray .bookmark-group > button {
+      position: relative !important;
+      padding: 4px 0 8px 22px !important;
+      margin: 0 !important;
+      background: transparent !important;
+      border-bottom: 1px solid var(--accent-soft) !important;
+      border-radius: 0 !important;
+      width: 100%;
+      display: flex !important;
+      align-items: center !important;
+    }
+    
+    /* Static diamond — pulse animation removed (it added no signal, was
+       barely visible, and competed for attention with hover/data motion). */
+    .theme-gray .services-group > button::before,
+    .theme-gray .bookmark-group > button::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 2px;
+      transform: translateY(-50%) rotate(45deg);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+    
+    .theme-gray .services-group > button h2,
+    .theme-gray .bookmark-group > button h2 {
+      font-family: var(--font-display) !important;
+      font-size: 12px !important;
+      font-weight: 600 !important;
+      letter-spacing: 0.18em !important;
+      color: rgba(205, 214, 244, 0.85) !important;
+      text-transform: uppercase !important;
+      margin: 0 !important;
+    }
+    
+    /* Hide the disclosure chevron unless hovering */
+    .theme-gray .services-group > button svg,
+    .theme-gray .bookmark-group > button svg {
+      opacity: 0 !important;
+      transition: opacity 200ms ease;
+    }
+    .theme-gray .services-group > button:hover svg,
+    .theme-gray .bookmark-group > button:hover svg { opacity: 0.4 !important; }
+    
+    /* Disclosure panel inner padding */
+    .theme-gray .services-group > div[id^="headlessui-disclosure-panel"],
+    .theme-gray .bookmark-group > div[id^="headlessui-disclosure-panel"] {
+      padding-top: 14px !important;
+    }
+    
+    /* ──────────────────────────────────────────────────────────────────
+       SERVICE CARDS — glass morphism
+       ────────────────────────────────────────────────────────────────── */
+    
+    /* Force all cards in a row to match the tallest card's height */
+    .theme-gray .services-list {
+      align-items: stretch !important;
+      grid-auto-rows: 1fr !important;
+    }
+    .theme-gray li.service {
+      margin: 0 !important;
+      padding: 0 !important;
+      display: flex !important;
+      height: 100% !important;
+    }
+    .theme-gray li.service > .service-card {
+      /* Don't override Tailwind's h-[calc(100%-0.5rem)] — it accounts for
+         the mb-2 margin so the card+margin fits inside the overflow:hidden
+         wrapper. Just set display + width. */
+      width: 100% !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+    /* Container fills remaining card height; stat rows split it evenly */
+    .theme-gray .service-card .service-container {
+      flex: 1 1 auto !important;
+      align-content: stretch !important;
+      grid-auto-rows: 1fr !important;
+    }
+    
+    .theme-gray .service-card {
+      background: rgba(38, 38, 56, 0.6) !important;
+      border: 1px solid var(--hair) !important;
       border-radius: 12px !important;
-      border: 1px solid rgba(255, 255, 255, 0.08) !important;
-      transition: all 0.2s ease;
+      padding: 0 !important;
+      margin: 0 !important;
+      overflow: hidden !important;
+      position: relative;
+    
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    
+      transition:
+        border-color 200ms ease,
+        box-shadow 220ms ease,
+        transform 180ms ease;
     }
-    .bookmark a:hover, .bookmark-card:hover {
-      background: rgba(10, 16, 30, 0.55) !important;
-      border-color: rgba(255, 255, 255, 0.2) !important;
-      transform: translateY(-1px);
+    
+    /* Section accent stripe — 2px top border picks up per-section --accent.
+       Pseudo-element so it doesn't disrupt the existing 1px hairline border. */
+    .theme-gray #layout-groups li.service > .service-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--accent);
+      opacity: 0.65;
+      pointer-events: none;
+      z-index: 1;
+      transition: opacity 220ms ease;
     }
-    .bookmark-name {
-      font-family: 'Cascadia Mono', 'JetBrains Mono', monospace !important;
-      color: rgba(255, 255, 255, 0.9) !important;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+    .theme-gray #layout-groups li.service > .service-card:hover::before {
+      opacity: 1;
     }
-    .bookmark-icon {
-      font-family: 'Cascadia Mono', 'JetBrains Mono', monospace !important;
-      color: rgba(255, 255, 255, 0.8) !important;
+    
+    .theme-gray li.service > .service-card:hover {
+      transform: translateY(-1px) !important;
+      border-color: var(--accent-strong) !important;
+      box-shadow:
+        0 0 0 1px var(--accent-glow),
+        0 6px 18px -6px var(--accent-strong) !important;
     }
-    .bookmark-group-name {
-      font-family: 'Playfair Display', Georgia, serif !important;
-      font-style: italic;
+    
+    /* Title bar */
+    .theme-gray .service-title {
+      padding: 10px 14px 9px !important;
+      border-bottom: 1px solid var(--hair) !important;
+      margin: 0 !important;
+      background: transparent !important;
+    }
+    .theme-gray .service-title-text {
+      background: transparent !important;
+      border-radius: 0 !important;
+    }
+    
+    /* Service brand icon (left of title) */
+    .theme-gray .service-icon {
+      width: 38px !important;
+      height: 38px !important;
+      max-width: 38px !important;
+      margin-right: 12px !important;
+      background: rgba(28, 28, 42, 0.6) !important;
+      border: 1px solid var(--hair) !important;
+      border-radius: 8px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 5px !important;
+      flex-shrink: 0 !important;
+    }
+    .theme-gray .service-icon img,
+    .theme-gray .service-icon svg {
+      width: 22px !important;
+      height: 22px !important;
+      filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.4));
+    }
+    
+    /* Title text */
+    .theme-gray .service-name {
+      font-family: var(--font-ui) !important;
+      font-size: 16px !important;
       font-weight: 600 !important;
-      font-size: 0.82rem !important;
-      color: rgba(255, 255, 255, 0.85) !important;
-      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
-      padding-bottom: 4px;
+      color: var(--text) !important;
+      letter-spacing: -0.01em !important;
+      padding: 0 !important;
+      line-height: 1.2 !important;
     }
-
-    /* ===== SCROLLBAR ===== */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 3px;
-    }
-
-    /* ===== PROGRESS BARS ===== */
-    .resource-usage [class*="bg-"] {
-      border-radius: 2px !important;
-    }
-
-    /* ===== METRIC TEXT ===== */
-    .information-widget-resource [class*="text-"] {
-      color: rgba(255, 255, 255, 0.85) !important;
-    }
-
-    /* ===== DATETIME ===== */
-    .information-widget-datetime span {
+    .theme-gray .service-description {
+      font-family: var(--font-ui) !important;
+      font-size: 12px !important;
       font-weight: 400 !important;
-      letter-spacing: 0.02em;
-      color: rgba(255, 255, 255, 0.85) !important;
+      color: rgba(205, 214, 244, 0.50) !important;
+      letter-spacing: 0.01em !important;
+      margin: 3px 0 0 !important;
+      padding: 0 !important;
     }
-
-    /* ===== FOOTER ===== */
-    #footer, #version { display: none !important; }
-
-    /* ===== LIVE WIDGET DOT ===== */
-    .service-card:has([class*="widget"]) .service-name::after {
-      content: ' ·';
-      opacity: 0.45;
-      font-size: 0.9rem;
+    
+    /* Service tag area (ms pill) */
+    .theme-gray .service-tags {
+      top: 12px !important;
+      right: 12px !important;
     }
-
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 768px) {
-      .services-group { flex-basis: 100% !important; }
+    
+    /* ──────────────────────────────────────────────────────────────────
+       MS PILL — green with glow (severity classes from custom.js override)
+       ────────────────────────────────────────────────────────────────── */
+    
+    .theme-gray .site-monitor-status {
+      background: rgba(166, 227, 161, 0.10) !important;
+      border: 1px solid rgba(166, 227, 161, 0.22) !important;
+      border-radius: 5px !important;
+      padding: 3px 8px !important;
+      box-shadow: none !important;
     }
-
-    /* ===== SERVICE CARDS — VISIBLE DISTINCTION ===== */
-    .service-card {
-      border-radius: 14px !important;
-      border: 1px solid rgba(255, 255, 255, 0.1) !important;
-      transition: all 0.25s ease;
-    }
-    .service-card:hover {
-      border-color: rgba(255, 255, 255, 0.22) !important;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
-      transform: translateY(-1px);
-    }
-    .service-name {
-      font-family: 'Cascadia Mono', 'JetBrains Mono', monospace !important;
-      font-size: 0.82rem !important;
-      font-weight: 500 !important;
-    }
-    .service-description {
-      font-family: 'Cascadia Mono', 'JetBrains Mono', monospace !important;
-      font-size: 0.65rem !important;
-      opacity: 0.5;
-    }
-
-    /* ===== GROUP HEADERS — PLAYFAIR ===== */
-    .service-group-name {
-      font-family: 'Playfair Display', Georgia, serif !important;
-      font-size: 0.88rem !important;
+    .theme-gray .site-monitor-status > div {
+      font-family: var(--font-mono) !important;
+      font-size: 10px !important;
       font-weight: 600 !important;
-      font-style: italic;
-      letter-spacing: 0.01em;
-      padding-bottom: 8px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      margin-bottom: 6px;
+      letter-spacing: 0.04em !important;
+      color: var(--green) !important;
+      text-transform: uppercase !important;
+      text-shadow: none !important;
     }
-
-    /* ===== TABS — CLEAR PILLS ===== */
-    nav[class*="tab"], .tab-container {
-      gap: 4px;
-      padding: 4px;
-      background: rgba(0, 0, 0, 0.25);
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+    .theme-gray .service-card.hp-warn .site-monitor-status {
+      background: rgba(249, 226, 175, 0.10) !important;
+      border-color: rgba(249, 226, 175, 0.22) !important;
+      box-shadow: none !important;
     }
-    nav[class*="tab"] button, .tab-container button {
-      padding: 6px 18px !important;
-      border-radius: 9px !important;
-      font-size: 0.68rem !important;
+    .theme-gray .service-card.hp-warn .site-monitor-status > div {
+      color: var(--yellow) !important;
+      text-shadow: none !important;
+    }
+    .theme-gray .service-card.hp-bad .site-monitor-status {
+      background: rgba(243, 139, 168, 0.10) !important;
+      border-color: rgba(243, 139, 168, 0.22) !important;
+      box-shadow: none !important;
+    }
+    .theme-gray .service-card.hp-bad .site-monitor-status > div {
+      color: var(--red) !important;
+      text-shadow: none !important;
+    }
+    
+    /* ──────────────────────────────────────────────────────────────────
+       METRIC BLOCKS — the .service-block tiles inside service cards
+       ────────────────────────────────────────────────────────────────── */
+    
+    /* .service-container IS the flex-row holding .service-block children.
+       Grid with auto-fit + minmax(130px): 4 blocks in narrow Servarr cards
+       wrap to 2x2; wider cards (Beszel/qBit full-width) keep blocks in one
+       row. */
+    .theme-gray .service-container {
+      background: transparent !important;
+      display: grid !important;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)) !important;
+      gap: 6px !important;
+      padding: 8px 10px 10px !important;
+      margin: 0 !important;
+    }
+    
+    /* If exactly 3 blocks and they wrap to 2 cols (Sonarr at 308px card),
+       span the 3rd across both columns so there's no empty cell. */
+    .theme-gray .service-container > .service-block:nth-child(3):nth-last-child(1) {
+      grid-column: 1 / -1 !important;
+    }
+    
+    .theme-gray .service-block {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 10px 6px !important;
+      margin: 0 !important;
+      gap: 4px !important;
+      background: rgba(28, 28, 42, 0.45) !important;
+      border: 1px solid var(--hair) !important;
+      border-radius: 8px !important;
+      min-height: 54px !important;
+    }
+    
+    /* Metric value (big number) — subtle glow */
+    .theme-gray .service-block > .font-thin,
+    .theme-gray .service-block > .text-sm:not(.uppercase) {
+      font-family: var(--font-mono) !important;
+      font-size: 22px !important;
+      font-weight: 600 !important;
+      color: var(--accent) !important;
+      letter-spacing: -0.02em !important;
+      text-shadow: 0 0 4px var(--accent-glow);
+      line-height: 1 !important;
+      text-align: center !important;
+      order: 1 !important;
+    }
+    
+    /* Metric label */
+    .theme-gray .service-block > .uppercase,
+    .theme-gray .service-block > .font-bold.text-xs,
+    .theme-gray .service-block > .font-bold {
+      font-family: var(--font-mono) !important;
+      font-size: 10.5px !important;
       font-weight: 500 !important;
-      letter-spacing: 0.04em;
-      transition: all 0.2s ease;
+      letter-spacing: 0.14em !important;
+      color: rgba(205, 214, 244, 0.55) !important;
+      text-transform: uppercase !important;
+      text-align: center !important;
+      order: 2 !important;
     }
-
-    /* ===== BOOKMARKS ===== */
-    .bookmark a, .bookmark-card {
+    
+    /* ──────────────────────────────────────────────────────────────────
+       "ALL CAUGHT UP" overlay — applied to .service-card.hp-caught-up
+       (toggled by custom.js when all .service-block values read "0").
+       Hides the zero blocks, shows a centered green check + label.
+       ────────────────────────────────────────────────────────────────── */
+    
+    .theme-gray .service-card.hp-caught-up .service-container {
+      position: relative;
+    }
+    .theme-gray .service-card.hp-caught-up .service-block {
+      visibility: hidden;
+    }
+    .theme-gray .service-card.hp-caught-up .service-container::after {
+      content: "✓  ALL CAUGHT UP";
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      color: var(--green);
+      text-shadow: 0 0 10px var(--green-glow);
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+    
+    /* qBittorrent leech progress bar inside .service-block */
+    .theme-gray .service-block .h-1 {
+      height: 2px !important;
+      background: rgba(205, 214, 244, 0.06) !important;
+      border-radius: 999px !important;
+      margin-top: 4px !important;
+    }
+    .theme-gray .service-block .h-1 > div {
+      background: var(--accent) !important;
+      box-shadow: 0 0 6px var(--accent-glow);
+      border-radius: 999px !important;
+    }
+    
+    /* ──────────────────────────────────────────────────────────────────
+       QUEUE / DOWNLOADS SCROLL — Sonarr enableQueue, Radarr, custom.js wrap
+       ────────────────────────────────────────────────────────────────── */
+    
+    .theme-gray .hp-queue-scroll {
+      max-height: 100px !important;
+      overflow-y: auto !important;
+      margin: 0 14px 14px !important;
+      padding: 6px 10px !important;
+      background: rgba(28, 28, 42, 0.45) !important;
+      border: 1px solid var(--hair) !important;
+      border-radius: 8px !important;
+    }
+    
+    /* Each queue row */
+    .theme-gray .hp-queue-scroll > div,
+    .theme-gray .service-card .h-5.rounded-md {
+      height: 22px !important;
+      padding: 0 8px !important;
+      background: transparent !important;
+      border-bottom: 1px solid rgba(205, 214, 244, 0.04) !important;
+      border-radius: 0 !important;
+      font-family: var(--font-mono) !important;
+      font-size: 10.5px !important;
+      margin: 0 !important;
+    }
+    .theme-gray .hp-queue-scroll > div:last-child,
+    .theme-gray .service-card .h-5.rounded-md:last-child { border-bottom: none !important; }
+    
+    .theme-gray .service-card .h-5[class*="bg-theme"],
+    .theme-gray .hp-queue-scroll .h-5 { background: transparent !important; }
+    
+    .theme-gray .service-card .h-5 > span > span {
+      color: rgba(205, 214, 244, 0.75) !important;
+      font-family: var(--font-mono) !important;
+      font-size: 10.5px !important;
+    }
+    
+    /* ──────────────────────────────────────────────────────────────────
+       CALENDAR (Upcoming)
+       ────────────────────────────────────────────────────────────────── */
+    
+    .theme-gray [data-name="Calendar"] .service-title { display: none !important; }
+    
+    .theme-gray [data-name="Calendar"] .service-card {
+      padding: 4px !important;
+    }
+    
+    .theme-gray [data-name="Calendar"] .service-container {
+      padding: 0 !important;
+    }
+    
+    .theme-gray [data-name="Calendar"] .service-container > .flex.flex-col {
+      padding: 8px !important;
+      gap: 0 !important;
+    }
+    
+    .theme-gray [data-name="Calendar"] .service-container .flex.flex-col > div > .flex.flex-row {
+      background: transparent !important;
+      border-radius: 0 !important;
+      border-bottom: 1px solid var(--hair) !important;
+      height: 30px !important;
+      padding: 0 12px !important;
+      margin: 0 !important;
+    }
+    .theme-gray [data-name="Calendar"] .service-container .flex.flex-col > div:last-child > .flex.flex-row {
+      border-bottom: none !important;
+    }
+    
+    .theme-gray [data-name="Calendar"] .service-container .flex.flex-row > span.w-12 > span {
+      font-family: var(--font-mono) !important;
+      font-size: 11px !important;
+      font-variant-numeric: tabular-nums !important;
+      color: rgba(205, 214, 244, 0.55) !important;
+      letter-spacing: 0.02em !important;
+    }
+    
+    .theme-gray [data-name="Calendar"] .service-container .flex.flex-row .truncate > div {
+      font-family: var(--font-ui) !important;
+      font-size: 12.5px !important;
+      color: var(--text) !important;
+    }
+    
+    /* First (next) event — bright mauve */
+    .theme-gray [data-name="Calendar"] .service-container .flex.flex-col > div:first-child > .flex.flex-row {
+      background: var(--accent-soft) !important;
+      border-bottom: 1px solid var(--accent-glow) !important;
+    }
+    .theme-gray [data-name="Calendar"] .service-container .flex.flex-col > div:first-child .truncate > div,
+    .theme-gray [data-name="Calendar"] .service-container .flex.flex-col > div:first-child > .flex.flex-row > span.w-12 > span {
+      color: var(--accent) !important;
+      font-weight: 500 !important;
+      text-shadow: 0 0 6px var(--accent-glow);
+    }
+    
+    /* ──────────────────────────────────────────────────────────────────
+       BOOKMARKS — joined-list inside glass card
+       ────────────────────────────────────────────────────────────────── */
+    
+    .theme-gray #bookmarks .bookmark-group ul.bookmark-list {
+      border: 1px solid var(--hair) !important;
       border-radius: 12px !important;
-      border: 1px solid rgba(255, 255, 255, 0.08) !important;
-      transition: all 0.2s ease;
+      background: rgba(38, 38, 56, 0.6) !important;
+      overflow: hidden !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+      transition: border-color 200ms ease, box-shadow 220ms ease;
     }
-    .bookmark a:hover, .bookmark-card:hover {
-      border-color: rgba(255, 255, 255, 0.18) !important;
-      transform: translateY(-1px);
+    
+    .theme-gray #bookmarks .bookmark-group ul.bookmark-list:hover {
+      border-color: var(--accent-strong) !important;
+      box-shadow:
+        0 0 0 1px var(--accent-glow),
+        0 6px 18px -6px var(--accent-strong) !important;
     }
-    .bookmark-name {
-      font-family: 'Cascadia Mono', 'JetBrains Mono', monospace !important;
+    
+    .theme-gray #bookmarks li.bookmark {
+      margin: 0 !important;
+      padding: 0 !important;
+      list-style: none !important;
     }
-    .bookmark-group-name {
-      font-family: 'Playfair Display', Georgia, serif !important;
-      font-style: italic;
+    
+    .theme-gray #bookmarks .bookmark > a {
+      display: flex !important;
+      align-items: stretch !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border-bottom: 1px solid var(--hair) !important;
+      min-height: 46px !important;
+      max-height: 46px !important;
+      transition: background 180ms ease, box-shadow 200ms ease;
+    }
+    .theme-gray #bookmarks .bookmark:last-child > a { border-bottom: none !important; }
+    
+    .theme-gray #bookmarks .bookmark > a:hover {
+      background: var(--accent-soft) !important;
+      box-shadow: inset 3px 0 0 var(--accent) !important;
+    }
+    
+    .theme-gray #bookmarks .bookmark > a > .flex {
+      flex: 1 !important;
+      align-items: stretch !important;
+      height: 46px !important;
+    }
+    
+    .theme-gray #bookmarks .bookmark-icon {
+      width: 52px !important;
+      height: 46px !important;
+      min-width: 52px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      border-radius: 0 !important;
+      background: rgba(28, 28, 42, 0.6) !important;
+      border-right: 1px solid var(--hair) !important;
+      font-family: var(--font-mono) !important;
+      font-size: 11px !important;
       font-weight: 600 !important;
-      font-size: 0.82rem !important;
-      padding-bottom: 4px;
+      letter-spacing: 0.06em !important;
+      color: var(--text) !important;
     }
-
-    /* ===== SCROLLBAR ===== */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 3px;
+    
+    .theme-gray #bookmarks .bookmark-text {
+      flex: 1 !important;
+      display: flex !important;
+      align-items: center !important;
+      padding: 0 16px !important;
+      background: transparent !important;
     }
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
-
-    /* ===== PROGRESS BARS ===== */
-    .resource-usage [class*="bg-"] {
-      border-radius: 2px !important;
-    }
-
-    /* ===== FOOTER ===== */
-    #footer, #version { display: none !important; }
-
-    /* ===== DATETIME ===== */
-    .information-widget-datetime span {
-      font-weight: 400 !important;
-      letter-spacing: 0.02em;
-    }
-
-    /* ===== LIVE WIDGET DOT ===== */
-    .service-card:has([class*="widget"]) .service-name::after {
-      content: ' ·';
-      opacity: 0.45;
-      font-size: 0.9rem;
-    }
-
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 768px) {
-      .services-group { flex-basis: 100% !important; }
-    }
-
-    /* ===== SERVICE CARDS — VISIBLE DISTINCTION ===== */
-    .service-card {
-      border-radius: 14px !important;
-      border: 1px solid rgba(255, 255, 255, 0.1) !important;
-      transition: all 0.25s ease;
-    }
-    .service-card:hover {
-      border-color: rgba(255, 255, 255, 0.22) !important;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
-      transform: translateY(-1px);
-    }
-    .service-name {
-      font-size: 0.82rem !important;
+    
+    .theme-gray #bookmarks .bookmark-name {
+      padding: 0 !important;
+      font-family: var(--font-ui) !important;
+      font-size: 13px !important;
       font-weight: 500 !important;
+      color: var(--text) !important;
     }
-    .service-description {
-      font-size: 0.65rem !important;
-      opacity: 0.5;
+    
+    .theme-gray #bookmarks .bookmark-description {
+      padding: 0 !important;
+      font-family: var(--font-mono) !important;
+      font-size: 10.5px !important;
+      letter-spacing: 0.02em !important;
+      color: rgba(205, 214, 244, 0.42) !important;
+      margin-left: auto !important;
     }
-
-    /* ===== GROUP HEADERS — PLAYFAIR ===== */
-    .service-group-name {
-      font-family: 'Playfair Display', Georgia, serif !important;
-      font-size: 0.88rem !important;
-      font-weight: 600 !important;
-      font-style: italic;
-      letter-spacing: 0.01em;
-      padding-bottom: 8px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      margin-bottom: 6px;
-    }
-
-    /* ===== TABS — CLEAR PILLS ===== */
-    nav[class*="tab"], .tab-container {
-      gap: 4px;
-      padding: 4px;
-      background: rgba(0, 0, 0, 0.25);
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    nav[class*="tab"] button, .tab-container button {
-      padding: 6px 18px !important;
-      border-radius: 9px !important;
-      font-size: 0.68rem !important;
-      font-weight: 500 !important;
-      letter-spacing: 0.04em;
-      transition: all 0.2s ease;
-    }
-
-    /* ===== BOOKMARKS ===== */
-    .bookmark a, .bookmark-card {
-      border-radius: 12px !important;
-      border: 1px solid rgba(255, 255, 255, 0.08) !important;
-      transition: all 0.2s ease;
-    }
-    .bookmark a:hover, .bookmark-card:hover {
-      border-color: rgba(255, 255, 255, 0.18) !important;
-      transform: translateY(-1px);
-    }
-    .bookmark-group-name {
-      font-family: 'Playfair Display', Georgia, serif !important;
-      font-style: italic;
-      font-weight: 600 !important;
-      font-size: 0.82rem !important;
-      padding-bottom: 4px;
-    }
-
-    /* ===== PROGRESS BARS ===== */
-    .resource-usage [class*="bg-"] {
-      border-radius: 2px !important;
-    }
-
-    /* ===== FOOTER ===== */
-    #footer, #version { display: none !important; }
-
-    /* ===== DATETIME ===== */
-    .information-widget-datetime span {
-      font-weight: 400 !important;
-      letter-spacing: 0.02em;
-    }
-
-    /* ===== LIVE WIDGET DOT ===== */
-    .service-card:has([class*="widget"]) .service-name::after {
-      content: ' ·';
-      opacity: 0.45;
-      font-size: 0.9rem;
-    }
-
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 768px) {
-      .services-group { flex-basis: 100% !important; }
-    }
-
+    
   custom.js: |
-    // Custom JS — loaded after page render
+    // custom.js — runtime DOM patches that pair with custom.css
+    //
+    // 1. Queue scroll-wrap: gathers loose *arr QueueEntry rows into a single
+    //    .hp-queue-scroll div so CSS can cap them with overflow-y: auto.
+    //
+    // 2. Tailscale status swap: replaces "Last Seen: NOW / 5m ago" with
+    //    "Status: ONLINE / OFFLINE" — a more meaningful at-a-glance signal.
+    //
+    // 3. Topbar synthesis: injects a minimal topbar (#hp-topbar) with the
+    //    "chonker" wordmark and a live clock. Built via createElement +
+    //    textContent (CSP-safe; no innerHTML).
+    //
+    // 4. Hero sparklines: samples each .information-widget-resource's pct
+    //    on every tick into a ring buffer (200 samples), persists to
+    //    localStorage, draws a subtle line+fill onto a canvas appended
+    //    inside each widget (z-index 0, behind text).
+    //
+    // 5. Bazarr "caught up": when all Bazarr blocks read "0", toggle
+    //    .hp-caught-up on the card so CSS swaps to a green ✓ overlay.
+    //
+    // All run via a debounced MutationObserver — homepage's SWR refresh
+    // re-renders widgets every ~5s, so re-applying patches each pass keeps
+    // them sticky.
+    
+    (function () {
+      let scheduled = false;
+    
+      // ─── 0. Sparkline buffers ──────────────────────────────────────
+      // Keyed by widget index (CPU=0, RAM=1, disk1=2, disk2=3). Persisted
+      // to localStorage so history survives reloads. Capacity 200 samples
+      // (~17 min at the 5s SWR cadence, or shorter at the 500ms tick if
+      // values change every sample).
+    
+      const SPARK_CAP = 300;       // ~5 min at 1Hz
+      const SPARK_TICK_MS = 1000;  // sample once per second
+      const SPARK_KEY = "hp-sparks-v1";
+      let sparkBuffers = {};
+      try {
+        sparkBuffers = JSON.parse(localStorage.getItem(SPARK_KEY) || "{}");
+      } catch (e) {
+        sparkBuffers = {};
+      }
+      const lastSparkSampleAt = {};
+      let lastSparkPersist = 0;
+      function maybePersistSparks() {
+        const now = Date.now();
+        if (now - lastSparkPersist < 30000) return;
+        lastSparkPersist = now;
+        try {
+          localStorage.setItem(SPARK_KEY, JSON.stringify(sparkBuffers));
+        } catch (e) {
+          /* quota or disabled — silently ignore */
+        }
+      }
+    
+      function sampleAndDrawSparks() {
+        const now = Date.now();
+        const widgets = document.querySelectorAll(".information-widget-resource");
+        widgets.forEach((w, i) => {
+          const bar = w.querySelector(".resource-usage > div");
+          if (!bar) return;
+          const pct = parseFloat(bar.style.width);
+          if (isNaN(pct)) return;
+    
+          const key = `widget-${i}`;
+          if (!Array.isArray(sparkBuffers[key])) sparkBuffers[key] = [];
+          const buf = sparkBuffers[key];
+    
+          // Fixed-rate sample: push at most once per SPARK_TICK_MS so all
+          // metrics — moving ones (CPU) AND static ones (disks) — accumulate
+          // a comparable amount of history.
+          const lastAt = lastSparkSampleAt[key] || 0;
+          if (now - lastAt >= SPARK_TICK_MS) {
+            buf.push(pct);
+            if (buf.length > SPARK_CAP) buf.shift();
+            lastSparkSampleAt[key] = now;
+            maybePersistSparks();
+          }
+    
+          drawSparkline(w, buf);
+        });
+      }
+    
+      function drawSparkline(widget, history) {
+        let canvas = widget.querySelector(":scope > .hp-sparkline");
+        if (!canvas) {
+          canvas = document.createElement("canvas");
+          canvas.className = "hp-sparkline";
+          widget.appendChild(canvas);
+        }
+    
+        const rect = widget.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return;
+    
+        const dpr = window.devicePixelRatio || 1;
+        const dw = Math.round(rect.width * dpr);
+        const dh = Math.round(rect.height * dpr);
+        if (canvas.width !== dw || canvas.height !== dh) {
+          canvas.width = dw;
+          canvas.height = dh;
+          canvas.style.width = rect.width + "px";
+          canvas.style.height = rect.height + "px";
+        }
+    
+        const ctx = canvas.getContext("2d");
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.scale(dpr, dpr);
+        ctx.clearRect(0, 0, rect.width, rect.height);
+    
+        if (history.length < 2) return;
+    
+        // Color follows severity of the most recent value, so a sparkline
+        // visually agrees with the gauge bar and label classes.
+        const last = history[history.length - 1];
+        let stroke, fill;
+        if (last >= 90) {
+          stroke = "rgba(243, 139, 168, 0.45)";
+          fill = "rgba(243, 139, 168, 0.10)";
+        } else if (last >= 75) {
+          stroke = "rgba(249, 226, 175, 0.45)";
+          fill = "rgba(249, 226, 175, 0.10)";
+        } else {
+          stroke = "rgba(203, 166, 247, 0.35)";
+          fill = "rgba(203, 166, 247, 0.07)";
+        }
+    
+        const pad = 4;
+        const w = rect.width - pad * 2;
+        const h = rect.height - pad * 2;
+        const denom = Math.max(1, SPARK_CAP - 1);
+        const offset = SPARK_CAP - history.length; // right-align history
+    
+        const points = history.map((pct, i) => {
+          const x = pad + ((offset + i) / denom) * w;
+          const y = pad + h - (Math.max(0, Math.min(100, pct)) / 100) * h;
+          return { x, y };
+        });
+    
+        // Filled area under the line
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, pad + h);
+        points.forEach((p) => ctx.lineTo(p.x, p.y));
+        ctx.lineTo(points[points.length - 1].x, pad + h);
+        ctx.closePath();
+        ctx.fillStyle = fill;
+        ctx.fill();
+    
+        // Line stroke
+        ctx.beginPath();
+        points.forEach((p, i) => {
+          if (i === 0) ctx.moveTo(p.x, p.y);
+          else ctx.lineTo(p.x, p.y);
+        });
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = 1.25;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.stroke();
+      }
+    
+      // ─── 0a. Half-width row freeze ─────────────────────────────────
+      // Photos+Monitoring share a flex row. `align-items: stretch` ties their
+      // heights together when both open; flipping to `flex-start` for the
+      // close transition makes the *other* group snap to its natural (shorter)
+      // height the instant a collapse starts. We freeze the other group's
+      // min-height at click time so it stays put while its neighbor collapses.
+      //
+      // Uses event delegation on the document (capture phase) so the
+      // handler survives React re-mounting the buttons — an instance-bound
+      // addEventListener would silently disappear on SWR refresh.
+    
+      let halfWidthFreezeBound = false;
+      function setupHalfWidthFreeze() {
+        if (halfWidthFreezeBound) return;
+        halfWidthFreezeBound = true;
+    
+        document.addEventListener(
+          "click",
+          (e) => {
+            const button = e.target.closest("button");
+            if (!button) return;
+            const group = button.closest(
+              "#layout-groups > .services-group"
+            );
+            if (!group) return;
+            const layout = group.parentElement;
+            if (!layout || layout.id !== "layout-groups") return;
+    
+            // Only the last two services-groups (Photos + Monitoring) are
+            // in the half-width row.
+            const siblings = Array.from(layout.children).filter((g) =>
+              g.classList.contains("services-group")
+            );
+            const idx = siblings.indexOf(group);
+            const isLast = idx === siblings.length - 1;
+            const isSecondLast = idx === siblings.length - 2;
+            if (!isLast && !isSecondLast) return;
+    
+            const other = isLast
+              ? siblings[siblings.length - 2]
+              : siblings[siblings.length - 1];
+            if (!other) return;
+    
+            const aboutToClose = button.getAttribute("aria-expanded") === "true";
+            const otherBtn = other.querySelector(":scope > button");
+            const otherOpen =
+              otherBtn && otherBtn.getAttribute("aria-expanded") === "true";
+    
+            if (aboutToClose && otherOpen) {
+              // Use definite `height` (not min-height) so the inner flex
+              // chain — wrapper → ul → li → card — has a definite parent
+              // size for `height: 100%` / `calc(100% - 12px)` to resolve
+              // against. With min-height only, the chain treats the size
+              // as indefinite and the ul/card collapse to their natural
+              // content size, making the card appear to shrink even though
+              // the group itself is held steady.
+              const h = other.getBoundingClientRect().height;
+              other.style.height = h + "px";
+            } else {
+              setTimeout(() => {
+                other.style.height = "";
+              }, 240);
+            }
+          },
+          { capture: true }
+        );
+      }
+    
+      // ─── 0b. Bazarr "caught up" detection ──────────────────────────
+      function detectCaughtUp() {
+        document.querySelectorAll(".service-card").forEach((card) => {
+          const img = card.querySelector("img");
+          if (!img || !img.src.toLowerCase().includes("bazarr")) return;
+    
+          const blocks = card.querySelectorAll(".service-block");
+          if (blocks.length < 2) return;
+    
+          const allZero = Array.from(blocks).every((b) => {
+            const val = b.querySelector(
+              ".font-thin, .text-xl, .text-2xl, .text-3xl, .text-sm:not(.uppercase)"
+            );
+            return val && val.textContent.trim() === "0";
+          });
+    
+          card.classList.toggle("hp-caught-up", allZero);
+        });
+      }
+    
+      // ─── 1. Queue scroll-wrap ──────────────────────────────────────
+    
+      function isQueueRow(el) {
+        return (
+          el instanceof HTMLElement &&
+          el.tagName === "DIV" &&
+          el.classList.contains("h-5") &&
+          el.classList.contains("rounded-md") &&
+          el.className.includes("bg-theme-200/50")
+        );
+      }
+    
+      function wrapQueues() {
+        document.querySelectorAll("li.service-card, .service-card").forEach((card) => {
+          const looseRows = Array.from(card.children).filter(isQueueRow);
+          if (looseRows.length === 0) return;
+    
+          let wrapper = card.querySelector(":scope > .hp-queue-scroll");
+          if (!wrapper) {
+            wrapper = document.createElement("div");
+            wrapper.className = "hp-queue-scroll";
+            card.insertBefore(wrapper, looseRows[0]);
+          }
+          looseRows.forEach((row) => wrapper.appendChild(row));
+        });
+      }
+    
+      // ─── 2. Tailscale status swap ──────────────────────────────────
+    
+      // Considered "online" if last_seen is "NOW" or a recent relative time.
+      // The widget's strings look like: "NOW", "5m", "2h", "3d ago", etc.
+      function isRecent(text) {
+        if (!text) return false;
+        const t = text.trim().toUpperCase();
+        if (t === "NOW") return true;
+        // Match "5M", "30S", "2H" — anything in seconds/minutes/hours counts as online.
+        if (/^\d+\s*(S|M|H|SEC|MIN|HR|SECOND|MINUTE|HOUR)S?(\s*AGO)?$/.test(t)) return true;
+        return false;
+      }
+    
+      function swapTailscaleStatus() {
+        document.querySelectorAll(".service-card").forEach((card) => {
+          const img = card.querySelector("img");
+          if (!img || !img.src.toLowerCase().includes("tailscale")) return;
+    
+          card.querySelectorAll(".service-block").forEach((block) => {
+            const valueEl = block.querySelector(".text-xl, .text-2xl, .font-thin");
+            const labelEl = block.querySelector(".uppercase");
+            if (!valueEl || !labelEl) return;
+    
+            const txt = valueEl.textContent.trim();
+            if (!txt || txt === "-") return; // still loading
+    
+            // Already swapped to ONLINE/OFFLINE? Just make sure the label stays STATUS.
+            // (Old code bailed here on the label check, so when React re-rendered the
+            // value back to "Now" the function couldn't re-swap.)
+            if (txt === "ONLINE" || txt === "OFFLINE") {
+              if (labelEl.textContent.trim().toUpperCase() !== "STATUS") {
+                labelEl.textContent = "STATUS";
+              }
+              return;
+            }
+    
+            // Detect last_seen format: "Now", "5m", "2h", "3d ago", "1w", "Never"
+            const online = isRecent(txt);
+            const isLongAgo = /\b(D|W|MO|MONTH|Y|YEAR|NEVER)/i.test(txt) || txt === "Never";
+            if (!online && !isLongAgo) return; // unknown format — leave it alone
+    
+            const desired = online ? "ONLINE" : "OFFLINE";
+            valueEl.textContent = desired;
+            valueEl.style.color = online ? "var(--green)" : "var(--red)";
+            valueEl.style.textShadow = online
+              ? "0 0 8px rgba(166, 227, 161, 0.4)"
+              : "0 0 8px rgba(243, 139, 168, 0.4)";
+            if (labelEl.textContent.trim().toUpperCase() !== "STATUS") {
+              labelEl.textContent = "STATUS";
+            }
+          });
+        });
+      }
+    
+      // ─── 3. Topbar synthesis ───────────────────────────────────────
+    
+      let clockInterval = null;
+    
+      function buildTopbar() {
+        if (document.getElementById("hp-topbar")) return;
+    
+        const bar = document.createElement("div");
+        bar.id = "hp-topbar";
+    
+        const title = document.createElement("div");
+        title.id = "hp-topbar-title";
+        title.textContent = "chonker";
+    
+        const meta = document.createElement("div");
+        meta.id = "hp-topbar-meta";
+    
+        const time = document.createElement("span");
+        time.id = "hp-topbar-time";
+    
+        const sep = document.createElement("span");
+        sep.id = "hp-topbar-sep";
+        sep.textContent = "·";
+    
+        const date = document.createElement("span");
+        date.id = "hp-topbar-date";
+    
+        meta.appendChild(time);
+        meta.appendChild(sep);
+        meta.appendChild(date);
+    
+        bar.appendChild(title);
+        bar.appendChild(meta);
+    
+        document.body.insertBefore(bar, document.body.firstChild);
+        updateClock();
+      }
+    
+      function updateClock() {
+        const t = document.getElementById("hp-topbar-time");
+        const d = document.getElementById("hp-topbar-date");
+        if (!t || !d) return;
+        const now = new Date();
+        const hh = String(now.getHours()).padStart(2, "0");
+        const mm = String(now.getMinutes()).padStart(2, "0");
+        t.textContent = `${hh}:${mm}`;
+        d.textContent = now.toLocaleDateString(undefined, {
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+        });
+      }
+    
+      function ensureClockTicking() {
+        if (clockInterval) return;
+        clockInterval = setInterval(updateClock, 30 * 1000); // 30s is plenty for HH:MM
+      }
+    
+      // ─── 4. Severity classification (gauges + ping pills) ─────────
+      // Applies .hp-warn / .hp-bad classes for CSS to colour the bar/text.
+    
+      const GAUGE_WARN_PCT = 75;
+      const GAUGE_BAD_PCT  = 90;
+      const PING_WARN_MS   = 100;
+      const PING_BAD_MS    = 500;
+    
+      function classifyGauges() {
+        document.querySelectorAll(".information-widget-resource").forEach((w) => {
+          const bar = w.querySelector(".resource-usage > div");
+          if (!bar) return;
+          const pct = parseFloat(bar.style.width);
+          if (isNaN(pct)) return;
+          w.classList.remove("hp-warn", "hp-bad");
+          if (pct >= GAUGE_BAD_PCT) w.classList.add("hp-bad");
+          else if (pct >= GAUGE_WARN_PCT) w.classList.add("hp-warn");
+        });
+      }
+    
+      function classifyPings() {
+        document.querySelectorAll(".service-card").forEach((card) => {
+          const pingText = card.querySelector(".site-monitor-status > div");
+          if (!pingText) return;
+          const m = pingText.textContent.match(/(\d+)\s*ms/i);
+          if (!m) return;
+          const ms = parseInt(m[1], 10);
+          card.classList.remove("hp-warn", "hp-bad");
+          if (ms >= PING_BAD_MS) card.classList.add("hp-bad");
+          else if (ms >= PING_WARN_MS) card.classList.add("hp-warn");
+        });
+      }
+    
+      // ─── 5. Hero-row relocation ────────────────────────────────────
+      // Move the Upcoming services-group beside the System hero
+      // (#information-widgets) so the two sit in a single horizontal row.
+    
+      function relocateHeroRow() {
+        const hero = document.getElementById("information-widgets");
+        if (!hero) return;
+    
+        // Find the Upcoming group: the .services-group whose h2 text is "Upcoming".
+        // Look both inside #layout-groups (default location) and inside the
+        // existing .hp-hero-row (so we don't grab our own clone).
+        let upcoming = null;
+        document.querySelectorAll("#layout-groups .services-group h2").forEach((h) => {
+          if (h.textContent.trim() === "Upcoming") {
+            upcoming = h.closest(".services-group");
+          }
+        });
+    
+        let row = document.querySelector(".hp-hero-row");
+    
+        if (!row) {
+          row = document.createElement("div");
+          row.className = "hp-hero-row";
+          hero.parentNode.insertBefore(row, hero);
+        }
+    
+        // Move hero into row if it isn't already.
+        if (hero.parentNode !== row) {
+          row.appendChild(hero);
+        }
+    
+        // Move upcoming into row if found and not already there.
+        if (upcoming && upcoming.parentNode !== row) {
+          // If row already contains a stale Upcoming clone, drop it first.
+          const stale = row.querySelector(".services-group");
+          if (stale && stale !== upcoming) {
+            stale.remove();
+          }
+          row.appendChild(upcoming);
+        }
+      }
+    
+      // ─── Scheduler ─────────────────────────────────────────────────
+    
+      // ─── Group order enforcement ──────────────────────────────────
+      // Homepage reorders groups by size (largest first). We override that
+      // and force the design's intended visual order: Media → Servarrs → ...
+    
+      const DESIRED_GROUP_ORDER = [
+        "Media", "Servarrs", "Downloads", "Photos", "Monitoring",
+      ];
+    
+      function enforceGroupOrder() {
+        const container = document.getElementById("layout-groups");
+        if (!container) return;
+        const groups = {};
+        container.querySelectorAll(":scope > .services-group").forEach((g) => {
+          const name = g.querySelector("h2")?.textContent.trim();
+          if (name) groups[name] = g;
+        });
+        // Re-append in desired order — appendChild moves existing nodes.
+        DESIRED_GROUP_ORDER.forEach((name) => {
+          if (groups[name]) container.appendChild(groups[name]);
+        });
+      }
+    
+      function runAll() {
+        // buildTopbar() — disabled; the user dislikes the top bar.
+        // relocateHeroRow() — disabled; we no longer place hero+calendar side-by-side.
+        // enforceGroupOrder() — disabled; YAML order is respected
+        classifyGauges();
+        classifyPings();
+        // wrapQueues() — disabled: moving DOM nodes breaks React reconciliation (NotFoundError on removeChild)
+        swapTailscaleStatus();
+        sampleAndDrawSparks();
+        detectCaughtUp();
+        setupHalfWidthFreeze();
+      }
+    
+      function schedule() {
+        if (scheduled) return;
+        scheduled = true;
+        requestAnimationFrame(() => {
+          scheduled = false;
+          runAll();
+        });
+      }
+    
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", schedule);
+      } else {
+        schedule();
+      }
+    
+      ensureClockTicking();
+    
+      // Re-run every 500 ms as well — React re-renders can replace
+      // .services-group nodes faster than the MutationObserver fires.
+      setInterval(schedule, 500);
+    
+      new MutationObserver(schedule).observe(document.body, {
+        childList: true,
+        subtree: true,
+        characterData: true,
+      });
+    })();
+    
