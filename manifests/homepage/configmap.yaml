@@ -17,32 +17,45 @@ data:
     useEqualHeights: true
     iconStyle: theme
     fiveColumns: true
+    background:
+      image: https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=1920&q=80
+      blur: sm
+      opacity: 55
     layout:
       Networking:
+        tab: Infrastructure
         style: row
         columns: 2
       DevOps:
+        tab: Infrastructure
         style: row
         columns: 2
       Monitoring:
+        tab: Infrastructure
         style: row
         columns: 2
       Media:
+        tab: Media
         style: row
         columns: 2
       VM Controllers:
+        tab: Servers
         style: row
         columns: 2
       Oracle:
+        tab: Servers
         style: row
         columns: 2
       Cloud:
+        tab: Apps
         style: row
         columns: 2
       Smart Home:
+        tab: Apps
         style: row
         columns: 2
       AI:
+        tab: Apps
         style: row
         columns: 2
     quicklaunch:
@@ -57,14 +70,6 @@ data:
   proxmox.yaml: ""
 
   widgets.yaml: |
-    - resources:
-        backend: resources
-        expanded: true
-        cpu: true
-        memory: true
-        disk: /
-        network: true
-        uptime: true
     - kubernetes:
         cluster:
           show: true
@@ -493,512 +498,136 @@ data:
 
   custom.css: |
     /* ════════════════════════════════════════════════════════════════════
-       chonker homepage — shadcn × Linear aesthetic
-       2026-05-15 (aesthetic rewrite)
-    
-       All rules scoped under .theme-gray (activated by `color: gray` in
-       settings.yaml). Pairs with custom.js (severity classes, Tailscale
-       status swap, queue scroll wrap).
+       chonker × aurora blend — Catppuccin Mocha + IBM Plex Mono
+       Tabs restored · Resources removed · Aurora bg visible
        ════════════════════════════════════════════════════════════════════ */
-    
+
     @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap');
-    
-    /* ──────────────────────────────────────────────────────────────────
-       DESIGN TOKENS
-       ────────────────────────────────────────────────────────────────── */
-    
+
+    /* ─── DESIGN TOKENS ─────────────────────────────────────────── */
+
     :root {
-      /* Catppuccin Mocha base */
       --base:     #1e1e2e;
       --mantle:   #181825;
       --crust:    #11111b;
       --surface0: #313244;
       --surface1: #45475a;
-      --surface2: #585b70;
       --overlay0: #6c7086;
-      --overlay1: #7f849c;
       --subtext0: #a6adc8;
       --subtext1: #bac2de;
       --text:     #cdd6f4;
-    
-      /* Accent — mauve */
       --accent:        #cba6f7;
       --accent-soft:   rgba(203, 166, 247, 0.10);
       --accent-glow:   rgba(203, 166, 247, 0.25);
       --accent-strong: rgba(203, 166, 247, 0.40);
-    
-      /* Status colors */
       --green:      #a6e3a1;
-      --green-glow: rgba(166, 227, 161, 0.35);
       --yellow:     #f9e2af;
-      --yellow-glow:rgba(249, 226, 175, 0.35);
       --red:        #f38ba8;
-      --red-glow:   rgba(243, 139, 168, 0.35);
       --blue:       #89b4fa;
       --teal:       #94e2d5;
-    
-      /* Hairline borders */
       --hair:        rgba(205, 214, 244, 0.06);
       --hair-strong: rgba(205, 214, 244, 0.12);
-    
-      /* Typography — single-family mono treatment (terminal/console vibe) */
-      --font-ui:      "IBM Plex Mono", "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
-      --font-mono:    "IBM Plex Mono", "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
-      --font-display: "IBM Plex Mono", "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
-      --mono: var(--font-mono);
-      --sans: var(--font-ui);
+      --font-ui:      "IBM Plex Mono", "JetBrains Mono", monospace;
+      --font-mono:    "IBM Plex Mono", "JetBrains Mono", monospace;
+      --font-display: "IBM Plex Mono", "JetBrains Mono", monospace;
     }
-    
-    /* ──────────────────────────────────────────────────────────────────
-       PER-SECTION ACCENT COLORS
-       ──────────────────────────────────────────────────────────────────
-       Override --accent (and friends) inside each .services-group so the
-       section header diamond, big numbers, card top accent, and hover
-       glow all pick up a per-section color via cascade. Hero
-       (#information-widgets) and #bookmarks are OUTSIDE #layout-groups,
-       so they keep the root mauve — "chonker brand".
-       ────────────────────────────────────────────────────────────────── */
-    
-    /* 1) Media → mauve (root default; explicit for documentation) */
-    .theme-gray #layout-groups > .services-group:nth-of-type(1) {
-      --accent:        #cba6f7;
-      --accent-soft:   rgba(203, 166, 247, 0.10);
-      --accent-glow:   rgba(203, 166, 247, 0.25);
-      --accent-strong: rgba(203, 166, 247, 0.40);
+
+    /* ─── AURORA BACKGROUND ─────────────────────────────────────── */
+
+    .theme-gray body { background: transparent !important; }
+
+    .theme-gray #background {
+      opacity: 1 !important;
+      display: block !important;
+      visibility: visible !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
     }
-    
-    /* 2) Servarrs → blue */
-    .theme-gray #layout-groups > .services-group:nth-of-type(2) {
-      --accent:        #89b4fa;
-      --accent-soft:   rgba(137, 180, 250, 0.10);
-      --accent-glow:   rgba(137, 180, 250, 0.25);
-      --accent-strong: rgba(137, 180, 250, 0.40);
-    }
-    
-    /* 3) Downloads → peach */
-    .theme-gray #layout-groups > .services-group:nth-of-type(3) {
-      --accent:        #fab387;
-      --accent-soft:   rgba(250, 179, 135, 0.10);
-      --accent-glow:   rgba(250, 179, 135, 0.25);
-      --accent-strong: rgba(250, 179, 135, 0.40);
-    }
-    
-    /* 4) Photos → green */
-    .theme-gray #layout-groups > .services-group:nth-of-type(4) {
-      --accent:        #a6e3a1;
-      --accent-soft:   rgba(166, 227, 161, 0.10);
-      --accent-glow:   rgba(166, 227, 161, 0.25);
-      --accent-strong: rgba(166, 227, 161, 0.40);
-    }
-    
-    /* 5) Monitoring → teal */
-    .theme-gray #layout-groups > .services-group:nth-of-type(5) {
-      --accent:        #94e2d5;
-      --accent-soft:   rgba(148, 226, 213, 0.10);
-      --accent-glow:   rgba(148, 226, 213, 0.25);
-      --accent-strong: rgba(148, 226, 213, 0.40);
-    }
-    
-    /* ──────────────────────────────────────────────────────────────────
-       BACKGROUND — layered radial gradients (Linear-inspired)
-       ────────────────────────────────────────────────────────────────── */
-    
-    .theme-gray,
-    .theme-gray body {
-      background:
-        radial-gradient(ellipse 1400px 900px at 15% -10%, rgba(203, 166, 247, 0.10), transparent 60%),
-        radial-gradient(ellipse 1000px 700px at 95% 110%, rgba(116, 199, 236, 0.05), transparent 60%),
-        linear-gradient(180deg, #1a1a26 0%, #16161f 100%) !important;
-      background-attachment: fixed !important;
-      min-height: 100vh;
-      color: var(--text);
-    }
-    
-    /* Very subtle film grain */
-    .theme-gray body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.025 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-      pointer-events: none;
-      opacity: 0.3;
-    }
-    
-    /* ──────────────────────────────────────────────────────────────────
-       TYPOGRAPHY RESET
-       ────────────────────────────────────────────────────────────────── */
-    
-    .theme-gray *,
-    .theme-gray *::before,
-    .theme-gray *::after {
-      font-family: var(--font-ui);
-    }
-    .theme-gray h1, .theme-gray h2, .theme-gray h3 {
-      font-family: var(--font-display);
-    }
-    
-    /* ──────────────────────────────────────────────────────────────────
-       PAGE WRAPPERS
-       ────────────────────────────────────────────────────────────────── */
-    
+
     .theme-gray #page_wrapper,
     .theme-gray #inner_wrapper {
       background: transparent !important;
     }
-    
-    /* Hide synthesised topbar (deprecated) + debug + right-side search cluster */
+
+    /* subtle grain overlay */
+    .theme-gray body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.025 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ─── TYPOGRAPHY RESET ──────────────────────────────────────── */
+
+    .theme-gray * {
+      font-family: var(--font-ui);
+    }
+
+    .theme-gray h1, .theme-gray h2, .theme-gray h3 {
+      font-family: var(--font-display);
+    }
+
+    /* ─── TABS — CHONKER-STYLE PILLS ────────────────────────────── */
+
+    .theme-gray nav[class*="tab"], .theme-gray .tab-container {
+      gap: 4px;
+      padding: 4px;
+      background: rgba(30, 30, 46, 0.6);
+      backdrop-filter: blur(12px);
+      border-radius: 12px;
+      border: 1px solid var(--hair);
+      display: inline-flex;
+      margin-bottom: 20px;
+    }
+
+    .theme-gray nav[class*="tab"] button,
+    .theme-gray .tab-container button {
+      padding: 6px 16px !important;
+      border-radius: 9px !important;
+      font-family: var(--font-ui) !important;
+      font-size: 11px !important;
+      font-weight: 500 !important;
+      letter-spacing: 0.06em;
+      color: var(--subtext0) !important;
+      background: transparent !important;
+      border: 1px solid transparent !important;
+      transition: all 180ms ease;
+      text-transform: uppercase;
+    }
+
+    .theme-gray nav[class*="tab"] button[data-headlessui-state="selected"],
+    .theme-gray .tab-container button[aria-selected="true"] {
+      background: var(--accent-soft) !important;
+      border-color: var(--accent-strong) !important;
+      color: var(--accent) !important;
+      text-shadow: 0 0 6px var(--accent-glow);
+    }
+
+    /* ─── HIDE UNUSED ───────────────────────────────────────────── */
+
     .theme-gray #hp-topbar,
     .theme-gray #hp-debug-probe,
     .theme-gray #information-widgets-right { display: none !important; }
-    
-    /* Hide the orphaned "chonker" label below the resource widget */
-    .theme-gray #widgets-wrap .widget-container > .text-center,
-    .theme-gray #widgets-wrap .ml-6.pt-1.text-center { display: none !important; }
-    
-    /* Hide footer (auto-polling handles refresh; empty #version wastes space) */
+
     .theme-gray #footer { display: none !important; }
-    
-    /* Hide scrollbars (functional scroll preserved) */
+
     .theme-gray *::-webkit-scrollbar { width: 0 !important; height: 0 !important; }
-    .theme-gray *                    { scrollbar-width: none !important; }
-    
-    /* Focus ring */
-    .theme-gray *:focus-visible {
-      outline: 2px solid var(--accent) !important;
-      outline-offset: 2px !important;
-    }
-    
-    /* (Entry fade animations removed — they interacted badly with React
-       re-renders, making cards flicker between renders. The hover
-       transitions + pulsing section diamonds already provide motion.) */
-    
-    /* ──────────────────────────────────────────────────────────────────
-       TOP-LEVEL SECTION LAYOUT
-       ────────────────────────────────────────────────────────────────── */
-    
-    
-    .theme-gray #information-widgets {
-      width: min(100%, 1320px) !important;
-      flex: 0 0 auto !important;
-      margin: 16px auto 4px !important;
-      padding: 0 32px !important;
-      background: transparent !important;
-      border: none !important;
-      box-sizing: border-box !important;
-    }
-    
-    /* Flex-row+wrap so adjacent groups can share a row when sized < 100%.
-       Default to stretch for equal-height Photos + Monitoring. While either
-       half-width panel is animating or collapsed (its inline style contains
-       "px"), drop to flex-start so the other half doesn't drag along. */
-    .theme-gray #layout-groups {
-      width: min(100%, 1320px) !important;
-      padding: 16px 32px 16px !important;
-      margin: 0 auto !important;
-      display: flex !important;
-      flex-direction: row !important;
-      flex-wrap: wrap !important;
-      align-items: stretch !important;
-      gap: 16px !important;
-      box-sizing: border-box !important;
-    }
-    
-    /* When EITHER half-width panel is mid-animation or collapsed, stop
-       stretching so one section's height change doesn't pull the other. */
-    .theme-gray #layout-groups:has(> .services-group:nth-last-child(1) [id^="headlessui-disclosure-panel"][style*="px"]),
-    .theme-gray #layout-groups:has(> .services-group:nth-last-child(2) [id^="headlessui-disclosure-panel"][style*="px"]) {
-      align-items: flex-start !important;
-    }
-    
-    /* Snappier disclosure animation. Three things going on here:
-       - duration 300ms → 140ms (homepage's default felt heavy)
-       - `contain: layout paint` tells the browser the panel's height
-         change doesn't affect ancestor layout, so it skips re-laying-out
-         anything else on the page — big perf win for height transitions.
-       - Opacity fade alongside the height: when the content fades AS the
-         panel clips, the eye reads it as smooth motion instead of the
-         hard clipping that makes height-only transitions feel choppy. */
-    .theme-gray .services-group > div[id^="headlessui-disclosure-panel"],
-    .theme-gray .bookmark-group > div[id^="headlessui-disclosure-panel"] {
-      transition-property: height, opacity !important;
-      transition-duration: 140ms !important;
-      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
-      contain: layout paint;
-      will-change: height;
-    }
-    
-    /* Panel fades to 0 when its parent group has aria-expanded="false". */
-    .theme-gray .services-group:has(> button[aria-expanded="false"]) > div[id^="headlessui-disclosure-panel"],
-    .theme-gray .bookmark-group:has(> button[aria-expanded="false"]) > div[id^="headlessui-disclosure-panel"] {
-      opacity: 0;
-    }
-    
-    /* Make BOTH side-by-side sections' content fill their (stretched) heights
-       so cards inside grow to match each other.
-       The wrapper div uses Tailwind's `block!` class (display: block !important
-       in @layer utilities) which beats unlayered !important. So we don't fight
-       the display — instead we use the wrapper's explicit (flex-derived) height
-       and chain height: 100% down to the card.
-    
-       IMPORTANT: equal-height stretching is GATED on both panels being fully
-       open. When a panel is collapsed OR mid-transition, Headless UI puts an
-       inline `style="height: 0px"` on the panel. The `[style]` attribute
-       selector picks that up, and we drop the stretch/flex hacks so the
-       disclosure's height animation can play out naturally. When both
-       panels are fully open, Headless UI removes the inline style entirely,
-       the :has() match goes away, and stretch/flex/height-fill restore. */
-    .theme-gray #layout-groups > .services-group:nth-last-child(2),
-    .theme-gray #layout-groups > .services-group:nth-last-child(1) {
-      display: flex !important;
-      flex-direction: column !important;
-    }
-    
-    /* Default: equal-heights flex on, ul fills.
-       Headless UI panel inline-style state markers:
-         fully open (initial)     → no style attribute
-         fully open (post-open)   → style="height: auto"
-         mid-open / mid-close     → style="height: Npx" (animating)
-         fully closed             → style="height: 0px; display: none"
-       "px" appears in style ONLY during animation OR when closed — using
-       [style*="px"] as the negative-match gates the flex hacks off in the
-       exact moments they'd block the disclosure transition. */
-    .theme-gray #layout-groups > .services-group:nth-last-child(2) > div,
-    .theme-gray #layout-groups > .services-group:nth-last-child(1) > div {
-      flex: 1 1 auto !important;
-    }
-    .theme-gray #layout-groups > .services-group:nth-last-child(2) ul.services-list,
-    .theme-gray #layout-groups > .services-group:nth-last-child(1) ul.services-list {
-      /* `100% - 12px` subtracts Tailwind's mt-3 (12px) on this ul so the
-         card+margin-bottom chain fits inside the wrapper's clipping box. */
-      height: calc(100% - 12px) !important;
-    }
-    
-    /* Disable flex stretching while panel is animating or collapsed, so
-       Headless UI's inline `height: Npx` actually animates the wrapper. */
-    .theme-gray #layout-groups > .services-group:nth-last-child(2):has([id^="headlessui-disclosure-panel"][style*="px"]) > div,
-    .theme-gray #layout-groups > .services-group:nth-last-child(1):has([id^="headlessui-disclosure-panel"][style*="px"]) > div {
-      flex: 0 0 auto !important;
-    }
-    .theme-gray #layout-groups > .services-group:nth-last-child(2):has([id^="headlessui-disclosure-panel"][style*="px"]) ul.services-list,
-    .theme-gray #layout-groups > .services-group:nth-last-child(1):has([id^="headlessui-disclosure-panel"][style*="px"]) ul.services-list {
-      height: auto !important;
-    }
-    
-    /* Default each group is full-width (so the section stacks vertically) */
-    .theme-gray .services-group {
-      flex: 0 0 100% !important;
-      width: 100% !important;
-      max-width: 100% !important;
-      padding: 0 !important;
-      margin: 0 !important;
-    }
-    
-    /* Last two groups (Photos + Monitoring) share a row at 50/50 */
-    .theme-gray #layout-groups > .services-group:nth-last-child(2),
-    .theme-gray #layout-groups > .services-group:nth-last-child(1) {
-      flex: 0 0 calc(50% - 8px) !important;
-      width: calc(50% - 8px) !important;
-      max-width: calc(50% - 8px) !important;
-    }
-    
-    /* Photos group (2nd from last): force Immich's 4 stats into 2x2 grid */
-    .theme-gray #layout-groups > .services-group:nth-last-child(2) .service-container {
-      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    }
-    
-    /* Monitoring group (last): force 2 cards per row (Beszel + Tailscale).
-       Override needed because homepage caches columns:2 → columns:4 at SSR. */
-    .theme-gray #layout-groups > .services-group:nth-last-child(1) ul.services-list {
-      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    }
-    
-    .theme-gray #bookmarks {
-      width: min(100%, 1320px) !important;
-      padding: 8px 32px 48px !important;
-      margin: 0 auto !important;
-      box-sizing: border-box !important;
-    }
-    
-    /* ──────────────────────────────────────────────────────────────────
-       HERO — 4 separate cards (each .information-widget-resource is a card)
-       ────────────────────────────────────────────────────────────────── */
-    
-    /* Hero row: collapse wrappers via display:contents so the 4 cards lay out
-       directly inside #widgets-wrap as a 4-equal-column grid */
-    .theme-gray #widgets-wrap {
-      display: grid !important;
-      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-      gap: 16px !important;
-      background: transparent !important;
-      border: none !important;
-      box-shadow: none !important;
-      padding: 0 !important;
-      border-radius: 0 !important;
-      width: 100% !important;
-    }
-    
-    .theme-gray #widgets-wrap > .widget-container,
-    .theme-gray #widgets-wrap > .widget-container > .flex.flex-row {
-      display: contents !important;
-    }
-    
-    .theme-gray .information-widget-resource {
-      background: rgba(38, 38, 56, 0.6) !important;
-      border: 1px solid var(--hair) !important;
-      border-radius: 10px !important;
-      padding: 12px 16px !important;
-    
-      display: flex !important;
-      flex-direction: row !important;
-      align-items: center !important;
-      gap: 14px !important;
-      margin: 0 !important;
-      width: 100% !important;
-      min-width: 0 !important;
-      flex: unset !important;
-    
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-    
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-    
-      position: relative;
-      overflow: hidden;
-      transition:
-        border-color 200ms ease,
-        box-shadow 220ms ease,
-        transform 180ms ease;
-    }
-    
-    /* Hero sparkline canvas — sits behind everything via z-index, custom.js
-       appends it and feeds it with a rolling ring buffer of pct samples.
-       Card children get z-index:1 to float above the sparkline. */
-    .theme-gray .information-widget-resource > .hp-sparkline {
-      position: absolute !important;
-      inset: 0 !important;
-      width: 100% !important;
-      height: 100% !important;
-      pointer-events: none !important;
-      z-index: 0 !important;
-      border-radius: inherit;
-    }
-    .theme-gray .information-widget-resource > .resource-icon,
-    .theme-gray .information-widget-resource > .flex.flex-col {
-      position: relative !important;
-      z-index: 1 !important;
-    }
-    
-    .theme-gray .information-widget-resource:hover {
-      transform: translateY(-1px) !important;
-      border-color: var(--accent-strong) !important;
-      box-shadow:
-        0 0 0 1px var(--accent-glow),
-        0 6px 18px -6px var(--accent-strong) !important;
-    }
-    
-    /* Resource icon (CPU chip / RAM / disk) — visible, mauve-tinted */
-    .theme-gray .information-widget-resource .resource-icon {
-      display: block !important;
-      width: 26px !important;
-      height: 26px !important;
-      flex-shrink: 0 !important;
-      color: var(--accent) !important;
-      opacity: 0.7;
-      margin: 0 !important;
-    }
-    
-    .theme-gray .information-widget-resource > .flex.flex-col {
-      flex: 1 !important;
-      min-width: 0 !important;
-      margin: 0 !important;
-      gap: 3px !important;
-      display: flex !important;
-      flex-direction: column !important;
-    }
-    
-    /* Value rows — default (smaller, neutral) */
-    .theme-gray .information-widget-resource .text-xs {
-      display: flex !important;
-      align-items: baseline !important;
-      justify-content: space-between !important;
-      gap: 10px !important;
-      margin: 0 !important;
-      padding: 0 !important;
-    }
-    .theme-gray .information-widget-resource .text-xs > div:first-child {
-      font-family: var(--font-mono) !important;
-      font-size: 13px !important;
-      font-weight: 500 !important;
-      color: rgba(205, 214, 244, 0.85) !important;
-      padding: 0 !important;
-      letter-spacing: -0.01em !important;
-    }
-    .theme-gray .information-widget-resource .text-xs > div:last-child {
-      font-family: var(--font-mono) !important;
-      font-size: 10.5px !important;
-      font-weight: 500 !important;
-      letter-spacing: 0.14em !important;
-      color: rgba(205, 214, 244, 0.55) !important;
-      text-transform: uppercase !important;
-      padding: 0 !important;
-    }
-    
-    /* First value row override — big mauve number (subtle glow) */
-    .theme-gray .information-widget-resource .text-xs:first-of-type > div:first-child {
-      font-size: 24px !important;
-      font-weight: 600 !important;
-      color: var(--accent) !important;
-      letter-spacing: -0.02em !important;
-      text-shadow: 0 0 4px var(--accent-glow);
-      line-height: 1.1 !important;
-    }
-    
-    /* Progress bar — mauve gradient with glow */
-    .theme-gray .information-widget-resource .resource-usage {
-      background: rgba(205, 214, 244, 0.06) !important;
-      border-radius: 999px !important;
-      height: 3px !important;
-      margin: 8px 0 0 !important;
-      border: none !important;
-      width: 100% !important;
-      padding: 0 !important;
-    }
-    .theme-gray .information-widget-resource .resource-usage > div {
-      background: var(--accent) !important;
-      box-shadow: none !important;
-      height: 100% !important;
-      border-radius: 999px !important;
-    }
-    
-    /* Severity overrides on hero (custom.js applies .hp-warn / .hp-bad) */
-    .theme-gray .information-widget-resource.hp-warn .resource-usage > div {
-      background: linear-gradient(90deg, rgba(249, 226, 175, 0.6), rgba(249, 226, 175, 0.95)) !important;
-      box-shadow: 0 0 10px var(--yellow-glow) !important;
-    }
-    .theme-gray .information-widget-resource.hp-warn .text-xs:first-of-type > div:first-child {
-      color: var(--yellow) !important;
-      text-shadow: 0 0 12px var(--yellow-glow);
-    }
-    .theme-gray .information-widget-resource.hp-bad .resource-usage > div {
-      background: linear-gradient(90deg, rgba(243, 139, 168, 0.7), rgba(243, 139, 168, 1)) !important;
-      box-shadow: 0 0 10px var(--red-glow) !important;
-    }
-    .theme-gray .information-widget-resource.hp-bad .text-xs:first-of-type > div:first-child {
-      color: var(--red) !important;
-      text-shadow: 0 0 12px var(--red-glow);
-    }
-    
-    /* ──────────────────────────────────────────────────────────────────
-       SECTION HEADERS — Linear-style mauve diamond + caps label
-       ────────────────────────────────────────────────────────────────── */
-    
+    .theme-gray * { scrollbar-width: none !important; }
+
+    /* ─── SECTION HEADERS — ACCENT DIAMOND ──────────────────────── */
+
+    .theme-gray #layout-groups { display: block !important; }
+
     .theme-gray .services-group,
     .theme-gray .bookmark-group {
       padding-top: 4px !important;
       margin-bottom: 0 !important;
     }
-    
+
     .theme-gray .services-group > button,
     .theme-gray .bookmark-group > button {
       position: relative !important;
@@ -1011,9 +640,7 @@ data:
       display: flex !important;
       align-items: center !important;
     }
-    
-    /* Static diamond — pulse animation removed (it added no signal, was
-       barely visible, and competed for attention with hover/data motion). */
+
     .theme-gray .services-group > button::before,
     .theme-gray .bookmark-group > button::before {
       content: "";
@@ -1027,7 +654,7 @@ data:
       transform: translateY(-50%) rotate(45deg);
       box-shadow: 0 0 10px var(--accent-glow);
     }
-    
+
     .theme-gray .services-group > button h2,
     .theme-gray .bookmark-group > button h2 {
       font-family: var(--font-display) !important;
@@ -1038,8 +665,7 @@ data:
       text-transform: uppercase !important;
       margin: 0 !important;
     }
-    
-    /* Hide the disclosure chevron unless hovering */
+
     .theme-gray .services-group > button svg,
     .theme-gray .bookmark-group > button svg {
       opacity: 0 !important;
@@ -1047,22 +673,85 @@ data:
     }
     .theme-gray .services-group > button:hover svg,
     .theme-gray .bookmark-group > button:hover svg { opacity: 0.4 !important; }
-    
-    /* Disclosure panel inner padding */
+
     .theme-gray .services-group > div[id^="headlessui-disclosure-panel"],
     .theme-gray .bookmark-group > div[id^="headlessui-disclosure-panel"] {
       padding-top: 14px !important;
     }
-    
-    /* ──────────────────────────────────────────────────────────────────
-       SERVICE CARDS — glass morphism
-       ────────────────────────────────────────────────────────────────── */
-    
-    /* Force all cards in a row to match the tallest card's height */
+
+    /* snappy disclosure animation */
+    .theme-gray .services-group > div[id^="headlessui-disclosure-panel"],
+    .theme-gray .bookmark-group > div[id^="headlessui-disclosure-panel"] {
+      transition-property: height, opacity !important;
+      transition-duration: 140ms !important;
+      transition-timing-function: ease-out !important;
+      contain: layout paint;
+    }
+
+    /* ─── PER-SECTION ACCENT COLORS ─────────────────────────────── */
+
+    .theme-gray #layout-groups > .services-group:nth-of-type(1) {
+      --accent: #cba6f7;
+      --accent-soft: rgba(203, 166, 247, 0.10);
+      --accent-glow: rgba(203, 166, 247, 0.25);
+      --accent-strong: rgba(203, 166, 247, 0.40);
+    }
+    .theme-gray #layout-groups > .services-group:nth-of-type(2) {
+      --accent: #89b4fa;
+      --accent-soft: rgba(137, 180, 250, 0.10);
+      --accent-glow: rgba(137, 180, 250, 0.25);
+      --accent-strong: rgba(137, 180, 250, 0.40);
+    }
+    .theme-gray #layout-groups > .services-group:nth-of-type(3) {
+      --accent: #fab387;
+      --accent-soft: rgba(250, 179, 135, 0.10);
+      --accent-glow: rgba(250, 179, 135, 0.25);
+      --accent-strong: rgba(250, 179, 135, 0.40);
+    }
+    .theme-gray #layout-groups > .services-group:nth-of-type(4) {
+      --accent: #a6e3a1;
+      --accent-soft: rgba(166, 227, 161, 0.10);
+      --accent-glow: rgba(166, 227, 161, 0.25);
+      --accent-strong: rgba(166, 227, 161, 0.40);
+    }
+    .theme-gray #layout-groups > .services-group:nth-of-type(5) {
+      --accent: #94e2d5;
+      --accent-soft: rgba(148, 226, 213, 0.10);
+      --accent-glow: rgba(148, 226, 213, 0.25);
+      --accent-strong: rgba(148, 226, 213, 0.40);
+    }
+    .theme-gray #layout-groups > .services-group:nth-of-type(6) {
+      --accent: #cba6f7;
+      --accent-soft: rgba(203, 166, 247, 0.10);
+      --accent-glow: rgba(203, 166, 247, 0.25);
+      --accent-strong: rgba(203, 166, 247, 0.40);
+    }
+    .theme-gray #layout-groups > .services-group:nth-of-type(7) {
+      --accent: #89b4fa;
+      --accent-soft: rgba(137, 180, 250, 0.10);
+      --accent-glow: rgba(137, 180, 250, 0.25);
+      --accent-strong: rgba(137, 180, 250, 0.40);
+    }
+    .theme-gray #layout-groups > .services-group:nth-of-type(8) {
+      --accent: #fab387;
+      --accent-soft: rgba(250, 179, 135, 0.10);
+      --accent-glow: rgba(250, 179, 135, 0.25);
+      --accent-strong: rgba(250, 179, 135, 0.40);
+    }
+    .theme-gray #layout-groups > .services-group:nth-of-type(9) {
+      --accent: #a6e3a1;
+      --accent-soft: rgba(166, 227, 161, 0.10);
+      --accent-glow: rgba(166, 227, 161, 0.25);
+      --accent-strong: rgba(166, 227, 161, 0.40);
+    }
+
+    /* ─── SERVICE CARDS — GLASS MORPHISM ────────────────────────── */
+
     .theme-gray .services-list {
       align-items: stretch !important;
       grid-auto-rows: 1fr !important;
     }
+
     .theme-gray li.service {
       margin: 0 !important;
       padding: 0 !important;
@@ -1070,48 +759,34 @@ data:
       height: 100% !important;
     }
     .theme-gray li.service > .service-card {
-      /* Don't override Tailwind's h-[calc(100%-0.5rem)] — it accounts for
-         the mb-2 margin so the card+margin fits inside the overflow:hidden
-         wrapper. Just set display + width. */
       width: 100% !important;
       display: flex !important;
       flex-direction: column !important;
     }
-    /* Container fills remaining card height; stat rows split it evenly */
     .theme-gray .service-card .service-container {
       flex: 1 1 auto !important;
       align-content: stretch !important;
       grid-auto-rows: 1fr !important;
     }
-    
+
     .theme-gray .service-card {
-      background: rgba(38, 38, 56, 0.6) !important;
+      background: rgba(38, 38, 56, 0.55) !important;
       border: 1px solid var(--hair) !important;
       border-radius: 12px !important;
       padding: 0 !important;
       margin: 0 !important;
       overflow: hidden !important;
       position: relative;
-    
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-    
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-    
-      transition:
-        border-color 200ms ease,
-        box-shadow 220ms ease,
-        transform 180ms ease;
+      transition: border-color 200ms ease, box-shadow 220ms ease, transform 180ms ease;
     }
-    
-    /* Section accent stripe — 2px top border picks up per-section --accent.
-       Pseudo-element so it doesn't disrupt the existing 1px hairline border. */
+
     .theme-gray #layout-groups li.service > .service-card::before {
       content: "";
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
+      top: 0; left: 0; right: 0;
       height: 2px;
       background: var(--accent);
       opacity: 0.65;
@@ -1119,56 +794,25 @@ data:
       z-index: 1;
       transition: opacity 220ms ease;
     }
-    .theme-gray #layout-groups li.service > .service-card:hover::before {
-      opacity: 1;
-    }
-    
+
+    .theme-gray li.service > .service-card:hover::before { opacity: 1; }
     .theme-gray li.service > .service-card:hover {
       transform: translateY(-1px) !important;
       border-color: var(--accent-strong) !important;
-      box-shadow:
-        0 0 0 1px var(--accent-glow),
-        0 6px 18px -6px var(--accent-strong) !important;
+      box-shadow: 0 0 0 1px var(--accent-glow), 0 6px 18px -6px var(--accent-strong) !important;
     }
-    
-    /* Title bar */
+
+    /* title bar */
     .theme-gray .service-title {
       padding: 10px 14px 9px !important;
       border-bottom: 1px solid var(--hair) !important;
       margin: 0 !important;
       background: transparent !important;
     }
-    .theme-gray .service-title-text {
-      background: transparent !important;
-      border-radius: 0 !important;
-    }
-    
-    /* Service brand icon (left of title) */
-    .theme-gray .service-icon {
-      width: 38px !important;
-      height: 38px !important;
-      max-width: 38px !important;
-      margin-right: 12px !important;
-      background: rgba(28, 28, 42, 0.6) !important;
-      border: 1px solid var(--hair) !important;
-      border-radius: 8px !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      padding: 5px !important;
-      flex-shrink: 0 !important;
-    }
-    .theme-gray .service-icon img,
-    .theme-gray .service-icon svg {
-      width: 22px !important;
-      height: 22px !important;
-      filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.4));
-    }
-    
-    /* Title text */
+
     .theme-gray .service-name {
       font-family: var(--font-ui) !important;
-      font-size: 16px !important;
+      font-size: 14px !important;
       font-weight: 600 !important;
       color: var(--text) !important;
       letter-spacing: -0.01em !important;
@@ -1177,24 +821,108 @@ data:
     }
     .theme-gray .service-description {
       font-family: var(--font-ui) !important;
-      font-size: 12px !important;
+      font-size: 11px !important;
       font-weight: 400 !important;
       color: rgba(205, 214, 244, 0.50) !important;
       letter-spacing: 0.01em !important;
       margin: 3px 0 0 !important;
       padding: 0 !important;
     }
-    
-    /* Service tag area (ms pill) */
+
     .theme-gray .service-tags {
       top: 12px !important;
       right: 12px !important;
     }
-    
-    /* ──────────────────────────────────────────────────────────────────
-       MS PILL — green with glow (severity classes from custom.js override)
-       ────────────────────────────────────────────────────────────────── */
-    
+
+    /* ─── METRIC BLOCKS ─────────────────────────────────────────── */
+
+    .theme-gray .service-container {
+      background: transparent !important;
+      display: grid !important;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)) !important;
+      gap: 6px !important;
+      padding: 8px 10px 10px !important;
+      margin: 0 !important;
+    }
+
+    .theme-gray .service-container > .service-block:nth-child(3):nth-last-child(1) {
+      grid-column: 1 / -1 !important;
+    }
+
+    .theme-gray .service-block {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 10px 6px !important;
+      margin: 0 !important;
+      gap: 4px !important;
+      background: rgba(28, 28, 42, 0.45) !important;
+      border: 1px solid var(--hair) !important;
+      border-radius: 8px !important;
+      min-height: 54px !important;
+    }
+
+    .theme-gray .service-block > .font-thin,
+    .theme-gray .service-block > .text-sm:not(.uppercase) {
+      font-family: var(--font-mono) !important;
+      font-size: 22px !important;
+      font-weight: 600 !important;
+      color: var(--accent) !important;
+      letter-spacing: -0.02em !important;
+      text-shadow: 0 0 4px var(--accent-glow);
+      line-height: 1 !important;
+      text-align: center !important;
+      order: 1 !important;
+    }
+
+    .theme-gray .service-block > .uppercase,
+    .theme-gray .service-block > .font-bold {
+      font-family: var(--font-mono) !important;
+      font-size: 10.5px !important;
+      font-weight: 500 !important;
+      letter-spacing: 0.14em !important;
+      color: rgba(205, 214, 244, 0.55) !important;
+      text-transform: uppercase !important;
+      text-align: center !important;
+      order: 2 !important;
+    }
+
+    /* qBittorrent leech bar */
+    .theme-gray .service-block .h-1 {
+      height: 2px !important;
+      background: rgba(205, 214, 244, 0.06) !important;
+      border-radius: 999px !important;
+      margin-top: 4px !important;
+    }
+    .theme-gray .service-block .h-1 > div {
+      background: var(--accent) !important;
+      box-shadow: 0 0 6px var(--accent-glow);
+      border-radius: 999px !important;
+    }
+
+    /* ─── "ALL CAUGHT UP" OVERLAY ───────────────────────────────── */
+
+    .theme-gray .service-card.hp-caught-up .service-block { visibility: hidden; }
+    .theme-gray .service-card.hp-caught-up .service-container::after {
+      content: "✓  ALL CAUGHT UP";
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      color: var(--green);
+      text-shadow: 0 0 10px rgba(166, 227, 161, 0.35);
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    /* ─── MS PILL — PING ────────────────────────────────────────── */
+
     .theme-gray .site-monitor-status {
       background: rgba(166, 227, 161, 0.10) !important;
       border: 1px solid rgba(166, 227, 161, 0.22) !important;
@@ -1209,138 +937,20 @@ data:
       letter-spacing: 0.04em !important;
       color: var(--green) !important;
       text-transform: uppercase !important;
-      text-shadow: none !important;
     }
     .theme-gray .service-card.hp-warn .site-monitor-status {
       background: rgba(249, 226, 175, 0.10) !important;
       border-color: rgba(249, 226, 175, 0.22) !important;
-      box-shadow: none !important;
     }
-    .theme-gray .service-card.hp-warn .site-monitor-status > div {
-      color: var(--yellow) !important;
-      text-shadow: none !important;
-    }
+    .theme-gray .service-card.hp-warn .site-monitor-status > div { color: var(--yellow) !important; }
     .theme-gray .service-card.hp-bad .site-monitor-status {
       background: rgba(243, 139, 168, 0.10) !important;
       border-color: rgba(243, 139, 168, 0.22) !important;
-      box-shadow: none !important;
     }
-    .theme-gray .service-card.hp-bad .site-monitor-status > div {
-      color: var(--red) !important;
-      text-shadow: none !important;
-    }
-    
-    /* ──────────────────────────────────────────────────────────────────
-       METRIC BLOCKS — the .service-block tiles inside service cards
-       ────────────────────────────────────────────────────────────────── */
-    
-    /* .service-container IS the flex-row holding .service-block children.
-       Grid with auto-fit + minmax(130px): 4 blocks in narrow Servarr cards
-       wrap to 2x2; wider cards (Beszel/qBit full-width) keep blocks in one
-       row. */
-    .theme-gray .service-container {
-      background: transparent !important;
-      display: grid !important;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)) !important;
-      gap: 6px !important;
-      padding: 8px 10px 10px !important;
-      margin: 0 !important;
-    }
-    
-    /* If exactly 3 blocks and they wrap to 2 cols (Sonarr at 308px card),
-       span the 3rd across both columns so there's no empty cell. */
-    .theme-gray .service-container > .service-block:nth-child(3):nth-last-child(1) {
-      grid-column: 1 / -1 !important;
-    }
-    
-    .theme-gray .service-block {
-      display: flex !important;
-      flex-direction: column !important;
-      align-items: center !important;
-      justify-content: center !important;
-      padding: 10px 6px !important;
-      margin: 0 !important;
-      gap: 4px !important;
-      background: rgba(28, 28, 42, 0.45) !important;
-      border: 1px solid var(--hair) !important;
-      border-radius: 8px !important;
-      min-height: 54px !important;
-    }
-    
-    /* Metric value (big number) — subtle glow */
-    .theme-gray .service-block > .font-thin,
-    .theme-gray .service-block > .text-sm:not(.uppercase) {
-      font-family: var(--font-mono) !important;
-      font-size: 22px !important;
-      font-weight: 600 !important;
-      color: var(--accent) !important;
-      letter-spacing: -0.02em !important;
-      text-shadow: 0 0 4px var(--accent-glow);
-      line-height: 1 !important;
-      text-align: center !important;
-      order: 1 !important;
-    }
-    
-    /* Metric label */
-    .theme-gray .service-block > .uppercase,
-    .theme-gray .service-block > .font-bold.text-xs,
-    .theme-gray .service-block > .font-bold {
-      font-family: var(--font-mono) !important;
-      font-size: 10.5px !important;
-      font-weight: 500 !important;
-      letter-spacing: 0.14em !important;
-      color: rgba(205, 214, 244, 0.55) !important;
-      text-transform: uppercase !important;
-      text-align: center !important;
-      order: 2 !important;
-    }
-    
-    /* ──────────────────────────────────────────────────────────────────
-       "ALL CAUGHT UP" overlay — applied to .service-card.hp-caught-up
-       (toggled by custom.js when all .service-block values read "0").
-       Hides the zero blocks, shows a centered green check + label.
-       ────────────────────────────────────────────────────────────────── */
-    
-    .theme-gray .service-card.hp-caught-up .service-container {
-      position: relative;
-    }
-    .theme-gray .service-card.hp-caught-up .service-block {
-      visibility: hidden;
-    }
-    .theme-gray .service-card.hp-caught-up .service-container::after {
-      content: "✓  ALL CAUGHT UP";
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-mono);
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.16em;
-      color: var(--green);
-      text-shadow: 0 0 10px var(--green-glow);
-      text-transform: uppercase;
-      pointer-events: none;
-    }
-    
-    /* qBittorrent leech progress bar inside .service-block */
-    .theme-gray .service-block .h-1 {
-      height: 2px !important;
-      background: rgba(205, 214, 244, 0.06) !important;
-      border-radius: 999px !important;
-      margin-top: 4px !important;
-    }
-    .theme-gray .service-block .h-1 > div {
-      background: var(--accent) !important;
-      box-shadow: 0 0 6px var(--accent-glow);
-      border-radius: 999px !important;
-    }
-    
-    /* ──────────────────────────────────────────────────────────────────
-       QUEUE / DOWNLOADS SCROLL — Sonarr enableQueue, Radarr, custom.js wrap
-       ────────────────────────────────────────────────────────────────── */
-    
+    .theme-gray .service-card.hp-bad .site-monitor-status > div { color: var(--red) !important; }
+
+    /* ─── QUEUE SCROLL ──────────────────────────────────────────── */
+
     .theme-gray .hp-queue-scroll {
       max-height: 100px !important;
       overflow-y: auto !important;
@@ -1350,10 +960,7 @@ data:
       border: 1px solid var(--hair) !important;
       border-radius: 8px !important;
     }
-    
-    /* Each queue row */
-    .theme-gray .hp-queue-scroll > div,
-    .theme-gray .service-card .h-5.rounded-md {
+    .theme-gray .hp-queue-scroll > div {
       height: 22px !important;
       padding: 0 8px !important;
       background: transparent !important;
@@ -1363,107 +970,28 @@ data:
       font-size: 10.5px !important;
       margin: 0 !important;
     }
-    .theme-gray .hp-queue-scroll > div:last-child,
-    .theme-gray .service-card .h-5.rounded-md:last-child { border-bottom: none !important; }
-    
-    .theme-gray .service-card .h-5[class*="bg-theme"],
-    .theme-gray .hp-queue-scroll .h-5 { background: transparent !important; }
-    
-    .theme-gray .service-card .h-5 > span > span {
-      color: rgba(205, 214, 244, 0.75) !important;
-      font-family: var(--font-mono) !important;
-      font-size: 10.5px !important;
-    }
-    
-    /* ──────────────────────────────────────────────────────────────────
-       CALENDAR (Upcoming)
-       ────────────────────────────────────────────────────────────────── */
-    
-    .theme-gray [data-name="Calendar"] .service-title { display: none !important; }
-    
-    .theme-gray [data-name="Calendar"] .service-card {
-      padding: 4px !important;
-    }
-    
-    .theme-gray [data-name="Calendar"] .service-container {
-      padding: 0 !important;
-    }
-    
-    .theme-gray [data-name="Calendar"] .service-container > .flex.flex-col {
-      padding: 8px !important;
-      gap: 0 !important;
-    }
-    
-    .theme-gray [data-name="Calendar"] .service-container .flex.flex-col > div > .flex.flex-row {
-      background: transparent !important;
-      border-radius: 0 !important;
-      border-bottom: 1px solid var(--hair) !important;
-      height: 30px !important;
-      padding: 0 12px !important;
-      margin: 0 !important;
-    }
-    .theme-gray [data-name="Calendar"] .service-container .flex.flex-col > div:last-child > .flex.flex-row {
-      border-bottom: none !important;
-    }
-    
-    .theme-gray [data-name="Calendar"] .service-container .flex.flex-row > span.w-12 > span {
-      font-family: var(--font-mono) !important;
-      font-size: 11px !important;
-      font-variant-numeric: tabular-nums !important;
-      color: rgba(205, 214, 244, 0.55) !important;
-      letter-spacing: 0.02em !important;
-    }
-    
-    .theme-gray [data-name="Calendar"] .service-container .flex.flex-row .truncate > div {
-      font-family: var(--font-ui) !important;
-      font-size: 12.5px !important;
-      color: var(--text) !important;
-    }
-    
-    /* First (next) event — bright mauve */
-    .theme-gray [data-name="Calendar"] .service-container .flex.flex-col > div:first-child > .flex.flex-row {
-      background: var(--accent-soft) !important;
-      border-bottom: 1px solid var(--accent-glow) !important;
-    }
-    .theme-gray [data-name="Calendar"] .service-container .flex.flex-col > div:first-child .truncate > div,
-    .theme-gray [data-name="Calendar"] .service-container .flex.flex-col > div:first-child > .flex.flex-row > span.w-12 > span {
-      color: var(--accent) !important;
-      font-weight: 500 !important;
-      text-shadow: 0 0 6px var(--accent-glow);
-    }
-    
-    /* ──────────────────────────────────────────────────────────────────
-       BOOKMARKS — joined-list inside glass card
-       ────────────────────────────────────────────────────────────────── */
-    
+    .theme-gray .hp-queue-scroll > div:last-child { border-bottom: none !important; }
+
+    /* ─── BOOKMARKS ─────────────────────────────────────────────── */
+
     .theme-gray #bookmarks .bookmark-group ul.bookmark-list {
       border: 1px solid var(--hair) !important;
       border-radius: 12px !important;
-      background: rgba(38, 38, 56, 0.6) !important;
+      background: rgba(38, 38, 56, 0.55) !important;
       overflow: hidden !important;
       padding: 0 !important;
       margin: 0 !important;
       display: flex !important;
       flex-direction: column !important;
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-      transition: border-color 200ms ease, box-shadow 220ms ease;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      transition: border-color 200ms ease;
     }
-    
     .theme-gray #bookmarks .bookmark-group ul.bookmark-list:hover {
       border-color: var(--accent-strong) !important;
-      box-shadow:
-        0 0 0 1px var(--accent-glow),
-        0 6px 18px -6px var(--accent-strong) !important;
+      box-shadow: 0 0 0 1px var(--accent-glow), 0 6px 18px -6px var(--accent-strong) !important;
     }
-    
-    .theme-gray #bookmarks li.bookmark {
-      margin: 0 !important;
-      padding: 0 !important;
-      list-style: none !important;
-    }
-    
+    .theme-gray #bookmarks li.bookmark { margin: 0 !important; padding: 0 !important; list-style: none !important; }
     .theme-gray #bookmarks .bookmark > a {
       display: flex !important;
       align-items: stretch !important;
@@ -1475,21 +1003,13 @@ data:
       border-bottom: 1px solid var(--hair) !important;
       min-height: 46px !important;
       max-height: 46px !important;
-      transition: background 180ms ease, box-shadow 200ms ease;
+      transition: background 180ms ease;
     }
     .theme-gray #bookmarks .bookmark:last-child > a { border-bottom: none !important; }
-    
     .theme-gray #bookmarks .bookmark > a:hover {
       background: var(--accent-soft) !important;
       box-shadow: inset 3px 0 0 var(--accent) !important;
     }
-    
-    .theme-gray #bookmarks .bookmark > a > .flex {
-      flex: 1 !important;
-      align-items: stretch !important;
-      height: 46px !important;
-    }
-    
     .theme-gray #bookmarks .bookmark-icon {
       width: 52px !important;
       height: 46px !important;
@@ -1506,7 +1026,6 @@ data:
       letter-spacing: 0.06em !important;
       color: var(--text) !important;
     }
-    
     .theme-gray #bookmarks .bookmark-text {
       flex: 1 !important;
       display: flex !important;
@@ -1514,7 +1033,6 @@ data:
       padding: 0 16px !important;
       background: transparent !important;
     }
-    
     .theme-gray #bookmarks .bookmark-name {
       padding: 0 !important;
       font-family: var(--font-ui) !important;
@@ -1522,7 +1040,6 @@ data:
       font-weight: 500 !important;
       color: var(--text) !important;
     }
-    
     .theme-gray #bookmarks .bookmark-description {
       padding: 0 !important;
       font-family: var(--font-mono) !important;
@@ -1531,7 +1048,32 @@ data:
       color: rgba(205, 214, 244, 0.42) !important;
       margin-left: auto !important;
     }
-    
+
+    /* ─── KUBERNETES WIDGET ─────────────────────────────────────── */
+
+    .theme-gray #information-widgets {
+      padding: 16px 32px 8px !important;
+      margin: 0 0 8px !important;
+      background: transparent !important;
+      border: none !important;
+    }
+
+    /* ─── DATETIME ──────────────────────────────────────────────── */
+
+    .theme-gray .information-widget-datetime span {
+      font-family: var(--font-mono) !important;
+      font-weight: 400 !important;
+      letter-spacing: 0.02em;
+      color: var(--subtext1) !important;
+    }
+
+    /* ─── FOCUS ─────────────────────────────────────────────────── */
+
+    .theme-gray *:focus-visible {
+      outline: 2px solid var(--accent) !important;
+      outline-offset: 2px !important;
+    }
+
   custom.js: |
     // custom.js — runtime DOM patches that pair with custom.css
     //
@@ -2020,16 +1562,11 @@ data:
       }
     
       function runAll() {
-        // buildTopbar() — disabled; the user dislikes the top bar.
-        // relocateHeroRow() — disabled; we no longer place hero+calendar side-by-side.
-        // enforceGroupOrder() — disabled; YAML order is respected
         classifyGauges();
         classifyPings();
-        // wrapQueues() — disabled: moving DOM nodes breaks React reconciliation (NotFoundError on removeChild)
         swapTailscaleStatus();
         sampleAndDrawSparks();
         detectCaughtUp();
-        setupHalfWidthFreeze();
       }
     
       function schedule() {
