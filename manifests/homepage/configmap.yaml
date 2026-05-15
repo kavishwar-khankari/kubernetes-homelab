@@ -351,28 +351,28 @@ data:
 
   bookmarks.yaml: |
     - Quick Links:
-        - github:
-            href: https://github.com/
-            icon: si-github
-        - gmail:
-            href: https://mail.google.com
-            icon: si-gmail
-        - youtube:
-            href: https://www.youtube.com/
-            icon: si-youtube
+        - Github:
+            - abbr: GH
+              href: https://github.com/
+        - Gmail:
+            - abbr: GM
+              href: https://mail.google.com
+        - YouTube:
+            - abbr: YT
+              href: https://www.youtube.com/
     - Piracy:
         - modlist.in:
-            href: https://modlist.in/
+            - href: https://modlist.in/
         - mp4moviez:
-            href: https://www.mp4moviez.law/
+            - href: https://www.mp4moviez.law/
         - bolly4u:
-            href: https://bolly4u.care/
+            - href: https://bolly4u.care/
         - torrends.to:
-            href: https://torrends.to/
+            - href: https://torrends.to/
         - ips:
-            href: https://www.indianpornsites.net/kamareels2-com/
+            - href: https://www.indianpornsites.net/kamareels2-com/
         - xd movies:
-            href: https://xdmovies.com/
+            - href: https://xdmovies.com/
 
   custom.css: |
     :root {
