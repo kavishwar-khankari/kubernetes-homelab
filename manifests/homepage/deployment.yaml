@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homepage
+  namespace: homepage
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: homepage
+  template:
+    metadata:
+      labels:
+        app: homepage
+    spec:
+      serviceAccountName: homepage
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values: [k3s-node-1, k3s-node-2]
+      containers:
+        - name: homepage
+          image: gethomepage/homepage@sha256:d8d784e5090111b6e4c56dfd90e272d2953a2094e87349f647165df0fa6c4401  # v1.13.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: TZ
+              value: Asia/Kolkata
+            - name: HOMEPAGE_ALLOWED_HOSTS
+              value: homepage.techtronics.top
+          envFrom:
+            - secretRef:
+                name: homepage-secrets
+                optional: true
+          volumeMounts:
+            - mountPath: /app/config/services.yaml
+              name: config
+              subPath: services.yaml
+            - mountPath: /app/config/settings.yaml
+              name: config
+              subPath: settings.yaml
+            - mountPath: /app/config/bookmarks.yaml
+              name: config
+              subPath: bookmarks.yaml
+            - mountPath: /app/config/widgets.yaml
+              name: config
+              subPath: widgets.yaml
+            - mountPath: /app/config/kubernetes.yaml
+              name: config
+              subPath: kubernetes.yaml
+            - mountPath: /app/config/custom.css
+              name: config
+              subPath: custom.css
+            - mountPath: /app/config/custom.js
+              name: config
+              subPath: custom.js
+          startupProbe:
+            httpGet:
+              path: /api/healthcheck
+              port: 3000
+            periodSeconds: 10
+            failureThreshold: 18
+          readinessProbe:
+            httpGet:
+              path: /api/healthcheck
+              port: 3000
+            periodSeconds: 30
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /api/healthcheck
+              port: 3000
+            initialDelaySeconds: 60
+            periodSeconds: 60
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 50m
+            limits:
+              memory: 512Mi
+              cpu: "1"
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+      volumes:
+        - name: config
+          configMap:
+            name: homepage

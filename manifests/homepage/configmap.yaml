@@ -1,0 +1,379 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homepage
+  namespace: homepage
+data:
+  settings.yaml: |
+    title: Homelab
+    theme: dark
+    color: slate
+    background:
+      opacity: 50
+    headerStyle: clean
+    statusStyle: dot
+    layout:
+      Networking:
+        tab: Infrastructure
+      DevOps:
+        tab: Infrastructure
+      Monitoring:
+        tab: Infrastructure
+      Media:
+        tab: Media
+      VM Controllers:
+        tab: Servers
+      Oracle:
+        tab: Servers
+      Cloud:
+        tab: Apps
+      Smart Home:
+        tab: Apps
+      AI:
+        tab: Apps
+    quicklaunch:
+      provider: duckduckgo
+      searchDescriptions: true
+    fullWidth: true
+    useEqualHeights: true
+    iconStyle: gradient
+
+  kubernetes.yaml: |
+    mode: cluster
+
+  widgets.yaml: |
+    - kubernetes:
+        cluster:
+          show: true
+          cpu: true
+          memory: true
+          showLabel: true
+          label: cluster
+        nodes:
+          show: true
+          cpu: true
+          memory: true
+          showLabel: true
+    - resources:
+        backend: resources
+        expanded: true
+        cpu: true
+        memory: true
+        disk: /
+    - datetime:
+        text_size: xl
+        format:
+          timeStyle: short
+          hour12: false
+    - search:
+        provider: duckduckgo
+        target: _blank
+
+  services.yaml: |
+    - Networking:
+        - nginx proxy manager:
+            href: http://192.168.0.237:81/
+            icon: si-nginxproxymanager
+            description: Reverse proxy
+        - adguard home:
+            href: http://192.168.0.38/
+            icon: si-adguard
+            description: DNS ad-blocking
+        - adguard home vps:
+            href: http://ampere-vm:3000/
+            icon: si-adguard
+            description: VPS DNS ad-blocking
+        - librespeed-server-1:
+            href: http://192.168.0.237:10012/
+            icon: si-librespeed
+        - librespeed-server-2:
+            href: http://192.168.0.197:10012/
+            icon: si-librespeed
+        - open speedtest:
+            href: http://192.168.0.237:10014/
+            icon: si-openspeedtest
+        - speedtest tracker:
+            href: http://192.168.0.197:8383/
+            icon: si-speedtest
+        - router:
+            href: https://router.techtronics.top
+            icon: si-tplink
+            description: Main router
+        - router-dhule:
+            href: https://router-dhule.techtronics.top
+            icon: si-tplink
+            description: Dhule router
+        - switch:
+            href: http://192.168.0.2
+            icon: si-ubiquiti
+
+    - Media:
+        - jellyfin-ip:
+            href: http://192.168.0.197:8096/
+            icon: si-jellyfin
+            description: Jellyfin (local IP)
+        - jellyfin:
+            href: https://jellyfin.techtronics.top/
+            icon: si-jellyfin
+            widget:
+              type: jellyfin
+              url: https://jellyfin.techtronics.top
+              key: ${HOMEPAGE_JELLYFIN_API_KEY}
+        - sonarr:
+            href: https://sonarr.techtronics.top
+            icon: si-sonarr
+            widget:
+              type: sonarr
+              url: https://sonarr.techtronics.top
+              key: ${HOMEPAGE_SONARR_API_KEY}
+        - radarr:
+            href: https://radarr.techtronics.top
+            icon: si-radarr
+            widget:
+              type: radarr
+              url: https://radarr.techtronics.top
+              key: ${HOMEPAGE_RADARR_API_KEY}
+        - lidarr:
+            href: https://lidarr.techtronics.top
+            icon: si-lidarr
+        - bazarr:
+            href: http://192.168.0.197:6767/
+            icon: si-bazarr
+        - prowlarr:
+            href: https://prowlarr.techtronics.top
+            icon: si-prowlarr
+            widget:
+              type: prowlarr
+              url: https://prowlarr.techtronics.top
+              key: ${HOMEPAGE_PROWLARR_API_KEY}
+        - qbittorent:
+            href: https://qbittorent.techtronics.top
+            icon: si-qbittorrent
+            widget:
+              type: qbittorrent
+              url: https://qbittorent.techtronics.top
+              username: ${HOMEPAGE_QBITTORRENT_USER}
+              password: ${HOMEPAGE_QBITTORRENT_PASS}
+        - qbittorent-11:
+            href: http://192.168.1.19:9090/
+            icon: si-qbittorrent
+            description: Remote qBittorrent
+        - jdownloader:
+            href: https://jdownloader2.techtronics.top
+            icon: si-jdownloader
+        - rdtc:
+            href: https://rdtclient.techtronics.top
+            icon: si-real-debrid
+        - ariang:
+            href: https://ariang.techtronics.top
+            icon: si-aria2
+        - wizarr:
+            href: https://wizarr.techtronics.top
+            icon: si-jellyfin
+        - seerr:
+            href: https://jellyseerr.techtronics.top
+            icon: si-jellyseerr
+            widget:
+              type: jellyseerr
+              url: https://jellyseerr.techtronics.top
+              key: ${HOMEPAGE_JELLYSEERR_API_KEY}
+        - tdarr:
+            href: https://tdarr.techtronics.top/
+            icon: si-tdarr
+            widget:
+              type: tdarr
+              url: https://tdarr.techtronics.top
+        - frostbite:
+            href: https://frostbite.techtronics.top
+            icon: si-qbittorrent
+            description: qBittorrent filter manager
+        - handbrake:
+            href: http://192.168.0.74:10053/
+            icon: si-handbrake
+        - file browser:
+            href: https://files.techtronics.top
+            icon: si-filebrowser
+        - file browser 2:
+            href: https://files-2.techtronics.top
+            icon: si-filebrowser
+        - youtube:
+            href: https://www.youtube.com/
+            icon: si-youtube
+
+    - VM Controllers:
+        - portainer-1:
+            href: https://192.168.0.237:9443/
+            icon: si-portainer
+        - portainer-2:
+            href: https://192.168.0.197:9443/
+            icon: si-portainer
+        - portainer-11:
+            href: https://192.168.1.7:9443/
+            icon: si-portainer
+        - proxmox 1:
+            href: https://proxmox-1.techtronics.top
+            icon: si-proxmox
+        - proxmox 2:
+            href: https://proxmox-2.techtronics.top
+            icon: si-proxmox
+        - proxmox 3:
+            href: https://proxmox-3.techtronics.top
+            icon: si-proxmox
+        - proxmox 4:
+            href: https://proxmox-4.techtronics.top
+            icon: si-proxmox
+        - proxmox 11:
+            href: https://192.168.1.94:8006
+            icon: si-proxmox
+            description: Remote Proxmox
+        - proxmox backup:
+            href: https://pbs.techtronics.top
+            icon: si-proxmox
+        - pbs-11:
+            href: https://192.168.1.16:8007
+            icon: si-proxmox
+            description: Remote PBS
+        - truenas scale:
+            href: https://truenas.techtronics.top
+            icon: si-truenas
+        - truenas scale 2:
+            href: https://truenas-2.techtronics.top
+            icon: si-truenas
+        - truenas scale 11:
+            href: https://192.168.1.19
+            icon: si-truenas
+            description: Remote TrueNAS
+        - ubuntu-server-1:
+            href: https://ubuntu-server-1.techtronics.top
+            icon: si-ubuntu
+        - ubuntu-server-2:
+            href: https://ubuntu-server-2.techtronics.top
+            icon: si-ubuntu
+        - oracle-vm:
+            href: https://oracle-vm.techtronics.top/
+            icon: si-oracle
+        - crafty:
+            href: https://crafty.techtronics.top
+            icon: si-minecraft
+        - code-server:
+            href: https://code-server.techtronics.top/
+            icon: si-visualstudiocode
+        - mineos:
+            href: http://192.168.0.197:8444/admin/index.html
+            icon: si-minecraft
+
+    - DevOps:
+        - jenkins:
+            href: https://jenkins.techtronics.top
+            icon: si-jenkins
+        - argocd:
+            href: https://argocd.techtronics.top
+            icon: si-argocd
+        - longhorn:
+            href: https://longhorn.techtronics.top
+            icon: si-longhorn
+
+    - Monitoring:
+        - grafana:
+            href: https://grafana.techtronics.top
+            icon: si-grafana
+            widget:
+              type: grafana
+              url: https://grafana.techtronics.top
+              key: ${HOMEPAGE_GRAFANA_TOKEN}
+
+    - AI:
+        - openwebui:
+            href: https://openwebui.techtronics.top
+            icon: si-openai
+            description: LLM chat interface
+
+    - Cloud:
+        - nextcloud:
+            href: https://nextcloud.techtronics.top/apps/dashboard/
+            icon: si-nextcloud
+        - immich:
+            href: https://immich.techtronics.top/
+            icon: si-immich
+        - tachidesk:
+            href: https://tachi.techtronics.top/library
+            icon: si-tachiyomi
+        - vaultwarden:
+            href: https://vaultwarden.techtronics.top/
+            icon: si-vaultwarden
+        - obsidian livesync:
+            href: https://ob-lsync.techtronics.top
+            icon: si-obsidian
+        - letter:
+            href: https://letter.techtronics.top
+            icon: si-gmail
+
+    - Smart Home:
+        - home assistant:
+            href: https://hass.techtronics.top/
+            icon: si-homeassistant
+        - hass-ip:
+            href: http://192.168.0.9:8123
+            icon: si-homeassistant
+
+    - Oracle:
+        - oracle-vm:
+            href: https://oracle-vm.techtronics.top/
+            icon: si-oracle
+        - oracle-qbittorent:
+            href: http://144.24.111.11:9090/
+            icon: si-qbittorrent
+        - oracle-filebrowser:
+            href: http://144.24.126.155:8090
+            icon: si-filebrowser
+        - oracle-jenkins:
+            href: http://144.24.111.11:8081/
+            icon: si-jenkins
+        - oracle-portainer:
+            href: https://ampere-vm:9443/
+            icon: si-portainer
+        - oracle-qbittorent-x64:
+            href: http://144.24.117.73:8080/
+            icon: si-qbittorrent
+        - oracle-filebrowser-x64:
+            href: http://144.24.117.73:8081
+            icon: si-filebrowser
+        - oracle-openspeed:
+            href: http://144.24.126.155:10014
+            icon: si-openspeedtest
+        - oracle-librespeed:
+            href: http://144.24.126.155:10012
+            icon: si-librespeed
+
+  bookmarks.yaml: |
+    - Quick Links:
+        - github:
+            href: https://github.com/
+            icon: si-github
+        - gmail:
+            href: https://mail.google.com
+            icon: si-gmail
+        - youtube:
+            href: https://www.youtube.com/
+            icon: si-youtube
+    - Piracy:
+        - modlist.in:
+            href: https://modlist.in/
+        - mp4moviez:
+            href: https://www.mp4moviez.law/
+        - bolly4u:
+            href: https://bolly4u.care/
+        - torrends.to:
+            href: https://torrends.to/
+        - ips:
+            href: https://www.indianpornsites.net/kamareels2-com/
+        - xd movies:
+            href: https://xdmovies.com/
+
+  custom.css: |
+    :root {
+      --card-radius: 12px;
+    }
+
+  custom.js: |
+    // Custom JS — loaded after page render
