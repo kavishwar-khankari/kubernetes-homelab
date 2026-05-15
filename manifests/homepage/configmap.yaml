@@ -245,11 +245,6 @@ data:
             href: https://192.168.1.94:8006
             icon: si-proxmox
             description: Remote Proxmox
-            widget:
-              type: proxmox
-              url: https://192.168.1.94:8006
-              username: "root@pam!homepage"
-              password: "{{HOMEPAGE_VAR_PVE11_TOKEN}}"
         - proxmox backup:
             href: https://pbs.techtronics.top
             icon: si-proxmox
@@ -262,11 +257,6 @@ data:
             href: https://192.168.1.16:8007
             icon: si-proxmox
             description: Remote PBS
-            widget:
-              type: proxmoxbackupserver
-              url: https://192.168.1.16:8007
-              username: "root@pam!homepage"
-              password: "{{HOMEPAGE_VAR_PBS11_TOKEN}}"
         - truenas scale:
             href: https://truenas.techtronics.top
             icon: si-truenas
