@@ -71,16 +71,6 @@ data:
           cpu: true
           memory: true
           showLabel: true
-    - resources:
-        label: node
-        cpu: true
-        memory: true
-        disk: /
-        cputemp: true
-        uptime: true
-        load: true
-        network: true
-        expanded: true
     - datetime:
         text_size: xl
         format:
