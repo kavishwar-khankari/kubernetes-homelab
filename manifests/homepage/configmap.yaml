@@ -631,7 +631,7 @@ data:
     .theme-gray .services-group > button,
     .theme-gray .bookmark-group > button {
       position: relative !important;
-      padding: 4px 0 8px 22px !important;
+      padding: 2px 0 6px 18px !important;
       margin: 0 !important;
       background: transparent !important;
       border-bottom: 1px solid var(--accent-soft) !important;
@@ -676,7 +676,7 @@ data:
 
     .theme-gray .services-group > div[id^="headlessui-disclosure-panel"],
     .theme-gray .bookmark-group > div[id^="headlessui-disclosure-panel"] {
-      padding-top: 14px !important;
+      padding-top: 8px !important;
     }
 
     /* snappy disclosure animation */
@@ -804,7 +804,7 @@ data:
 
     /* title bar */
     .theme-gray .service-title {
-      padding: 10px 14px 9px !important;
+      padding: 6px 12px 5px !important;
       border-bottom: 1px solid var(--hair) !important;
       margin: 0 !important;
       background: transparent !important;
@@ -812,7 +812,7 @@ data:
 
     .theme-gray .service-name {
       font-family: var(--font-ui) !important;
-      font-size: 14px !important;
+      font-size: 12px !important;
       font-weight: 600 !important;
       color: var(--text) !important;
       letter-spacing: -0.01em !important;
@@ -841,7 +841,7 @@ data:
       display: grid !important;
       grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)) !important;
       gap: 6px !important;
-      padding: 8px 10px 10px !important;
+      padding: 4px 8px 6px !important;
       margin: 0 !important;
     }
 
@@ -854,19 +854,19 @@ data:
       flex-direction: column !important;
       align-items: center !important;
       justify-content: center !important;
-      padding: 10px 6px !important;
+      padding: 4px 4px !important;
       margin: 0 !important;
-      gap: 4px !important;
+      gap: 2px !important;
       background: rgba(28, 28, 42, 0.45) !important;
       border: 1px solid var(--hair) !important;
-      border-radius: 8px !important;
-      min-height: 54px !important;
+      border-radius: 6px !important;
+      min-height: 38px !important;
     }
 
     .theme-gray .service-block > .font-thin,
     .theme-gray .service-block > .text-sm:not(.uppercase) {
       font-family: var(--font-mono) !important;
-      font-size: 22px !important;
+      font-size: 15px !important;
       font-weight: 600 !important;
       color: var(--accent) !important;
       letter-spacing: -0.02em !important;
