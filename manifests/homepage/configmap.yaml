@@ -131,15 +131,15 @@ data:
               url: http://192.168.0.197:8383/
         - router:
             href: https://router.techtronics.top
-            icon: tplink.png
+            icon: tp-link.png
             description: Main router
         - router-dhule:
             href: https://router-dhule.techtronics.top
-            icon: tplink.png
+            icon: tp-link.png
             description: Dhule router
         - switch:
             href: http://192.168.0.2
-            icon: unifi.png
+            icon: tp-link.png
 
     - Media:
         - jellyfin:
@@ -378,7 +378,7 @@ data:
             icon: oracle.png
         - crafty:
             href: https://crafty.techtronics.top
-            icon: minecraft.png
+            icon: crafty-controller.png
         - code-server:
             href: https://code-server.techtronics.top/
             icon: code-server.png
@@ -392,7 +392,7 @@ data:
             icon: jenkins.png
         - argocd:
             href: https://argocd.techtronics.top
-            icon: argocd.png
+            icon: argo-cd.png
         - longhorn:
             href: https://longhorn.techtronics.top
             icon: longhorn.png
