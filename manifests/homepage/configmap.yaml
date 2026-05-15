@@ -369,10 +369,10 @@ data:
             description: Remote TrueNAS
         - ubuntu-server-1:
             href: https://ubuntu-server-1.techtronics.top
-            icon: ubuntu.png
+            icon: code-server.png
         - ubuntu-server-2:
             href: https://ubuntu-server-2.techtronics.top
-            icon: ubuntu.png
+            icon: code-server.png
         - oracle-vm:
             href: https://oracle-vm.techtronics.top/
             icon: oracle.png
