@@ -747,23 +747,31 @@ data:
 
     /* ─── SERVICE CARDS — GLASS MORPHISM ────────────────────────── */
 
+    /* Default: compact, auto-height. No forced stretching. */
     .theme-gray .services-list {
       align-items: stretch !important;
-      grid-auto-rows: 1fr !important;
     }
 
     .theme-gray li.service {
       margin: 0 !important;
       padding: 0 !important;
+    }
+
+    /* Default card: no flex column, auto height */
+    .theme-gray li.service > .service-card {
+      width: 100% !important;
+    }
+
+    /* Widget cards only: flex column layout, fill row height */
+    .theme-gray li.service:has(.service-block) {
       display: flex !important;
       height: 100% !important;
     }
-    .theme-gray li.service > .service-card {
-      width: 100% !important;
+    .theme-gray li.service:has(.service-block) > .service-card {
       display: flex !important;
       flex-direction: column !important;
     }
-    .theme-gray .service-card .service-container {
+    .theme-gray li.service:has(.service-block) .service-container {
       flex: 1 1 auto !important;
       align-content: stretch !important;
       grid-auto-rows: 1fr !important;
@@ -808,6 +816,18 @@ data:
       border-bottom: 1px solid var(--hair) !important;
       margin: 0 !important;
       background: transparent !important;
+    }
+    /* Non-widget cards: tighter title, no border, hide description */
+    .theme-gray li.service:not(:has(.service-block)) .service-title {
+      padding: 4px 12px 4px !important;
+      border-bottom: none !important;
+    }
+    .theme-gray li.service:not(:has(.service-block)) .service-description {
+      display: none;
+    }
+    /* Non-widget cards: slightly smaller name */
+    .theme-gray li.service:not(:has(.service-block)) .service-name {
+      font-size: 11px !important;
     }
 
     .theme-gray .service-name {
