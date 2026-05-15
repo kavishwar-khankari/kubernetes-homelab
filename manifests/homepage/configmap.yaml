@@ -12,6 +12,10 @@ data:
     headerStyle: underlined
     statusStyle: dot
     target: _blank
+    background:
+      image: https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80
+      blur: sm
+      opacity: 85
     layout:
       Networking:
         tab: Infrastructure
@@ -42,6 +46,7 @@ data:
       searchDescriptions: true
     fullWidth: true
     useEqualHeights: true
+    iconStyle: gradient
     fiveColumns: true
 
   kubernetes.yaml: |
@@ -74,82 +79,82 @@ data:
     - Networking:
         - nginx proxy manager:
             href: http://192.168.0.237:81/
-            icon: si-nginxproxymanager
+            icon: nginx-proxy-manager.png
             description: Reverse proxy
         - adguard home:
             href: http://192.168.0.38/
-            icon: si-adguard
+            icon: adguard-home.png
             description: DNS ad-blocking
         - adguard home vps:
             href: http://ampere-vm:3000/
-            icon: si-adguard
+            icon: adguard-home.png
             description: VPS DNS ad-blocking
         - librespeed-server-1:
             href: http://192.168.0.237:10012/
-            icon: si-librespeed
+            icon: librespeed.png
         - librespeed-server-2:
             href: http://192.168.0.197:10012/
-            icon: si-librespeed
+            icon: librespeed.png
         - open speedtest:
             href: http://192.168.0.237:10014/
-            icon: si-openspeedtest
+            icon: openspeedtest.png
         - speedtest tracker:
             href: http://192.168.0.197:8383/
-            icon: si-speedtest
+            icon: speedtest-tracker.png
         - router:
             href: https://router.techtronics.top
-            icon: si-tplink
+            icon: tplink.png
             description: Main router
         - router-dhule:
             href: https://router-dhule.techtronics.top
-            icon: si-tplink
+            icon: tplink.png
             description: Dhule router
         - switch:
             href: http://192.168.0.2
-            icon: si-ubiquiti
+            icon: unifi.png
 
     - Media:
         - jellyfin-ip:
             href: http://192.168.0.197:8096/
-            icon: si-jellyfin
+            icon: jellyfin.png
             description: Jellyfin (local IP)
         - jellyfin:
             href: https://jellyfin.techtronics.top/
-            icon: si-jellyfin
+            icon: jellyfin.png
             widget:
               type: jellyfin
               url: https://jellyfin.techtronics.top
               key: "{{HOMEPAGE_VAR_JELLYFIN_API_KEY}}"
         - sonarr:
             href: https://sonarr.techtronics.top
-            icon: si-sonarr
+            icon: sonarr.png
             widget:
               type: sonarr
               url: https://sonarr.techtronics.top
               key: "{{HOMEPAGE_VAR_SONARR_API_KEY}}"
         - radarr:
             href: https://radarr.techtronics.top
-            icon: si-radarr
+            icon: radarr.png
             widget:
               type: radarr
               url: https://radarr.techtronics.top
               key: "{{HOMEPAGE_VAR_RADARR_API_KEY}}"
         - lidarr:
             href: https://lidarr.techtronics.top
-            icon: si-lidarr
+            icon: lidarr.png
         - bazarr:
             href: http://192.168.0.197:6767/
-            icon: si-bazarr
+            icon: bazarr.png
         - prowlarr:
             href: https://prowlarr.techtronics.top
-            icon: si-prowlarr
+            icon: prowlarr.png
             widget:
               type: prowlarr
               url: https://prowlarr.techtronics.top
               key: "{{HOMEPAGE_VAR_PROWLARR_API_KEY}}"
         - qbittorent:
             href: https://qbittorent.techtronics.top
-            icon: si-qbittorrent
+            icon: qbittorrent.png
             widget:
               type: qbittorrent
               url: https://qbittorent.techtronics.top
@@ -157,63 +162,63 @@ data:
               password: "{{HOMEPAGE_VAR_QBITTORRENT_PASS}}"
         - qbittorent-11:
             href: http://192.168.1.19:9090/
-            icon: si-qbittorrent
+            icon: qbittorrent.png
             description: Remote qBittorrent
         - jdownloader:
             href: https://jdownloader2.techtronics.top
-            icon: si-jdownloader
+            icon: jdownloader.png
         - rdtc:
             href: https://rdtclient.techtronics.top
-            icon: si-real-debrid
+            icon: real-debrid.png
         - ariang:
             href: https://ariang.techtronics.top
-            icon: si-aria2
+            icon: aria2.png
         - wizarr:
             href: https://wizarr.techtronics.top
-            icon: si-jellyfin
+            icon: jellyfin.png
         - seerr:
             href: https://jellyseerr.techtronics.top
-            icon: si-jellyseerr
+            icon: jellyseerr.png
             widget:
               type: jellyseerr
               url: https://jellyseerr.techtronics.top
               key: "{{HOMEPAGE_VAR_JELLYSEERR_API_KEY}}"
         - tdarr:
             href: https://tdarr.techtronics.top/
-            icon: si-tdarr
+            icon: tdarr.png
             widget:
               type: tdarr
               url: https://tdarr.techtronics.top
         - frostbite:
             href: https://frostbite.techtronics.top
-            icon: si-qbittorrent
+            icon: qbittorrent.png
             description: qBittorrent filter manager
         - handbrake:
             href: http://192.168.0.74:10053/
-            icon: si-handbrake
+            icon: handbrake.png
         - file browser:
             href: https://files.techtronics.top
-            icon: si-filebrowser
+            icon: filebrowser.png
         - file browser 2:
             href: https://files-2.techtronics.top
-            icon: si-filebrowser
+            icon: filebrowser.png
         - youtube:
             href: https://www.youtube.com/
-            icon: si-youtube
+            icon: youtube.png
 
     - VM Controllers:
         - portainer-1:
             href: https://192.168.0.237:9443/
-            icon: si-portainer
+            icon: portainer.png
         - portainer-2:
             href: https://192.168.0.197:9443/
-            icon: si-portainer
+            icon: portainer.png
         - portainer-11:
             href: https://192.168.1.7:9443/
-            icon: si-portainer
+            icon: portainer.png
         - proxmox 1:
             href: https://proxmox-1.techtronics.top
-            icon: si-proxmox
+            icon: proxmox.png
             widget:
               type: proxmox
               url: https://proxmox-1.techtronics.top
@@ -221,7 +226,7 @@ data:
               password: "{{HOMEPAGE_VAR_PVE1_TOKEN}}"
         - proxmox 2:
             href: https://proxmox-2.techtronics.top
-            icon: si-proxmox
+            icon: proxmox.png
             widget:
               type: proxmox
               url: https://proxmox-2.techtronics.top
@@ -229,7 +234,7 @@ data:
               password: "{{HOMEPAGE_VAR_PVE2_TOKEN}}"
         - proxmox 3:
             href: https://proxmox-3.techtronics.top
-            icon: si-proxmox
+            icon: proxmox.png
             widget:
               type: proxmox
               url: https://proxmox-3.techtronics.top
@@ -237,7 +242,7 @@ data:
               password: "{{HOMEPAGE_VAR_PVE3_TOKEN}}"
         - proxmox 4:
             href: https://proxmox-4.techtronics.top
-            icon: si-proxmox
+            icon: proxmox.png
             widget:
               type: proxmox
               url: https://proxmox-4.techtronics.top
@@ -245,11 +250,11 @@ data:
               password: "{{HOMEPAGE_VAR_PVE4_TOKEN}}"
         - proxmox 11:
             href: https://192.168.1.94:8006
-            icon: si-proxmox
+            icon: proxmox.png
             description: Remote Proxmox
         - proxmox backup:
             href: https://pbs.techtronics.top
-            icon: si-proxmox
+            icon: proxmox.png
             widget:
               type: proxmoxbackupserver
               url: https://pbs.techtronics.top
@@ -257,52 +262,52 @@ data:
               password: "{{HOMEPAGE_VAR_PBS_TOKEN}}"
         - pbs-11:
             href: https://192.168.1.16:8007
-            icon: si-proxmox
+            icon: proxmox.png
             description: Remote PBS
         - truenas scale:
             href: https://truenas.techtronics.top
-            icon: si-truenas
+            icon: truenas.png
         - truenas scale 2:
             href: https://truenas-2.techtronics.top
-            icon: si-truenas
+            icon: truenas.png
         - truenas scale 11:
             href: https://192.168.1.19
-            icon: si-truenas
+            icon: truenas.png
             description: Remote TrueNAS
         - ubuntu-server-1:
             href: https://ubuntu-server-1.techtronics.top
-            icon: si-ubuntu
+            icon: ubuntu.png
         - ubuntu-server-2:
             href: https://ubuntu-server-2.techtronics.top
-            icon: si-ubuntu
+            icon: ubuntu.png
         - oracle-vm:
             href: https://oracle-vm.techtronics.top/
-            icon: si-oracle
+            icon: oracle.png
         - crafty:
             href: https://crafty.techtronics.top
-            icon: si-minecraft
+            icon: minecraft.png
         - code-server:
             href: https://code-server.techtronics.top/
-            icon: si-visualstudiocode
+            icon: code-server.png
         - mineos:
             href: http://192.168.0.197:8444/admin/index.html
-            icon: si-minecraft
+            icon: minecraft.png
 
     - DevOps:
         - jenkins:
             href: https://jenkins.techtronics.top
-            icon: si-jenkins
+            icon: jenkins.png
         - argocd:
             href: https://argocd.techtronics.top
-            icon: si-argocd
+            icon: argocd.png
         - longhorn:
             href: https://longhorn.techtronics.top
-            icon: si-longhorn
+            icon: longhorn.png
 
     - Monitoring:
         - grafana:
             href: https://grafana.techtronics.top
-            icon: si-grafana
+            icon: grafana.png
             widget:
               type: grafana
               url: https://grafana.techtronics.top
@@ -311,65 +316,65 @@ data:
     - AI:
         - openwebui:
             href: https://openwebui.techtronics.top
-            icon: si-openai
+            icon: openai.png
             description: LLM chat interface
 
     - Cloud:
         - nextcloud:
             href: https://nextcloud.techtronics.top/apps/dashboard/
-            icon: si-nextcloud
+            icon: nextcloud.png
         - immich:
             href: https://immich.techtronics.top/
-            icon: si-immich
+            icon: immich.png
         - tachidesk:
             href: https://tachi.techtronics.top/library
-            icon: si-tachiyomi
+            icon: tachidesk.png
         - vaultwarden:
             href: https://vaultwarden.techtronics.top/
-            icon: si-vaultwarden
+            icon: vaultwarden.png
         - obsidian livesync:
             href: https://ob-lsync.techtronics.top
-            icon: si-obsidian
+            icon: obsidian.png
         - letter:
             href: https://letter.techtronics.top
-            icon: si-gmail
+            icon: gmail.png
 
     - Smart Home:
         - home assistant:
             href: https://hass.techtronics.top/
-            icon: si-homeassistant
+            icon: home-assistant.png
         - hass-ip:
             href: http://192.168.0.9:8123
-            icon: si-homeassistant
+            icon: home-assistant.png
 
     - Oracle:
         - oracle-vm:
             href: https://oracle-vm.techtronics.top/
-            icon: si-oracle
+            icon: oracle.png
         - oracle-qbittorent:
             href: http://144.24.111.11:9090/
-            icon: si-qbittorrent
+            icon: qbittorrent.png
         - oracle-filebrowser:
             href: http://144.24.126.155:8090
-            icon: si-filebrowser
+            icon: filebrowser.png
         - oracle-jenkins:
             href: http://144.24.111.11:8081/
-            icon: si-jenkins
+            icon: jenkins.png
         - oracle-portainer:
             href: https://ampere-vm:9443/
-            icon: si-portainer
+            icon: portainer.png
         - oracle-qbittorent-x64:
             href: http://144.24.117.73:8080/
-            icon: si-qbittorrent
+            icon: qbittorrent.png
         - oracle-filebrowser-x64:
             href: http://144.24.117.73:8081
-            icon: si-filebrowser
+            icon: filebrowser.png
         - oracle-openspeed:
             href: http://144.24.126.155:10014
-            icon: si-openspeedtest
+            icon: openspeedtest.png
         - oracle-librespeed:
             href: http://144.24.126.155:10012
-            icon: si-librespeed
+            icon: librespeed.png
 
   bookmarks.yaml: |
     - Quick Links:
@@ -400,35 +405,21 @@ data:
     /* ===== TYPOGRAPHY ===== */
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&display=swap');
 
-    /* ===== FOREST BACKGROUND ===== */
-    body {
-      background: url('https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80') center/cover no-repeat fixed !important;
-    }
-
-    /* Warm dark overlay so text remains readable */
-    #page_wrapper {
-      background: rgba(24, 20, 16, 0.72) !important;
-      backdrop-filter: blur(4px);
-    }
-
-    /* ===== SERVICE CARDS — CLEAR DISTINCTION ===== */
+    /* ===== SERVICE CARDS — VISIBLE DISTINCTION ===== */
     .service-card {
       border-radius: 14px !important;
       border: 1px solid rgba(255, 255, 255, 0.1) !important;
       transition: all 0.25s ease;
     }
-
     .service-card:hover {
-      border-color: rgba(255, 255, 255, 0.2) !important;
+      border-color: rgba(255, 255, 255, 0.22) !important;
       box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
       transform: translateY(-1px);
     }
-
     .service-name {
-      font-size: 0.8rem !important;
+      font-size: 0.82rem !important;
       font-weight: 500 !important;
     }
-
     .service-description {
       font-size: 0.65rem !important;
       opacity: 0.5;
@@ -446,15 +437,14 @@ data:
       margin-bottom: 6px;
     }
 
-    /* ===== TABS — VISIBLE PILLS ===== */
+    /* ===== TABS — CLEAR PILLS ===== */
     nav[class*="tab"], .tab-container {
       gap: 4px;
       padding: 4px;
       background: rgba(0, 0, 0, 0.25);
       border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
-
     nav[class*="tab"] button, .tab-container button {
       padding: 6px 18px !important;
       border-radius: 9px !important;
@@ -470,12 +460,10 @@ data:
       border: 1px solid rgba(255, 255, 255, 0.08) !important;
       transition: all 0.2s ease;
     }
-
     .bookmark a:hover, .bookmark-card:hover {
       border-color: rgba(255, 255, 255, 0.18) !important;
       transform: translateY(-1px);
     }
-
     .bookmark-group-name {
       font-family: 'Playfair Display', Georgia, serif !important;
       font-style: italic;
