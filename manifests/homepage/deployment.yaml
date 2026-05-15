@@ -63,6 +63,8 @@ spec:
             - mountPath: /app/config/custom.js
               name: config
               subPath: custom.js
+            - mountPath: /app/config/logs
+              name: logs
           startupProbe:
             httpGet:
               path: /api/healthcheck
@@ -108,3 +110,5 @@ spec:
         - name: config
           configMap:
             name: homepage
+        - name: logs
+          emptyDir: {}
