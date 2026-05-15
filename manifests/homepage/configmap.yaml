@@ -817,17 +817,20 @@ data:
       margin: 0 !important;
       background: transparent !important;
     }
-    /* Non-widget cards: tighter title, no border, hide description */
+    /* Non-widget cards: tighter but with min-height, keep description */
     .theme-gray li.service:not(:has(.service-block)) .service-title {
-      padding: 4px 12px 4px !important;
+      padding: 5px 12px 5px !important;
       border-bottom: none !important;
     }
-    .theme-gray li.service:not(:has(.service-block)) .service-description {
-      display: none;
-    }
-    /* Non-widget cards: slightly smaller name */
     .theme-gray li.service:not(:has(.service-block)) .service-name {
       font-size: 11px !important;
+    }
+    .theme-gray li.service:not(:has(.service-block)) .service-description {
+      font-size: 9px !important;
+      margin: 1px 0 0 !important;
+    }
+    .theme-gray li.service:not(:has(.service-block)) > .service-card {
+      min-height: 42px;
     }
 
     .theme-gray .service-name {
