@@ -8,14 +8,10 @@ data:
     title: // HOMELAB
     theme: dark
     color: stone
-    cardBlur: sm
+    cardBlur: md
     headerStyle: underlined
     statusStyle: dot
     target: _blank
-    background:
-      image: https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80
-      blur: md
-      opacity: 60
     layout:
       Networking:
         tab: Infrastructure
@@ -46,7 +42,6 @@ data:
       searchDescriptions: true
     fullWidth: true
     useEqualHeights: true
-    iconStyle: gradient
     fiveColumns: true
 
   kubernetes.yaml: |
@@ -402,46 +397,91 @@ data:
             - href: https://xdmovies.com/
 
   custom.css: |
-    /* ===== FONTS ===== */
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap');
+    /* ===== TYPOGRAPHY ===== */
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&display=swap');
 
-    /* ===== SERVICE CARDS ===== */
+    /* ===== FOREST BACKGROUND ===== */
+    body {
+      background: url('https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80') center/cover no-repeat fixed !important;
+    }
+
+    /* Warm dark overlay so text remains readable */
+    #page_wrapper {
+      background: rgba(24, 20, 16, 0.72) !important;
+      backdrop-filter: blur(4px);
+    }
+
+    /* ===== SERVICE CARDS — CLEAR DISTINCTION ===== */
     .service-card {
-      border-radius: 12px !important;
+      border-radius: 14px !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
       transition: all 0.25s ease;
     }
+
     .service-card:hover {
+      border-color: rgba(255, 255, 255, 0.2) !important;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
       transform: translateY(-1px);
     }
 
-    /* ===== SERVICE NAMES ===== */
     .service-name {
-      font-size: 0.82rem !important;
+      font-size: 0.8rem !important;
       font-weight: 500 !important;
     }
+
     .service-description {
-      font-size: 0.68rem !important;
-      opacity: 0.55;
+      font-size: 0.65rem !important;
+      opacity: 0.5;
     }
 
-    /* ===== GROUP HEADERS ===== */
+    /* ===== GROUP HEADERS — PLAYFAIR ===== */
     .service-group-name {
       font-family: 'Playfair Display', Georgia, serif !important;
-      font-size: 0.85rem !important;
-      font-weight: 500 !important;
+      font-size: 0.88rem !important;
+      font-weight: 600 !important;
       font-style: italic;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.01em;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      margin-bottom: 6px;
     }
 
-    /* ===== TABS ===== */
-    nav[class*="tab"] button,
-    .tab-container button {
-      font-size: 0.7rem !important;
+    /* ===== TABS — VISIBLE PILLS ===== */
+    nav[class*="tab"], .tab-container {
+      gap: 4px;
+      padding: 4px;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    nav[class*="tab"] button, .tab-container button {
+      padding: 6px 18px !important;
+      border-radius: 9px !important;
+      font-size: 0.68rem !important;
       font-weight: 500 !important;
       letter-spacing: 0.04em;
-      padding: 5px 16px !important;
-      border-radius: 8px !important;
       transition: all 0.2s ease;
+    }
+
+    /* ===== BOOKMARKS ===== */
+    .bookmark a, .bookmark-card {
+      border-radius: 12px !important;
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      transition: all 0.2s ease;
+    }
+
+    .bookmark a:hover, .bookmark-card:hover {
+      border-color: rgba(255, 255, 255, 0.18) !important;
+      transform: translateY(-1px);
+    }
+
+    .bookmark-group-name {
+      font-family: 'Playfair Display', Georgia, serif !important;
+      font-style: italic;
+      font-weight: 600 !important;
+      font-size: 0.82rem !important;
+      padding-bottom: 4px;
     }
 
     /* ===== PROGRESS BARS ===== */
@@ -452,32 +492,17 @@ data:
     /* ===== FOOTER ===== */
     #footer, #version { display: none !important; }
 
-    /* ===== BOOKMARKS ===== */
-    .bookmark a, .bookmark-card {
-      border-radius: 10px !important;
-      transition: all 0.2s ease;
-    }
-    .bookmark a:hover, .bookmark-card:hover {
-      transform: translateY(-1px);
-    }
-    .bookmark-group-name {
-      font-family: 'Playfair Display', Georgia, serif !important;
-      font-style: italic;
-      font-weight: 500 !important;
-      font-size: 0.78rem !important;
-    }
-
-    /* ===== LIVE WIDGET INDICATOR ===== */
-    .service-card:has([class*="widget"]) .service-name::after {
-      content: ' ·';
-      opacity: 0.5;
-      font-size: 0.9rem;
-    }
-
     /* ===== DATETIME ===== */
     .information-widget-datetime span {
       font-weight: 400 !important;
       letter-spacing: 0.02em;
+    }
+
+    /* ===== LIVE WIDGET DOT ===== */
+    .service-card:has([class*="widget"]) .service-name::after {
+      content: ' ·';
+      opacity: 0.45;
+      font-size: 0.9rem;
     }
 
     /* ===== RESPONSIVE ===== */
