@@ -36,7 +36,7 @@ spec:
             - name: TZ
               value: Asia/Kolkata
             - name: HOMEPAGE_ALLOWED_HOSTS
-              value: homepage.techtronics.top
+              value: homepage.techtronics.top,localhost
           envFrom:
             - secretRef:
                 name: homepage-secrets
@@ -67,18 +67,27 @@ spec:
             httpGet:
               path: /api/healthcheck
               port: 3000
+              httpHeaders:
+                - name: Host
+                  value: localhost
             periodSeconds: 10
             failureThreshold: 18
           readinessProbe:
             httpGet:
               path: /api/healthcheck
               port: 3000
+              httpHeaders:
+                - name: Host
+                  value: localhost
             periodSeconds: 30
             timeoutSeconds: 5
           livenessProbe:
             httpGet:
               path: /api/healthcheck
               port: 3000
+              httpHeaders:
+                - name: Host
+                  value: localhost
             initialDelaySeconds: 60
             periodSeconds: 60
           resources:
