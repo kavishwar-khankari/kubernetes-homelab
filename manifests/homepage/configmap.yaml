@@ -142,10 +142,6 @@ data:
               enableBlocks: true
               enableNowPlaying: true
               fields: ["movies", "series", "episodes", "songs"]
-              enableBlocks: true
-              enableUser: true
-              enableMediaControl: false
-              showEpisodeNumber: true
         - sonarr:
             href: https://sonarr.techtronics.top
             icon: sonarr.png
