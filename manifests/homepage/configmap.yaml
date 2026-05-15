@@ -8,10 +8,10 @@ data:
     title: Homelab
     theme: dark
     color: slate
-    background:
-      opacity: 50
-    headerStyle: clean
+    cardBlur: sm
+    headerStyle: underlined
     statusStyle: dot
+    target: _blank
     layout:
       Networking:
         tab: Infrastructure
@@ -37,6 +37,7 @@ data:
     fullWidth: true
     useEqualHeights: true
     iconStyle: gradient
+    fiveColumns: true
 
   kubernetes.yaml: |
     mode: cluster
@@ -375,8 +376,209 @@ data:
             - href: https://xdmovies.com/
 
   custom.css: |
+    /* ===== GLOBAL ===== */
     :root {
-      --card-radius: 12px;
+      --card-radius: 14px;
+      --transition-speed: 0.2s;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    }
+
+    /* Subtle animated gradient background */
+    #page_wrapper {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 30s ease infinite;
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* ===== SERVICE CARDS ===== */
+    .service-card {
+      background: rgba(30, 41, 59, 0.5) !important;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(148, 163, 184, 0.06);
+      border-radius: var(--card-radius) !important;
+      transition: all var(--transition-speed) ease;
+    }
+
+    .service-card:hover {
+      background: rgba(51, 65, 85, 0.5) !important;
+      border-color: rgba(148, 163, 184, 0.12);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .service-name {
+      font-weight: 500 !important;
+      font-size: 0.875rem !important;
+      letter-spacing: 0.01em;
+    }
+
+    .service-description {
+      opacity: 0.6;
+      font-size: 0.75rem !important;
+    }
+
+    /* ===== GROUP HEADERS ===== */
+    .service-group-name {
+      font-size: 0.875rem !important;
+      font-weight: 600 !important;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #94a3b8 !important;
+      margin-bottom: 4px;
+    }
+
+    /* ===== TABS ===== */
+    nav[class*="tab"] button,
+    .tab-container button {
+      padding: 8px 18px !important;
+      border-radius: 10px !important;
+      font-size: 0.8rem !important;
+      font-weight: 500 !important;
+      letter-spacing: 0.02em;
+      transition: all var(--transition-speed) ease;
+      border: 1px solid transparent !important;
+    }
+
+    nav[class*="tab"] button[data-headlessui-state="selected"],
+    .tab-container button[aria-selected="true"] {
+      background: rgba(99, 102, 241, 0.15) !important;
+      border-color: rgba(99, 102, 241, 0.25) !important;
+      color: #a5b4fc !important;
+    }
+
+    /* ===== BOOKMARKS ===== */
+    .bookmark a, .bookmark-card {
+      background: rgba(30, 41, 59, 0.4) !important;
+      border: 1px solid rgba(148, 163, 184, 0.06);
+      border-radius: 12px !important;
+      transition: all var(--transition-speed) ease;
+    }
+
+    .bookmark a:hover, .bookmark-card:hover {
+      background: rgba(51, 65, 85, 0.4) !important;
+      border-color: rgba(148, 163, 184, 0.12);
+      transform: translateY(-1px);
+    }
+
+    .bookmark-icon {
+      background: rgba(99, 102, 241, 0.12) !important;
+      border-radius: 10px 0 0 10px !important;
+    }
+
+    .bookmark-group-name {
+      font-size: 0.825rem !important;
+      font-weight: 600 !important;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: #94a3b8 !important;
+    }
+
+    /* ===== WIDGET AREA ===== */
+    #information-widgets {
+      padding: 16px 24px !important;
+    }
+
+    .information-widget-resource {
+      background: rgba(30, 41, 59, 0.4);
+      border-radius: 10px;
+      padding: 8px 12px !important;
+      border: 1px solid rgba(148, 163, 184, 0.06);
+    }
+
+    .resource-usage [class*="bg-"] {
+      background: linear-gradient(90deg, #6366f1, #8b5cf6) !important;
+      border-radius: 2px !important;
+    }
+
+    /* ===== SEARCH BAR ===== */
+    #information-widgets input[type="text"] {
+      background: rgba(30, 41, 59, 0.5) !important;
+      border: 1px solid rgba(148, 163, 184, 0.1) !important;
+      border-radius: 12px !important;
+      padding: 10px 16px !important;
+      font-size: 0.8rem !important;
+      transition: all var(--transition-speed) ease;
+    }
+
+    #information-widgets input[type="text"]:focus {
+      border-color: rgba(99, 102, 241, 0.4) !important;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+    }
+
+    /* ===== DATETIME WIDGET ===== */
+    .information-widget-datetime span {
+      font-weight: 300 !important;
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ===== FOOTER ===== */
+    #footer {
+      opacity: 0.3;
+      padding: 20px !important;
+    }
+
+    /* ===== SERVICE STATUS DOTS ===== */
+    [class*="status-dot"] {
+      box-shadow: 0 0 6px currentColor;
+    }
+
+    /* ===== RESPONSIVE TUNING ===== */
+    @media (max-width: 768px) {
+      .services-group {
+        flex-basis: 100% !important;
+      }
+    }
+
+    /* ===== WIDGET ERROR STATES ===== */
+    .widget-error {
+      background: rgba(239, 68, 68, 0.08);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 0.7rem;
+    }
+
+    /* ===== SUBTLE PULSE ON LIVE WIDGETS ===== */
+    .service-card:has([class*="widget"]) .service-name::after {
+      content: '';
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #22c55e;
+      margin-left: 8px;
+      opacity: 0.6;
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
     }
 
   custom.js: |
