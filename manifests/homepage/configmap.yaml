@@ -498,11 +498,12 @@ data:
 
   custom.css: |
     /* ════════════════════════════════════════════════════════════════════
-       chonker × aurora blend — Catppuccin Mocha + IBM Plex Mono
+       chonker × aurora blend — Catppuccin Mocha + Cascadia Mono
        Tabs restored · Resources removed · Aurora bg visible
        ════════════════════════════════════════════════════════════════════ */
 
     @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap');
+    @import url('https://cdn.jsdelivr.net/npm/@fontsource/cascadia-mono@4.2.1/index.min.css');
 
     /* ─── DESIGN TOKENS ─────────────────────────────────────────── */
 
@@ -527,9 +528,9 @@ data:
       --teal:       #94e2d5;
       --hair:        rgba(205, 214, 244, 0.06);
       --hair-strong: rgba(205, 214, 244, 0.12);
-      --font-ui:      "IBM Plex Mono", "JetBrains Mono", monospace;
-      --font-mono:    "IBM Plex Mono", "JetBrains Mono", monospace;
-      --font-display: "IBM Plex Mono", "JetBrains Mono", monospace;
+      --font-ui:      "Cascadia Mono", "IBM Plex Mono", "JetBrains Mono", monospace;
+      --font-mono:    "Cascadia Mono", "IBM Plex Mono", "JetBrains Mono", monospace;
+      --font-display: "Cascadia Mono", "IBM Plex Mono", "JetBrains Mono", monospace;
     }
 
     /* ─── AURORA BACKGROUND ─────────────────────────────────────── */
