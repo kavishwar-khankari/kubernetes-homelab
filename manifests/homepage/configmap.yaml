@@ -12,6 +12,10 @@ data:
     headerStyle: boxedWidgets
     statusStyle: dot
     target: _blank
+    background:
+      image: https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80
+      blur: sm
+      opacity: 30
     layout:
       Networking:
         tab: Infrastructure
@@ -21,12 +25,18 @@ data:
         tab: Infrastructure
       Media:
         tab: Media
+        style: row
+        columns: 2
       VM Controllers:
         tab: Servers
+        style: row
+        columns: 2
       Oracle:
         tab: Servers
       Cloud:
         tab: Apps
+        style: row
+        columns: 2
       Smart Home:
         tab: Apps
       AI:
@@ -36,7 +46,7 @@ data:
       searchDescriptions: true
     fullWidth: true
     useEqualHeights: true
-    iconStyle: gradient
+    iconStyle: theme
     fiveColumns: true
 
   kubernetes.yaml: |
@@ -63,10 +73,7 @@ data:
         text_size: xl
         format:
           timeStyle: short
-          hour12: false
-    - search:
-        provider: duckduckgo
-        target: _blank
+          hour12: true
 
   services.yaml: |
     - Networking:
@@ -396,26 +403,305 @@ data:
 
   custom.css: |
     /* ===== FONTS ===== */
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700&family=Share+Tech+Mono&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Lora:ital,wght@0,400;0,500;1,400&display=swap');
 
     /* ===== ROOT VARIABLES ===== */
     :root {
-      --cyan: #00e5ff;
-      --cyan-dim: rgba(0, 229, 255, 0.35);
-      --cyan-glow: rgba(0, 229, 255, 0.08);
-      --purple: #b388ff;
-      --purple-glow: rgba(179, 136, 255, 0.08);
-      --mint: #00e676;
-      --mint-dim: rgba(0, 230, 118, 0.35);
-      --amber: #ffab00;
-      --void: #050b14;
-      --deep: #0a1628;
-      --card-bg: rgba(6, 18, 36, 0.8);
-      --border-subtle: rgba(0, 229, 255, 0.08);
-      --text-primary: #dce6f0;
-      --text-muted: #506680;
+      --gold: #c8a45c;
+      --gold-dim: rgba(200, 164, 92, 0.4);
+      --gold-glow: rgba(200, 164, 92, 0.06);
+      --amber: #d4953a;
+      --emerald: #2d5a3d;
+      --emerald-light: rgba(45, 90, 61, 0.3);
+      --sage: #8a9e7e;
+      --forest-deep: #0a1a0e;
+      --forest-dark: #0f2414;
+      --card-bg: rgba(12, 26, 16, 0.75);
+      --border-gold: rgba(200, 164, 92, 0.12);
+      --text-primary: #e0dcc8;
+      --text-muted: #6b7a64;
       --radius: 10px;
-      --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ===== BASE ===== */
+    body {
+      background: var(--forest-deep);
+      font-family: 'Lora', Georgia, serif;
+      color: var(--text-primary);
+      letter-spacing: 0.01em;
+    }
+
+    #page_wrapper {
+      background:
+        radial-gradient(ellipse 70% 50% at 50% 30%, rgba(200, 164, 92, 0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 20% 70%, rgba(45, 90, 61, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse 50% 40% at 80% 20%, rgba(138, 158, 126, 0.04) 0%, transparent 50%),
+        linear-gradient(180deg, #0a1a0e 0%, #0d1f12 50%, #0f2414 100%);
+    }
+
+    /* Subtle grain overlay */
+    #page_wrapper::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+    }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--forest-deep); }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, rgba(200, 164, 92, 0.3), var(--emerald-light));
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(200, 164, 92, 0.5);
+    }
+
+    /* ===== TITLE ===== */
+    #page_wrapper::after {
+      content: '// HOMELAB';
+      position: fixed;
+      top: 14px;
+      left: 24px;
+      z-index: 100;
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      color: rgba(200, 164, 92, 0.7);
+      text-shadow: 0 0 24px rgba(200, 164, 92, 0.2);
+      pointer-events: none;
+    }
+
+    /* ===== TABS ===== */
+    nav[class*="tab"], .tab-container {
+      margin: 8px 0 16px 0;
+      padding: 4px;
+      background: rgba(12, 26, 16, 0.5);
+      border-radius: 14px;
+      border: 1px solid var(--border-gold);
+      display: inline-flex;
+      gap: 2px;
+    }
+
+    nav[class*="tab"] button, .tab-container button {
+      padding: 6px 20px !important;
+      border-radius: 11px !important;
+      font-family: 'Cinzel', serif !important;
+      font-size: 0.62rem !important;
+      font-weight: 600 !important;
+      letter-spacing: 0.1em !important;
+      text-transform: uppercase;
+      color: var(--sage) !important;
+      background: transparent !important;
+      border: 1px solid transparent !important;
+      transition: all var(--transition) !important;
+    }
+
+    nav[class*="tab"] button:hover {
+      color: var(--gold) !important;
+      border-color: rgba(200, 164, 92, 0.2) !important;
+    }
+
+    nav[class*="tab"] button[data-headlessui-state="selected"],
+    .tab-container button[aria-selected="true"] {
+      background: rgba(200, 164, 92, 0.1) !important;
+      border-color: rgba(200, 164, 92, 0.25) !important;
+      color: var(--gold) !important;
+      box-shadow: 0 0 20px rgba(200, 164, 92, 0.08), inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+
+    /* ===== SERVICE CARDS ===== */
+    .service-card {
+      background: var(--card-bg) !important;
+      backdrop-filter: blur(14px) saturate(110%);
+      -webkit-backdrop-filter: blur(14px) saturate(110%);
+      border: 1px solid var(--border-gold);
+      border-radius: var(--radius) !important;
+      transition: all var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .service-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius);
+      background: linear-gradient(160deg, rgba(200, 164, 92, 0.03) 0%, transparent 35%, rgba(45, 90, 61, 0.04) 100%);
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+
+    .service-card:hover {
+      background: rgba(15, 30, 20, 0.88) !important;
+      border-color: rgba(200, 164, 92, 0.22) !important;
+      box-shadow: 0 0 30px rgba(200, 164, 92, 0.06), 0 4px 16px rgba(0,0,0,0.5);
+      transform: translateY(-1px);
+    }
+
+    .service-card:hover::before { opacity: 1; }
+
+    .service-name {
+      font-family: 'Lora', Georgia, serif !important;
+      font-size: 0.82rem !important;
+      font-weight: 400 !important;
+      letter-spacing: 0.02em;
+      color: var(--text-primary) !important;
+      font-style: italic;
+    }
+
+    /* ===== ICONS — WARM AMBER TINT ===== */
+    .services-list svg[class*="text-theme"],
+    .services-list svg {
+      opacity: 0.75;
+    }
+
+    /* ===== GROUP HEADERS ===== */
+    .service-group-name {
+      font-family: 'Cinzel', serif !important;
+      font-size: 0.7rem !important;
+      font-weight: 600 !important;
+      letter-spacing: 0.16em !important;
+      text-transform: uppercase;
+      color: var(--gold) !important;
+      text-shadow: 0 0 12px rgba(200, 164, 92, 0.15);
+      margin-bottom: 2px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(200, 164, 92, 0.1);
+    }
+
+    /* ===== BOOKMARKS ===== */
+    .bookmark a, .bookmark-card {
+      background: rgba(12, 26, 16, 0.55) !important;
+      border: 1px solid var(--border-gold);
+      border-radius: var(--radius) !important;
+      transition: all var(--transition);
+      overflow: hidden;
+    }
+
+    .bookmark a:hover, .bookmark-card:hover {
+      background: rgba(15, 30, 20, 0.75) !important;
+      border-color: rgba(200, 164, 92, 0.2) !important;
+      box-shadow: 0 0 20px rgba(200, 164, 92, 0.04);
+    }
+
+    .bookmark-icon {
+      background: rgba(200, 164, 92, 0.08) !important;
+      font-family: 'Cinzel', serif !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.04em;
+      color: var(--gold) !important;
+      border-radius: calc(var(--radius) - 1px) 0 0 calc(var(--radius) - 1px) !important;
+    }
+
+    .bookmark-name {
+      font-family: 'Lora', Georgia, serif !important;
+      font-size: 0.72rem !important;
+      letter-spacing: 0.01em;
+      font-style: italic;
+    }
+
+    .bookmark-description {
+      color: var(--text-muted) !important;
+      font-family: 'Lora', Georgia, serif !important;
+      font-size: 0.65rem !important;
+      font-style: italic;
+    }
+
+    .bookmark-group-name {
+      font-family: 'Cinzel', serif !important;
+      font-size: 0.68rem !important;
+      font-weight: 600 !important;
+      letter-spacing: 0.14em !important;
+      text-transform: uppercase;
+      color: var(--amber) !important;
+      text-shadow: 0 0 10px rgba(212, 149, 58, 0.15);
+    }
+
+    /* ===== WIDGET AREA ===== */
+    #information-widgets {
+      padding: 20px 24px 16px 24px !important;
+      margin-bottom: 0 !important;
+    }
+
+    .information-widget-resource {
+      background: rgba(12, 26, 16, 0.45);
+      border: 1px solid var(--border-gold);
+      border-radius: calc(var(--radius) - 2px);
+      padding: 8px 14px !important;
+      transition: border-color var(--transition);
+    }
+
+    .information-widget-resource:hover {
+      border-color: rgba(200, 164, 92, 0.18);
+    }
+
+    .resource-icon { opacity: 0.55; }
+
+    .resource-usage [class*="bg-"] {
+      background: linear-gradient(90deg, var(--gold), var(--amber)) !important;
+      border-radius: 2px !important;
+      box-shadow: 0 0 6px rgba(200, 164, 92, 0.2);
+    }
+
+    /* ===== DATETIME ===== */
+    .information-widget-datetime span {
+      font-family: 'Cinzel', serif !important;
+      font-weight: 500 !important;
+      letter-spacing: 0.06em;
+      color: var(--text-primary);
+      text-shadow: 0 0 14px rgba(200, 164, 92, 0.1);
+    }
+
+    /* ===== STATUS DOTS ===== */
+    [class*="status"][class*="dot"] {
+      box-shadow: 0 0 6px currentColor;
+    }
+
+    /* ===== LIVE WIDGET INDICATOR ===== */
+    .service-card:has([class*="widget"]) .service-name::after {
+      content: ' ✦';
+      color: var(--gold);
+      text-shadow: 0 0 6px rgba(200, 164, 92, 0.6);
+      font-size: 0.5rem;
+      animation: liveFlicker 3.5s ease-in-out infinite;
+    }
+
+    @keyframes liveFlicker {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; text-shadow: 0 0 10px rgba(200, 164, 92, 0.8); }
+    }
+
+    /* ===== FOOTER ===== */
+    #footer, #version { display: none !important; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .services-group { flex-basis: 100% !important; }
+      #page_wrapper::after { font-size: 0.7rem; left: 16px; top: 10px; }
+      .service-group-name { font-size: 0.6rem !important; }
+    }
+
+    /* ===== SERVICE TAGS / DESCRIPTION ===== */
+    .service-description {
+      font-family: 'Lora', Georgia, serif !important;
+      font-size: 0.63rem !important;
+      color: var(--text-muted) !important;
+      opacity: 0.65;
+      letter-spacing: 0.02em;
+      font-style: italic;
+    }
+
+    /* ===== COLLAPSED GROUP ARROW ===== */
+    .service-group-name svg {
+      color: var(--gold) !important;
     }
 
     /* ===== DEEP OCEAN BACKGROUND ===== */
