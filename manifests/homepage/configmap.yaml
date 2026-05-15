@@ -72,7 +72,7 @@ data:
           memory: true
           showLabel: true
     - resources:
-        label: host
+        label: node
         cpu: true
         memory: true
         disk: /
@@ -81,13 +81,6 @@ data:
         load: true
         network: true
         expanded: true
-    - longhorn:
-        url: https://longhorn.techtronics.top
-    - openmeteo:
-        latitude: 20.5937
-        longitude: 78.9629
-        units: metric
-        label: Maharashtra
     - datetime:
         text_size: xl
         format:
