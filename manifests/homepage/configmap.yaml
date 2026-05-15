@@ -407,11 +407,15 @@ data:
     /* ===== TYPOGRAPHY ===== */
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&display=swap');
 
-    /* ===== BACKGROUND VISIBILITY FIX ===== */
+    /* ===== BACKGROUND — override broken Tailwind gradient with direct URL ===== */
     #background {
       opacity: 1 !important;
       display: block !important;
       visibility: visible !important;
+      background-image: url('https://images.unsplash.com/photo-1511497584788-876760111969?w=1920&q=80') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
     }
 
     /* ===== SERVICE CARDS — VISIBLE DISTINCTION ===== */
