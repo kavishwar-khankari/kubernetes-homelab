@@ -33,6 +33,8 @@ data:
         columns: 2
       Oracle:
         tab: Servers
+        style: row
+        colums: 2
       Cloud:
         tab: Apps
         style: row
