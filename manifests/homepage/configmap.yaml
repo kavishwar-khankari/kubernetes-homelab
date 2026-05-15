@@ -13,9 +13,9 @@ data:
     statusStyle: dot
     target: _blank
     background:
-      image: https://images.unsplash.com/photo-1542271728-d4cb4e1c0a26?w=1920&q=80
+      image: https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80
       blur: sm
-      opacity: 90
+      opacity: 100
     layout:
       Networking:
         tab: Infrastructure
@@ -408,15 +408,145 @@ data:
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&display=swap');
     @import url('https://cdn.jsdelivr.net/npm/@fontsource/cascadia-mono@4.2.1/index.min.css');
 
-    /* ===== BACKGROUND — override broken Tailwind gradient with direct URL ===== */
+    /* ===== BACKGROUND — override broken Tailwind gradient ===== */
     #background {
       opacity: 1 !important;
       display: block !important;
       visibility: visible !important;
-      background-image: url('https://images.unsplash.com/photo-1542271728-d4cb4e1c0a26?w=1920&q=80') !important;
+      background-image: url('https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80') !important;
       background-size: cover !important;
       background-position: center !important;
       background-repeat: no-repeat !important;
+    }
+
+    /* ===== OPAQUE HIGH-CONTRAST SERVICE CARDS ===== */
+    .service-card {
+      background: rgba(14, 14, 18, 0.94) !important;
+      border-radius: 14px !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      transition: all 0.25s ease;
+    }
+    .service-card:hover {
+      background: rgba(22, 22, 28, 0.96) !important;
+      border-color: rgba(255, 255, 255, 0.25) !important;
+      box-shadow: 0 6px 28px rgba(0, 0, 0, 0.5);
+      transform: translateY(-1px);
+    }
+    .service-name {
+      font-family: 'Cascadia Mono', 'JetBrains Mono', monospace !important;
+      font-size: 0.82rem !important;
+      font-weight: 500 !important;
+      color: rgba(255, 255, 255, 0.92) !important;
+    }
+    .service-description {
+      font-family: 'Cascadia Mono', 'JetBrains Mono', monospace !important;
+      font-size: 0.65rem !important;
+      color: rgba(255, 255, 255, 0.45) !important;
+    }
+
+    /* ===== GROUP HEADERS ===== */
+    .service-group-name {
+      font-family: 'Playfair Display', Georgia, serif !important;
+      font-size: 0.88rem !important;
+      font-weight: 600 !important;
+      font-style: italic;
+      letter-spacing: 0.01em;
+      color: rgba(255, 255, 255, 0.85) !important;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 6px;
+    }
+
+    /* ===== TABS ===== */
+    nav[class*="tab"], .tab-container {
+      gap: 4px;
+      padding: 4px;
+      background: rgba(14, 14, 18, 0.9);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    nav[class*="tab"] button, .tab-container button {
+      padding: 6px 18px !important;
+      border-radius: 9px !important;
+      font-size: 0.68rem !important;
+      font-weight: 500 !important;
+      letter-spacing: 0.04em;
+      color: rgba(255, 255, 255, 0.7) !important;
+      transition: all 0.2s ease;
+    }
+    nav[class*="tab"] button[data-headlessui-state="selected"],
+    .tab-container button[aria-selected="true"] {
+      background: rgba(255, 255, 255, 0.12) !important;
+      color: rgba(255, 255, 255, 0.95) !important;
+    }
+
+    /* ===== BOOKMARKS ===== */
+    .bookmark a, .bookmark-card {
+      background: rgba(14, 14, 18, 0.9) !important;
+      border-radius: 12px !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      transition: all 0.2s ease;
+    }
+    .bookmark a:hover, .bookmark-card:hover {
+      background: rgba(22, 22, 28, 0.94) !important;
+      border-color: rgba(255, 255, 255, 0.2) !important;
+      transform: translateY(-1px);
+    }
+    .bookmark-name {
+      font-family: 'Cascadia Mono', 'JetBrains Mono', monospace !important;
+      color: rgba(255, 255, 255, 0.88) !important;
+    }
+    .bookmark-icon {
+      font-family: 'Cascadia Mono', 'JetBrains Mono', monospace !important;
+      color: rgba(255, 255, 255, 0.8) !important;
+    }
+    .bookmark-group-name {
+      font-family: 'Playfair Display', Georgia, serif !important;
+      font-style: italic;
+      font-weight: 600 !important;
+      font-size: 0.82rem !important;
+      color: rgba(255, 255, 255, 0.8) !important;
+      padding-bottom: 4px;
+    }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+    }
+
+    /* ===== PROGRESS BARS ===== */
+    .resource-usage [class*="bg-"] {
+      border-radius: 2px !important;
+    }
+
+    /* ===== METRIC TEXT ===== */
+    .information-widget-resource [class*="text-"] {
+      color: rgba(255, 255, 255, 0.85) !important;
+    }
+
+    /* ===== DATETIME ===== */
+    .information-widget-datetime span {
+      font-weight: 400 !important;
+      letter-spacing: 0.02em;
+      color: rgba(255, 255, 255, 0.85) !important;
+    }
+
+    /* ===== FOOTER ===== */
+    #footer, #version { display: none !important; }
+
+    /* ===== LIVE WIDGET DOT ===== */
+    .service-card:has([class*="widget"]) .service-name::after {
+      content: ' ·';
+      opacity: 0.45;
+      font-size: 0.9rem;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .services-group { flex-basis: 100% !important; }
     }
 
     /* ===== SERVICE CARDS — VISIBLE DISTINCTION ===== */
