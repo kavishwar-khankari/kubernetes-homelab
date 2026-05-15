@@ -193,8 +193,7 @@ data:
               url: https://tdarr.techtronics.top
         - frostbite:
             href: https://frostbite.techtronics.top
-            icon: qbittorrent.png
-            description: qBittorrent filter manager
+            description: Self built media hotness manager
         - handbrake:
             href: http://192.168.0.74:10053/
             icon: handbrake.png
