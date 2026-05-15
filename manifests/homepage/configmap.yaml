@@ -610,8 +610,7 @@ data:
     /* ─── HIDE UNUSED ───────────────────────────────────────────── */
 
     .theme-gray #hp-topbar,
-    .theme-gray #hp-debug-probe,
-    .theme-gray #information-widgets-right { display: none !important; }
+    .theme-gray #hp-debug-probe { display: none !important; }
 
     .theme-gray #footer { display: none !important; }
 
