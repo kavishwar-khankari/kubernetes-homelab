@@ -151,7 +151,6 @@ data:
               key: "{{HOMEPAGE_VAR_SONARR_API_KEY}}"
               enableQueue: true
               fields: ["wanted", "queued", "series"]
-              enableQueue: true
         - radarr:
             href: https://radarr.techtronics.top
             icon: radarr.png
@@ -161,7 +160,6 @@ data:
               key: "{{HOMEPAGE_VAR_RADARR_API_KEY}}"
               enableQueue: true
               fields: ["wanted", "missing", "queued", "movies"]
-              enableQueue: true
         - lidarr:
             href: https://lidarr.techtronics.top
             icon: lidarr.png
@@ -282,7 +280,6 @@ data:
               url: https://proxmox-1.techtronics.top
               username: "root@pam!homepage"
               password: "{{HOMEPAGE_VAR_PVE1_TOKEN}}"
-              fields: ["vms", "lxc", "resources.cpu", "resources.mem"]
               fields: ["vms", "lxc", "resources.cpu", "resources.mem"]
         - proxmox 2:
             href: https://proxmox-2.techtronics.top
