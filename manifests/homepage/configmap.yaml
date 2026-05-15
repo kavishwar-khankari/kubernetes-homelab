@@ -122,21 +122,21 @@ data:
             widget:
               type: jellyfin
               url: https://jellyfin.techtronics.top
-              key: ${HOMEPAGE_JELLYFIN_API_KEY}
+              key: "{{HOMEPAGE_VAR_JELLYFIN_API_KEY}}"
         - sonarr:
             href: https://sonarr.techtronics.top
             icon: si-sonarr
             widget:
               type: sonarr
               url: https://sonarr.techtronics.top
-              key: ${HOMEPAGE_SONARR_API_KEY}
+              key: "{{HOMEPAGE_VAR_SONARR_API_KEY}}"
         - radarr:
             href: https://radarr.techtronics.top
             icon: si-radarr
             widget:
               type: radarr
               url: https://radarr.techtronics.top
-              key: ${HOMEPAGE_RADARR_API_KEY}
+              key: "{{HOMEPAGE_VAR_RADARR_API_KEY}}"
         - lidarr:
             href: https://lidarr.techtronics.top
             icon: si-lidarr
@@ -149,15 +149,15 @@ data:
             widget:
               type: prowlarr
               url: https://prowlarr.techtronics.top
-              key: ${HOMEPAGE_PROWLARR_API_KEY}
+              key: "{{HOMEPAGE_VAR_PROWLARR_API_KEY}}"
         - qbittorent:
             href: https://qbittorent.techtronics.top
             icon: si-qbittorrent
             widget:
               type: qbittorrent
               url: https://qbittorent.techtronics.top
-              username: ${HOMEPAGE_QBITTORRENT_USER}
-              password: ${HOMEPAGE_QBITTORRENT_PASS}
+              username: "{{HOMEPAGE_VAR_QBITTORRENT_USER}}"
+              password: "{{HOMEPAGE_VAR_QBITTORRENT_PASS}}"
         - qbittorent-11:
             href: http://192.168.1.19:9090/
             icon: si-qbittorrent
@@ -180,7 +180,7 @@ data:
             widget:
               type: jellyseerr
               url: https://jellyseerr.techtronics.top
-              key: ${HOMEPAGE_JELLYSEERR_API_KEY}
+              key: "{{HOMEPAGE_VAR_JELLYSEERR_API_KEY}}"
         - tdarr:
             href: https://tdarr.techtronics.top/
             icon: si-tdarr
@@ -284,7 +284,7 @@ data:
             widget:
               type: grafana
               url: https://grafana.techtronics.top
-              key: ${HOMEPAGE_GRAFANA_TOKEN}
+              key: "{{HOMEPAGE_VAR_GRAFANA_TOKEN}}"
 
     - AI:
         - openwebui:
