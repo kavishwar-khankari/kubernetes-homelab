@@ -13,9 +13,9 @@ data:
     statusStyle: dot
     target: _blank
     background:
-      image: https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80
+      image: https://images.unsplash.com/photo-1511497584788-876760111969?w=1920&q=80
       blur: sm
-      opacity: 100
+      opacity: 90
     layout:
       Networking:
         tab: Infrastructure
@@ -406,6 +406,13 @@ data:
   custom.css: |
     /* ===== TYPOGRAPHY ===== */
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&display=swap');
+
+    /* ===== BACKGROUND VISIBILITY FIX ===== */
+    #background {
+      opacity: 1 !important;
+      display: block !important;
+      visibility: visible !important;
+    }
 
     /* ===== SERVICE CARDS — VISIBLE DISTINCTION ===== */
     .service-card {
