@@ -409,7 +409,7 @@ data:
 
     /* ===== BACKGROUND — override broken Tailwind gradient ===== */
     #background {
-      opacity: 1 !important;
+      opacity: 0.5 !important;
       display: block !important;
       visibility: visible !important;
       background-image: url('https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=1920&q=80') !important;
