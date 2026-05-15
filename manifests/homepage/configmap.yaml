@@ -13,7 +13,7 @@ data:
     statusStyle: dot
     target: _blank
     background:
-      image: https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80
+      image: https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=1920&q=80
       blur: sm
       opacity: 100
     layout:
@@ -413,7 +413,7 @@ data:
       opacity: 1 !important;
       display: block !important;
       visibility: visible !important;
-      background-image: url('https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80') !important;
+      background-image: url('https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=1920&q=80') !important;
       background-size: cover !important;
       background-position: center !important;
       background-repeat: no-repeat !important;
