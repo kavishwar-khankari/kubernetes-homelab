@@ -41,8 +41,7 @@ data:
   kubernetes.yaml: |
     mode: cluster
 
-  docker.yaml: |
-    # Docker integration disabled — using kubernetes.yaml instead
+  docker.yaml: ""
 
   widgets.yaml: |
     - kubernetes:
