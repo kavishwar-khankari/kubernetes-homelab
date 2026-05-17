@@ -28,6 +28,7 @@ spec:
         - name: ntfy
           image: binwiederhier/ntfy@sha256:04873ec9343d39595567e9ac761744ef074d168deb5b9bafd5f73392ff18cebf # v2.22.0
           imagePullPolicy: IfNotPresent
+          command: ["serve"]
           ports:
             - name: http
               containerPort: 80
