@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apprise
+  namespace: apprise
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: apprise
+  template:
+    metadata:
+      labels:
+        app: apprise
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values: [k3s-node-1, k3s-node-2]
+      containers:
+        - name: apprise
+          image: caronc/apprise@sha256:f20fcabea936abde3e910f23bb3ffab36dc350f0e1864aa7e565cad2ea5b547d # v1.4.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: TZ
+              value: Asia/Kolkata
+            - name: APPRISE_STATEFUL_MODE
+              value: simple
+            - name: APPRISE_WORKER_COUNT
+              value: "1"
+            - name: APPRISE_ADMIN
+              value: "y"
+          volumeMounts:
+            - name: data
+              mountPath: /config
+              subPath: config
+            - name: data
+              mountPath: /attach
+              subPath: attach
+            - name: data
+              mountPath: /plugin
+              subPath: plugin
+          startupProbe:
+            httpGet:
+              path: /status
+              port: 8000
+            periodSeconds: 5
+            failureThreshold: 24
+          readinessProbe:
+            httpGet:
+              path: /status
+              port: 8000
+            periodSeconds: 10
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /status
+              port: 8000
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 50m
+            limits:
+              memory: 512Mi
+              cpu: 500m
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: apprise-data

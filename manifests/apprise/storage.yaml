@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: apprise
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: apprise-data
+  namespace: apprise
+  labels:
+    recurring-job-group.longhorn.io/default: enabled
+    recurring-job-group.longhorn.io/apprise: enabled
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: apprise-snapshot-hourly
+  namespace: longhorn-system
+spec:
+  cron: "0 * * * *"
+  task: snapshot
+  groups:
+    - apprise
+  retain: 24
+  concurrency: 1
