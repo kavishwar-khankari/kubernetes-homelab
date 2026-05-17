@@ -407,6 +407,42 @@ data:
               url: https://grafana.techtronics.top
               key: "{{HOMEPAGE_VAR_GRAFANA_TOKEN}}"
               fields: ["dashboards", "datasources", "totalalerts", "alertstriggered"]
+        - ntfy:
+            href: https://ntfy.techtronics.top
+            icon: ntfy.png
+            description: Push notification server
+            widget:
+              type: ntfy
+              url: https://ntfy.techtronics.top
+              topic: global
+              username: "{{HOMEPAGE_VAR_NTFY_USER}}"
+              password: "{{HOMEPAGE_VAR_NTFY_PASS}}"
+        - apprise:
+            href: https://apprise.techtronics.top
+            icon: apprise.png
+            description: Notification relay
+            widget:
+              type: customapi
+              url: https://apprise.techtronics.top/status
+              headers:
+                Accept: application/json
+              mappings:
+                - field: status.persistent_storage
+                  label: Storage
+                  format: text
+                  remap:
+                    - value: true
+                      to: OK
+                    - any: true
+                      to: ERR
+                - field: status.can_write_config
+                  label: Config
+                  format: text
+                  remap:
+                    - value: true
+                      to: OK
+                    - any: true
+                      to: ERR
 
     - AI:
         - openwebui:

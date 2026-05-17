@@ -73,6 +73,10 @@ For exposing a non-k8s service (Proxmox node, TrueNAS, etc.) under `<app>.techtr
 - `argo-master-app/master-project.yaml`: ArgoCD `AppProject` defining permissive access (all namespaces, all resources) for all apps under `master-app`.
 - `.gitignore` also excludes `/helm/**/charts/` and `/helm/**/Chart.lock` — chart dependencies are committed as `.tgz` files.
 
+## Homepage
+
+When a new service is deployed, add it to the homepage dashboard (`manifests/homepage/configmap.yaml`). Search the web for whether homepage has a native widget for the service — check `https://gethomepage.dev/widgets/` and the dashboard-icons repo. If a widget exists, hook it up with the relevant API keys/tokens from Doppler secrets (`manifests/homepage/secrets.yaml`). If no native widget exists, check if the service exposes a JSON health/status endpoint and use the `customapi` widget as a fallback. At minimum, add a basic service entry with `href` and `icon`.
+
 ## Incidents
 
 Documented in [`incidents/`](./incidents/). Read the [`README.md`](./incidents/README.md) index first, then the relevant incident file.
