@@ -5,6 +5,7 @@ singleBinary:
   replicas: 1
   extraArgs:
     - "-config.expand-env=true"
+    - "-ingester.flush-on-shutdown"
   # MinIO credentials: DopplerSecret keys are root-user/root-password
   # but config uses ${MINIO_ROOT_USER}/${MINIO_ROOT_PASSWORD}
   # and S3 SDK auto-detects AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY
@@ -34,7 +35,7 @@ singleBinary:
     limits:   { cpu: 1,     memory: 2Gi }
   persistence:
     enabled: true
-    size: 15Gi
+    size: 20Gi
     storageClass: longhorn
   affinity:
     nodeAffinity:
