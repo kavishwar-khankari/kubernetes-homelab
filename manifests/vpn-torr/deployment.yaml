@@ -85,6 +85,8 @@ spec:
               value: "plain"
             - name: DNS_UPSTREAM_PLAIN_ADDRESSES
               value: "1.1.1.1:53"
+            - name: HEALTH_TARGET_ADDRESSES
+              value: "1.1.1.1:443,8.8.8.8:443"
             - name: FIREWALL_INPUT_PORTS
               value: "9090,9696,8888,8388,9999,6881,5800,6500,6800,6880"
             - name: FIREWALL_OUTBOUND_SUBNETS
