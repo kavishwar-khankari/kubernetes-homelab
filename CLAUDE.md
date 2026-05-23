@@ -77,6 +77,11 @@ For exposing a non-k8s service (Proxmox node, TrueNAS, etc.) under `<app>.techtr
 
 When a new service is deployed, add it to the homepage dashboard (`manifests/homepage/configmap.yaml`). Search the web for whether homepage has a native widget for the service — check `https://gethomepage.dev/widgets/` and the dashboard-icons repo. If a widget exists, hook it up with the relevant API keys/tokens from Doppler secrets (`manifests/homepage/secrets.yaml`). If no native widget exists, check if the service exposes a JSON health/status endpoint and use the `customapi` widget as a fallback. At minimum, add a basic service entry with `href` and `icon`.
 
+## General principles
+
+- **GitOps only**: All cluster state changes must go through git. ArgoCD syncs the desired state from this repo. Never run `kubectl patch`, `kubectl edit`, `helm upgrade`, or any other imperative command against the live cluster unless it is a documented one-time operational necessity (e.g. resizing a StatefulSet PVC that ArgoCD/Helm cannot resize). If an imperative command is run, flag it and ensure the equivalent change is committed to git.
+- **Research before acting**: Before making any change — whether to a file, a cluster resource, or a config value — research and understand the real-world consequences. Trace the full chain of downstream effects: will this trigger a replica reschedule? will a node become unschedulable? will a pod restart? will Longhorn admission webhooks reject it? Check live state first, do the math, verify your assumptions against actual data. If there is any uncertainty, present the analysis and ask before touching anything.
+
 ## Incidents
 
 Documented in [`incidents/`](./incidents/). Read the [`README.md`](./incidents/README.md) index first, then the relevant incident file.
