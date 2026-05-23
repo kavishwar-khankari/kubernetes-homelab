@@ -309,3 +309,8 @@ spec:
         - name: aria2-config
           persistentVolumeClaim:
             claimName: aria2-config
+
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1"
