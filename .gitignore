@@ -2,7 +2,11 @@
 /helm/**/Chart.lock
 /restore-*.yaml
 .claude
+.mcp.json
 .opencode/
+
+# Repowise — local index, generated docs, vector DB, and API-key env
+.repowise/
 
 # graphify — regenerated locally, not version-controlled
 graphify-out/
