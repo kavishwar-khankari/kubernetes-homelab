@@ -63,6 +63,12 @@ test:
 gateway:
   enabled: false
 
+# Right-size the memcached chunks cache for a homelab.
+chunksCache:
+  allocatedMemory: 2048
+  allocatedCPU: 100m
+  defaultValidity: 6h
+
 # ── Loki config ──
 loki:
   # Helm template-level storage (chart 7.x renders this into common.storage)
