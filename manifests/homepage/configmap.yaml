@@ -449,6 +449,10 @@ data:
             href: https://openwebui.techtronics.top
             icon: openai.png
             description: LLM chat interface
+        - reddit mcp:
+            href: https://reddit-mcp.techtronics.top/health
+            icon: reddit.png
+            description: Remote Reddit MCP server
 
     - Cloud:
         - nextcloud:
