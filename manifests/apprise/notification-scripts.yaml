@@ -80,6 +80,12 @@ data:
         -e 's/\t/\\t/g'
     }
 
+    clean_bridge_text() {
+      printf '%s' "$1" | sed \
+        -e 's/[*][*]//g' \
+        -e 's/__//g'
+    }
+
     source_title="$NTFY_TOPIC"
     case "$NTFY_TOPIC" in
       jellyseerr)
@@ -102,6 +108,8 @@ data:
     if [ -z "$body" ]; then
       body="$source_title"
     fi
+
+    body="$(clean_bridge_text "$body")"
 
     type="info"
 
