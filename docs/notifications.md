@@ -22,6 +22,13 @@
 - Use `fallback-alerts` for future direct-ntfy senders.
 - `jellyseerr` remains bridged until it is moved to Apprise.
 
+## Source Headers
+
+- Sonarr Apprise config key: `sonarr?:title=Sonarr`
+- Radarr Apprise config key: `radarr?:title=Radarr`
+- Frostbite uses `APPRISE_CONFIG_KEY=frostbite?:title=Frostbite`
+- Bridge topics render as `Jellyseerr` or `Fallback Alerts` in Telegram while keeping the original alert text in the body
+
 ## Verification
 
 - Test Apprise fan-out with `POST /notify/global`.

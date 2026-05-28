@@ -45,6 +45,8 @@ spec:
           env:
             - name: TZ
               value: "Asia/Kolkata"
+            - name: APPRISE_CONFIG_KEY
+              value: "frostbite?:title=Frostbite"
 
           envFrom:
             - secretRef:

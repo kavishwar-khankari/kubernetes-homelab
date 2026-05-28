@@ -80,8 +80,29 @@ data:
         -e 's/\t/\\t/g'
     }
 
-    message="${NTFY_MESSAGE:-$NTFY_TOPIC}"
-    title="${NTFY_TITLE:-$NTFY_TOPIC}"
+    source_title="$NTFY_TOPIC"
+    case "$NTFY_TOPIC" in
+      jellyseerr)
+        source_title="Jellyseerr"
+        ;;
+      fallback-alerts)
+        source_title="Fallback Alerts"
+        ;;
+    esac
+
+    body="${NTFY_MESSAGE:-}"
+    if [ -n "${NTFY_TITLE:-}" ] && [ "${NTFY_TITLE}" != "$source_title" ]; then
+      if [ -n "$body" ]; then
+        body="$(printf '%s\n\n%s' "$NTFY_TITLE" "$body")"
+      else
+        body="$NTFY_TITLE"
+      fi
+    fi
+
+    if [ -z "$body" ]; then
+      body="$source_title"
+    fi
+
     type="info"
 
     case "${NTFY_PRIORITY:-3}" in
@@ -93,7 +114,7 @@ data:
         ;;
     esac
 
-    payload=$(printf '{"title":"%s","body":"%s","type":"%s"}' "$(json_escape "$title")" "$(json_escape "$message")" "$type")
+    payload=$(printf '{"title":"%s","body":"%s","type":"%s"}' "$(json_escape "$source_title")" "$(json_escape "$body")" "$type")
 
     attempt=0
     while :; do
