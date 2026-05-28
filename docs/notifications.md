@@ -24,10 +24,11 @@
 
 ## Source Headers
 
-- Sonarr Apprise config key: `sonarr?:title=Sonarr`
-- Radarr Apprise config key: `radarr?:title=Radarr`
+- Sonarr Apprise config key: `sonarr`
+- Radarr Apprise config key: `radarr`
 - Frostbite uses `APPRISE_CONFIG_KEY=frostbite?:title=Frostbite`
 - Bridge topics render as `Jellyseerr` or `Fallback Alerts` in Telegram while keeping the original alert text in the body
+- If we want `Sonarr` / `Radarr` as Telegram headers too, we need a proxy or custom script path; the built-in Apprise UI field does not accept `?:title=`
 
 ## Verification
 
