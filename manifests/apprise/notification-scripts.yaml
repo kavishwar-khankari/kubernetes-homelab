@@ -95,12 +95,22 @@ data:
 
     payload=$(printf '{"title":"%s","body":"%s","type":"%s"}' "$(json_escape "$title")" "$(json_escape "$message")" "$type")
 
-    wget -qO- \
-      --tries=3 \
-      --timeout=5 \
-      --retry-connrefused \
-      --header='Content-Type: application/json' \
-      --post-data="$payload" \
-      "$apprise_url" >/dev/null
+    attempt=0
+    while :; do
+      attempt=$((attempt + 1))
+      if wget -qO- \
+        -T 5 \
+        --header='Content-Type: application/json' \
+        --post-data="$payload" \
+        "$apprise_url" >/dev/null; then
+        break
+      fi
+
+      if [ "$attempt" -ge 3 ]; then
+        exit 1
+      fi
+
+      sleep 1
+    done
 
     printf '%s\n' "$NTFY_TIME" > "$state_file"
