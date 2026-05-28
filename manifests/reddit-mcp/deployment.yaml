@@ -26,37 +26,45 @@ spec:
                     values: [k3s-node-1, k3s-node-2]
       containers:
         - name: reddit-mcp
-          image: node:22-alpine@sha256:968df39aedcea65eeb078fb336ed7191baf48f972b4479711397108be0966920 # 22-alpine
+          image: ghcr.io/sparfenyuk/mcp-proxy:v0.12.0@sha256:ce037447191eeed517faa80640539dedaffb79a3ec107bfd23625a4438b0d06d # v0.12.0
           imagePullPolicy: IfNotPresent
           command:
             - sh
             - -c
-            - exec npx -y reddit-mcp-buddy@1.1.13 --http
+            - |
+              set -eu
+              apk add --no-cache nodejs npm
+              exec catatonit -- mcp-proxy \
+                --host=0.0.0.0 \
+                --port=3000 \
+                --pass-environment \
+                --named-server-config /etc/mcp-proxy/config.json
           env:
-            - name: REDDIT_BUDDY_HTTP
-              value: "true"
-            - name: REDDIT_BUDDY_PORT
-              value: "3000"
             - name: TZ
               value: Asia/Kolkata
           ports:
             - name: http
               containerPort: 3000
+          volumeMounts:
+            - name: mcp-proxy-config
+              mountPath: /etc/mcp-proxy/config.json
+              subPath: config.json
+              readOnly: true
           startupProbe:
             httpGet:
-              path: /health
+              path: /status
               port: 3000
             periodSeconds: 5
-            failureThreshold: 24
+            failureThreshold: 36
           readinessProbe:
             httpGet:
-              path: /health
+              path: /status
               port: 3000
             periodSeconds: 10
             timeoutSeconds: 3
           livenessProbe:
             httpGet:
-              path: /health
+              path: /status
               port: 3000
             periodSeconds: 30
             timeoutSeconds: 5
@@ -68,3 +76,7 @@ spec:
             limits:
               cpu: 500m
               memory: 512Mi
+      volumes:
+        - name: mcp-proxy-config
+          configMap:
+            name: reddit-mcp-proxy-config
