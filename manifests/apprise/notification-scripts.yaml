@@ -1,0 +1,106 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apprise-notification-scripts
+  namespace: apprise
+data:
+  render-apprise-configs.sh: |
+    #!/bin/sh
+    set -eu
+    umask 077
+
+    : "${TELEGRAM_BOT_TOKEN:?TELEGRAM_BOT_TOKEN is required}"
+    : "${TELEGRAM_CHAT_ID:?TELEGRAM_CHAT_ID is required}"
+
+    telegram_url="tgram://${TELEGRAM_BOT_TOKEN}/${TELEGRAM_CHAT_ID}/"
+
+    for cfg in /config/*.cfg; do
+      [ -f "$cfg" ] || continue
+
+      case "$cfg" in
+        */telegram-only.cfg)
+          continue
+          ;;
+      esac
+
+      tmp="${cfg}.tmp"
+      {
+        grep -v '^tgram://' "$cfg" || true
+        printf '%s\n' "$telegram_url"
+      } > "$tmp"
+      mv "$tmp" "$cfg"
+    done
+
+    printf '%s\n' "$telegram_url" > /config/telegram-only.cfg
+
+  start-ntfy-bridge.sh: |
+    #!/bin/sh
+    set -eu
+    umask 077
+
+    state_file="${BRIDGE_STATE_FILE:-/config/.ntfy-bridge-since}"
+    token="$(sed -n 's#^ntfys://\([^@]*\)@.*#\1#p' /config/*.cfg | head -n 1)"
+
+    if [ -z "$token" ]; then
+      echo "ntfy bridge: unable to extract auth token from /config/*.cfg" >&2
+      exit 1
+    fi
+
+    since="$(cat "$state_file" 2>/dev/null || true)"
+    if [ -z "$since" ]; then
+      since="$(date +%s)"
+    fi
+
+    ntfy_cfg="/tmp/ntfy-client.yml"
+    {
+      printf '%s\n' 'default-host: http://ntfy.ntfy.svc.cluster.local'
+      printf 'default-token: %s\n' "$token"
+      printf '%s\n' 'subscribe:'
+      printf '%s\n' '  - topic: jellyseerr'
+      printf '%s\n' '    command: /scripts/forward-to-apprise.sh'
+      printf '%s\n' '  - topic: fallback-alerts'
+      printf '%s\n' '    command: /scripts/forward-to-apprise.sh'
+    } > "$ntfy_cfg"
+
+    exec ntfy subscribe --config "$ntfy_cfg" --since "$since" --from-config
+
+  forward-to-apprise.sh: |
+    #!/bin/sh
+    set -eu
+
+    apprise_url="${APPRISE_NOTIFY_URL:-http://127.0.0.1:8000/notify/telegram-only}"
+    state_file="${BRIDGE_STATE_FILE:-/config/.ntfy-bridge-since}"
+
+    json_escape() {
+      printf '%s' "$1" | sed \
+        -e 's/\\/\\\\/g' \
+        -e 's/"/\\"/g' \
+        -e ':a;N;$!ba;s/\n/\\n/g' \
+        -e 's/\r/\\r/g' \
+        -e 's/\t/\\t/g'
+    }
+
+    message="${NTFY_MESSAGE:-$NTFY_TOPIC}"
+    title="${NTFY_TITLE:-$NTFY_TOPIC}"
+    type="info"
+
+    case "${NTFY_PRIORITY:-3}" in
+      5)
+        type="failure"
+        ;;
+      4)
+        type="warning"
+        ;;
+    esac
+
+    payload=$(printf '{"title":"%s","body":"%s","type":"%s"}' "$(json_escape "$title")" "$(json_escape "$message")" "$type")
+
+    wget -qO- \
+      --tries=3 \
+      --timeout=5 \
+      --retry-connrefused \
+      --header='Content-Type: application/json' \
+      --post-data="$payload" \
+      "$apprise_url" >/dev/null
+
+    printf '%s\n' "$NTFY_TIME" > "$state_file"

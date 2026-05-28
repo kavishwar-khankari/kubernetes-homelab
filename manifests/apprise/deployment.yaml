@@ -24,6 +24,24 @@ spec:
                   - key: kubernetes.io/hostname
                     operator: In
                     values: [k3s-node-1, k3s-node-2]
+      # Seed Telegram into the existing PVC-backed Apprise configs before the API starts.
+      initContainers:
+        - name: render-notification-configs
+          image: caronc/apprise@sha256:f20fcabea936abde3e910f23bb3ffab36dc350f0e1864aa7e565cad2ea5b547d # v1.4.1
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - /scripts/render-apprise-configs.sh
+          envFrom:
+            - secretRef:
+                name: apprise-secrets
+          volumeMounts:
+            - name: data
+              mountPath: /config
+              subPath: config
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
       containers:
         - name: apprise
           image: caronc/apprise@sha256:f20fcabea936abde3e910f23bb3ffab36dc350f0e1864aa7e565cad2ea5b547d # v1.4.1
@@ -76,7 +94,34 @@ spec:
             limits:
               memory: 512Mi
               cpu: 500m
+        # Bridge direct ntfy publishers into Apprise's telegram-only config.
+        - name: ntfy-bridge
+          image: binwiederhier/ntfy@sha256:04873ec9343d39595567e9ac761744ef074d168deb5b9bafd5f73392ff18cebf # v2.22.0
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              exec /scripts/start-ntfy-bridge.sh
+          volumeMounts:
+            - name: data
+              mountPath: /config
+              subPath: config
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+          resources:
+            requests:
+              memory: 32Mi
+              cpu: 20m
+            limits:
+              memory: 128Mi
+              cpu: 200m
       volumes:
         - name: data
           persistentVolumeClaim:
             claimName: apprise-data
+        - name: scripts
+          configMap:
+            name: apprise-notification-scripts
+            defaultMode: 0755
