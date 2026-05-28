@@ -98,10 +98,10 @@ Rules:
 
 ## Web search
 
-Always delegate web searches to the `websearch` subagent via the Task tool. Example: "search the web for X and return the results". The `websearch` subagent uses the cheap `deepseek/deepseek-v4-flash` model and only has SearXNG MCP tools — this avoids the $0.02/query OpenRouter built-in search cost. Never use the built-in `WebSearch` or `WebFetch` tools directly.
+Always delegate web searches to the `websearch` subagent via the Task tool. Example: "search the web for X and return the results". The `websearch` subagent uses the cheap `deepseek/deepseek-v4-flash` model with SearXNG MCP tools for general web research and Reddit MCP tools for Reddit-specific research — this avoids the $0.02/query OpenRouter built-in search cost. Never use the built-in `WebSearch` or `WebFetch` tools directly.
 
 ## Reading Reddit threads
 
-The new Reddit UI (`www.reddit.com`) blocks direct fetch with a verification wall. Use either of these instead:
-- **JSON API**: append `.json` to the URL (e.g. `https://www.reddit.com/r/subreddit/comments/.../.json`) — use `searxng_web_url_read` with `maxLength` or `paragraphRange`.
-- **Old Reddit**: replace `www.reddit.com` with `old.reddit.com` — use `searxng_web_url_read`.
+Use the `websearch` subagent for Reddit research. It should use Reddit MCP tools for Reddit search, subreddit browsing, and thread reading.
+
+Do not rely on direct `www.reddit.com`, `old.reddit.com`, or `.json` fetches; this environment may receive `403 Forbidden` from Reddit for those paths. Reddit MCP anonymous mode works when VPN/proxy routing is not blocking Reddit. If Reddit MCP returns access errors, first check VPN/proxy state, then report the exact failure and suggest Reddit OAuth credentials if needed.
