@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: jellyfin
   namespace: jellyfin
+  annotations:
+    homelab.techtronics.top/rollback-jellyfin-image: "lscr.io/linuxserver/jellyfin@sha256:ed5dc797d12089271e0e61a740cbf9626c4e513400ca2d96c54d35500eeb907c"
 spec:
   replicas: 1
   strategy:
@@ -24,7 +26,7 @@ spec:
 
       containers:
       - name: jellyfin
-        image: lscr.io/linuxserver/jellyfin:10.11.5
+        image: lscr.io/linuxserver/jellyfin@sha256:c0ed73678fb4ca761e0d940a92e49b95352f7f241a9be79a2c575c0099288f46  # 10.11.10
         imagePullPolicy: IfNotPresent
         ports:
         - name: http
