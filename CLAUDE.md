@@ -4,13 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Web search
 
-Always delegate web searches to the `websearch` subagent via the Task tool. Example: "search the web for X and return the results". The `websearch` subagent uses the cheap `deepseek/deepseek-v4-flash` model with SearXNG MCP tools for general web research and Reddit MCP tools for Reddit-specific research — this avoids the $0.02/query OpenRouter built-in search cost. Never use the built-in `WebSearch` or `WebFetch` tools directly.
+Always delegate web searches to the `websearch` subagent via the Task tool. Example: "search the web for X and return the results". The `websearch` subagent uses the cheap `deepseek/deepseek-v4-flash` model with SearXNG MCP tools for normal web research, BrowserMCP in connected Chrome when SearXNG is blocked or insufficient, and BrowserMCP first for Reddit. Never use the built-in `WebSearch` or `WebFetch` tools directly.
 
 ## Reading Reddit threads
 
-Use the `websearch` subagent for Reddit research. It should use Reddit MCP tools for Reddit search, subreddit browsing, and thread reading.
+Use the `websearch` subagent for Reddit research. It should use BrowserMCP in connected Chrome for Reddit search, subreddit browsing, and thread reading.
 
-Do not rely on direct `www.reddit.com`, `old.reddit.com`, or `.json` fetches; this environment may receive `403 Forbidden` from Reddit for those paths. Reddit MCP anonymous mode works when VPN/proxy routing is not blocking Reddit. If Reddit MCP returns access errors, first check VPN/proxy state, then report the exact failure and suggest Reddit OAuth credentials if needed.
+For non-Reddit sites, the `websearch` subagent should try SearXNG first. If SearXNG cannot access or adequately read a site because of 401/403/429 errors, bot checks, CAPTCHA, Cloudflare, login/session requirements, heavy JavaScript rendering, missing page content, or required interaction, it should switch to BrowserMCP in connected Chrome and report the visible state if blocked.
+
+Do not rely on direct `www.reddit.com`, `old.reddit.com`, `.json` fetches, or Reddit MCP for Reddit by default. If BrowserMCP cannot access Reddit, report the exact visible failure/login/CAPTCHA/rate-limit state and ask the user to connect Chrome or handle the gate in the browser.
 
 # kubernetes-homelab
 
