@@ -26,7 +26,7 @@ spec:
                     values: [k3s-node-1, k3s-node-2]
       containers:
       - name: tachidesk
-        image: ghcr.io/suwayomi/tachidesk:latest
+        image: ghcr.io/suwayomi/suwayomi-server@sha256:6bb8fa8cf1cf86589e5851f2f1c2ede5c8248d53982ec1795a715dcde85b1da2 # v2.2.2100
         imagePullPolicy: IfNotPresent
         ports:
         - name: web
@@ -40,6 +40,22 @@ spec:
           value: "0.0.0.0"
         - name: BIND_PORT
           value: "4567"
+        - name: AUTH_MODE
+          value: "ui_login"
+        - name: AUTH_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: tachidesk-secrets
+              key: AUTH_USERNAME
+        - name: AUTH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: tachidesk-secrets
+              key: AUTH_PASSWORD
+        - name: JWT_TOKEN_EXPIRY
+          value: "5m"
+        - name: JWT_REFRESH_EXPIRY
+          value: "30d"
         - name: SOCKS_PROXY_ENABLED
           value: "false"
         - name: DOWNLOAD_AS_CBZ
