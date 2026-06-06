@@ -7,6 +7,9 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
 spec:
   ingressClassName: nginx
+  tls:
+    - hosts:
+        - code-server.techtronics.top
   rules:
     - host: code-server.techtronics.top
       http:

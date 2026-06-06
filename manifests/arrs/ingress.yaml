@@ -8,6 +8,13 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
 spec:
   ingressClassName: nginx
+  tls:
+    - hosts:
+        - sonarr.techtronics.top
+        - radarr.techtronics.top
+        - lidarr.techtronics.top
+        - wizarr.techtronics.top
+        - jellyseerr.techtronics.top
   rules:
     - host: sonarr.techtronics.top
       http:

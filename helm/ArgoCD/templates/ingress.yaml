@@ -6,16 +6,16 @@ metadata:
 spec:
   ingressClassName: nginx
   tls:
-  - hosts:
-    - argocd.techtronics.top
+    - hosts:
+        - argocd.techtronics.top
   rules:
-  - host: argocd.techtronics.top
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: argo-cd-argocd-server
-            port:
-              number: 80
+    - host: argocd.techtronics.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: argo-cd-argocd-server
+                port:
+                  number: 80

@@ -10,6 +10,9 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-body-size: "10m"
 spec:
   ingressClassName: nginx
+  tls:
+    - hosts:
+        - frostbite.techtronics.top
   rules:
     - host: frostbite.techtronics.top
       http:

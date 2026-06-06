@@ -9,6 +9,9 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-body-size: "50m"
 spec:
   ingressClassName: nginx
+  tls:
+    - hosts:
+        - tdarr.techtronics.top
   rules:
     - host: tdarr.techtronics.top
       http:

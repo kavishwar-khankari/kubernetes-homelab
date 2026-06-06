@@ -6,6 +6,11 @@ metadata:
   annotations: {{ .Values.ingress.annotations | toYaml | nindent 4 }}
 spec:
   ingressClassName: {{ .Values.ingress.className | quote }}
+  tls:
+    - hosts:
+      {{- range .Values.ingress.hosts }}
+        - {{ .host | quote }}
+      {{- end }}
   rules:
     {{- range .Values.ingress.hosts }}
     - host: {{ .host | quote }}

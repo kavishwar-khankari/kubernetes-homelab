@@ -15,6 +15,10 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-body-size: "50m" #increase if you plan to upload large media files via web ui
 spec:
   ingressClassName: nginx
+  tls:
+    - hosts:
+        - jellyfin.techtronics.top
+        - threadfin.techtronics.top
   rules:
     - host: jellyfin.techtronics.top
       http:

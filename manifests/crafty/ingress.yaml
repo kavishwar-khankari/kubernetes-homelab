@@ -26,6 +26,9 @@ metadata:
       }
 spec:
   ingressClassName: nginx     # Adjust to match your cluster's ingress class
+  tls:
+    - hosts:
+        - crafty.techtronics.top
   rules:
     - host: crafty.techtronics.top
       http:

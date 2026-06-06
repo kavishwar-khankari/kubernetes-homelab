@@ -8,6 +8,14 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
 spec:
   ingressClassName: nginx
+  tls:
+    - hosts:
+        - qbittorent.techtronics.top
+        - jdownloader2.techtronics.top
+        - rdtclient.techtronics.top
+        - prowlarr.techtronics.top
+        - ariang.techtronics.top
+        - aria2.techtronics.top
   rules:
     - host: qbittorent.techtronics.top
       http:
