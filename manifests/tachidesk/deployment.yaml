@@ -40,6 +40,8 @@ spec:
           value: "0.0.0.0"
         - name: BIND_PORT
           value: "4567"
+        - name: WEB_UI_FLAVOR
+          value: "WebUI"
         - name: AUTH_MODE
           value: "ui_login"
         - name: AUTH_USERNAME
@@ -65,7 +67,7 @@ spec:
         volumeMounts:
         - name: tachidesk-config
           mountPath: /home/suwayomi/.local/share/Tachidesk
-      
+
       volumes:
       - name: tachidesk-config
         persistentVolumeClaim:
