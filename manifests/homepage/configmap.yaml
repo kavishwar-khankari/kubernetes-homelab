@@ -455,6 +455,10 @@ data:
             description: Remote Reddit MCP server
 
     - Cloud:
+        - paperless:
+            href: https://paperless.techtronics.top
+            icon: paperless-ngx.png
+            description: Document management
         - nextcloud:
             href: https://nextcloud.techtronics.top/apps/dashboard/
             icon: nextcloud.png

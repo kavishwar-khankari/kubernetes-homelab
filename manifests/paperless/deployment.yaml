@@ -1,0 +1,199 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paperless
+  namespace: paperless
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: paperless
+  template:
+    metadata:
+      labels:
+        app: paperless
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values: [k3s-node-1]
+      initContainers:
+        - name: init-media-dir
+          image: docker.io/library/busybox@sha256:9532d8c39891ca2ecde4d30d7710e01fb739c87a8b9299685c63704296b16028  # 1.37.0
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c", "mkdir -p /mnt/big-data/paperless"]
+          volumeMounts:
+            - name: media
+              mountPath: /mnt/big-data
+      containers:
+        - name: paperless
+          image: ghcr.io/paperless-ngx/paperless-ngx@sha256:6c86cad803970ea782683a8e80e7403444c5bf3cf70de63b4d3c8e87500db92f  # 2.20.15
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: TZ
+              value: Asia/Kolkata
+            - name: USERMAP_UID
+              value: "1000"
+            - name: USERMAP_GID
+              value: "1000"
+            - name: PAPERLESS_TIME_ZONE
+              value: Asia/Kolkata
+            - name: PAPERLESS_URL
+              value: https://paperless.techtronics.top
+            - name: PAPERLESS_ALLOWED_HOSTS
+              value: paperless.techtronics.top
+            - name: PAPERLESS_CSRF_TRUSTED_ORIGINS
+              value: https://paperless.techtronics.top
+            - name: PAPERLESS_PORT
+              value: "8000"
+            - name: PAPERLESS_REDIS
+              value: redis://paperless-valkey:6379
+            - name: PAPERLESS_DBHOST
+              value: "192.168.0.14"
+            - name: PAPERLESS_DBPORT
+              value: "5432"
+            - name: PAPERLESS_DBNAME
+              value: paperless
+            - name: PAPERLESS_DBUSER
+              value: paperless
+            - name: PAPERLESS_DBSSLMODE
+              value: prefer
+            - name: PAPERLESS_OCR_LANGUAGES
+              value: hin mar
+            - name: PAPERLESS_OCR_LANGUAGE
+              value: eng+hin+mar
+            - name: PAPERLESS_OCR_MODE
+              value: skip
+            - name: PAPERLESS_TASK_WORKERS
+              value: "1"
+            - name: PAPERLESS_THREADS_PER_WORKER
+              value: "2"
+            - name: PAPERLESS_WEBSERVER_WORKERS
+              value: "1"
+            - name: PAPERLESS_TIKA_ENABLED
+              value: "1"
+            - name: PAPERLESS_TIKA_ENDPOINT
+              value: http://localhost:9998
+            - name: PAPERLESS_TIKA_GOTENBERG_ENDPOINT
+              value: http://localhost:3000
+          envFrom:
+            - secretRef:
+                name: paperless-secrets
+          volumeMounts:
+            - name: data
+              mountPath: /usr/src/paperless/data
+            - name: consume
+              mountPath: /usr/src/paperless/consume
+            - name: media
+              mountPath: /usr/src/paperless/media
+              subPath: paperless
+          startupProbe:
+            httpGet:
+              path: /
+              port: 8000
+              httpHeaders:
+                - name: Host
+                  value: paperless.techtronics.top
+            periodSeconds: 10
+            failureThreshold: 120
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8000
+              httpHeaders:
+                - name: Host
+                  value: paperless.techtronics.top
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8000
+              httpHeaders:
+                - name: Host
+                  value: paperless.techtronics.top
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: 1Gi
+              cpu: 500m
+            limits:
+              memory: 3Gi
+              cpu: "2"
+        - name: gotenberg
+          image: docker.io/gotenberg/gotenberg@sha256:f9104080d9a7ecab253fb5ebe75100329cf5699c33ec0448f2ea02d885dfde4b  # 8.25
+          imagePullPolicy: IfNotPresent
+          args:
+            - gotenberg
+            - --chromium-disable-javascript=true
+            - --chromium-allow-list=file:///tmp/.*
+          ports:
+            - name: gotenberg
+              containerPort: 3000
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            periodSeconds: 10
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            periodSeconds: 30
+            timeoutSeconds: 5
+          resources:
+            requests:
+              memory: 512Mi
+              cpu: 200m
+            limits:
+              memory: 1Gi
+              cpu: "1"
+        - name: tika
+          image: docker.io/apache/tika@sha256:c0154cb95587cde64be74f35ada1a2bd7892219f3f0ac3c9dc6cab34046b3573  # 3.2.3.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: tika
+              containerPort: 9998
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 9998
+            periodSeconds: 10
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 9998
+            periodSeconds: 30
+            timeoutSeconds: 5
+          resources:
+            requests:
+              memory: 512Mi
+              cpu: 200m
+            limits:
+              memory: 1Gi
+              cpu: "1"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: paperless-data
+        - name: consume
+          persistentVolumeClaim:
+            claimName: paperless-consume
+        - name: media
+          persistentVolumeClaim:
+            claimName: paperless-big-data
