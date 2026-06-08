@@ -12,6 +12,8 @@ Use the `websearch` subagent for Reddit research. It should use BrowserMCP in co
 
 For non-Reddit sites, the `websearch` subagent should try SearXNG first. If SearXNG cannot access or adequately read a site because of 401/403/429 errors, bot checks, CAPTCHA, Cloudflare, login/session requirements, heavy JavaScript rendering, missing page content, or required interaction, it should switch to BrowserMCP in connected Chrome and report the visible state if blocked.
 
+When using BrowserMCP, each subagent should create a fresh browser tab for its own browsing task, keep that task's browsing in that tab, and close the tab when the task completes or exits if safe.
+
 Do not rely on direct `www.reddit.com`, `old.reddit.com`, `.json` fetches, or Reddit MCP for Reddit by default. If BrowserMCP cannot access Reddit, report the exact visible failure/login/CAPTCHA/rate-limit state and ask the user to connect Chrome or handle the gate in the browser.
 
 # kubernetes-homelab
