@@ -4,17 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Web search
 
-Always delegate web searches to the `websearch` subagent via the Task tool. Example: "search the web for X and return the results". The `websearch` subagent uses the cheap `deepseek/deepseek-v4-flash` model with SearXNG MCP tools for normal web research, BrowserMCP in connected Chrome when SearXNG is blocked or insufficient, and BrowserMCP first for Reddit. Never use the built-in `WebSearch` or `WebFetch` tools directly.
+Always delegate web searches to the `websearch` subagent via the Task tool. Example: "search the web for X and return the results". The `websearch` subagent uses the cheap `deepseek/deepseek-v4-flash` model with SearXNG MCP tools for normal web research, Chrome DevTools MCP in connected Chrome when SearXNG is blocked or insufficient, and Chrome DevTools MCP first for Reddit. Never use the built-in `WebSearch` or `WebFetch` tools directly.
 
 ## Reading Reddit threads
 
-Use the `websearch` subagent for Reddit research. It should use BrowserMCP in connected Chrome for Reddit search, subreddit browsing, and thread reading.
+Use the `websearch` subagent for Reddit research. It should use Chrome DevTools MCP in connected Chrome for Reddit search, subreddit browsing, and thread reading.
 
-For non-Reddit sites, the `websearch` subagent should try SearXNG first. If SearXNG cannot access or adequately read a site because of 401/403/429 errors, bot checks, CAPTCHA, Cloudflare, login/session requirements, heavy JavaScript rendering, missing page content, or required interaction, it should switch to BrowserMCP in connected Chrome and report the visible state if blocked.
+For non-Reddit sites, the `websearch` subagent should try SearXNG first. If SearXNG cannot access or adequately read a site because of 401/403/429 errors, bot checks, CAPTCHA, Cloudflare, login/session requirements, heavy JavaScript rendering, missing page content, or required interaction, it should switch to Chrome DevTools MCP in connected Chrome and report the visible state if blocked.
 
-When using BrowserMCP, each subagent should create a fresh browser tab for its own browsing task, keep that task's browsing in that tab, and close the tab when the task completes or exits if safe.
+When using Chrome DevTools MCP, each subagent should create a fresh page for its own browsing task, record the returned pageId, pass that pageId to every page-scoped tool call, and close the page when the task completes or exits if safe. Do not rely on the selected/current tab during parallel browser work.
 
-Do not rely on direct `www.reddit.com`, `old.reddit.com`, `.json` fetches, or Reddit MCP for Reddit by default. If BrowserMCP cannot access Reddit, report the exact visible failure/login/CAPTCHA/rate-limit state and ask the user to connect Chrome or handle the gate in the browser.
+Do not rely on direct `www.reddit.com`, `old.reddit.com`, `.json` fetches, or Reddit MCP for Reddit by default. If Chrome DevTools MCP cannot access Reddit, report the exact visible failure/login/CAPTCHA/rate-limit state and ask the user to connect Chrome or handle the gate in the browser. Do not use isolatedContext for Reddit because it needs the user's existing Chrome login/cookies.
 
 # kubernetes-homelab
 
