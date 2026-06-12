@@ -94,7 +94,16 @@ Rules:
 - ALWAYS read graphify-out/GRAPH_REPORT.md before reading any source files, running grep/glob searches, or answering codebase questions. The graph is your primary map of the codebase.
 - IF graphify-out/wiki/index.md EXISTS, navigate it instead of reading raw files
 - For cross-module "how does X relate to Y" questions, prefer `graphify query "<question>"`, `graphify path "<A>" "<B>"`, or `graphify explain "<concept>"` over grep — these traverse the graph's EXTRACTED + INFERRED edges instead of scanning files
-- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
+- After modifying code, run `graphify update .` and `repowise update` to keep both code-intelligence stores current. `repowise update` may spend DeepSeek API tokens; this is expected and acceptable for this repo.
+
+## repowise
+
+This project has a Repowise wiki/index in `.repowise/`, exposed through the Repowise MCP tools.
+
+Rules:
+- Use Repowise tools for architecture/context/risk questions when they are a better fit than raw file search.
+- After modifying code, run `repowise update` so the wiki, graph, git signals, and generated docs stay current.
+- If you only need a no-LLM refresh, use `repowise update --index-only`, but default to full `repowise update` because DeepSeek V4 Flash token cost is acceptable here.
 
 ## Web search
 

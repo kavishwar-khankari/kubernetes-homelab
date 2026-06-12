@@ -16,6 +16,13 @@ When using Chrome DevTools MCP, each subagent should create a fresh page for its
 
 Do not rely on direct `www.reddit.com`, `old.reddit.com`, `.json` fetches, or Reddit MCP for Reddit by default. If Chrome DevTools MCP cannot access Reddit, report the exact visible failure/login/CAPTCHA/rate-limit state and ask the user to connect Chrome or handle the gate in the browser. Do not use isolatedContext for Reddit because it needs the user's existing Chrome login/cookies.
 
+## Code Intelligence Updates
+
+- After modifying code, run `graphify update .` and `repowise update` to keep both code-intelligence stores current.
+- `graphify update .` is AST-only and has no API cost.
+- `repowise update` may spend DeepSeek API tokens; this is expected and acceptable for this repo.
+- If you only need a no-LLM Repowise refresh, use `repowise update --index-only`, but default to full `repowise update`.
+
 # kubernetes-homelab
 
 GitOps-managed RKE2 homelab synced by ArgoCD. Domain: `*.techtronics.top` (note: `techtronics`, not `techtroics`).
