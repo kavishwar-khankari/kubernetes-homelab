@@ -17,6 +17,18 @@ spec:
         app: tdarr
         component: worker
     spec:
+      initContainers:
+      - name: wait-for-tdarr-server
+        image: busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662 # 1.36
+        imagePullPolicy: IfNotPresent
+        command:
+        - sh
+        - -c
+        - |
+          until wget -q --spider http://tdarr-server.tdarr.svc.cluster.local:8265/api/v2/status; do
+            echo "Waiting for Tdarr server..."
+            sleep 10
+          done
       securityContext:
         fsGroup: 1000
         fsGroupChangePolicy: "OnRootMismatch"
