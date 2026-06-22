@@ -26,7 +26,7 @@ spec:
                     values: [k3s-node-1, k3s-node-2]
       containers:
         - name: vaultwarden
-          image: vaultwarden/server@latest 
+          image: vaultwarden/server
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
