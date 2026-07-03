@@ -16,6 +16,8 @@ spec:
     metadata:
       labels:
         app: jellyfin
+      annotations:
+        homelab.techtronics.top/restarted-at: "2026-07-03T21:24:55Z"
     spec:
       securityContext:
         supplementalGroups:
