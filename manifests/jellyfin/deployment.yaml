@@ -24,7 +24,7 @@ spec:
 
       containers:
       - name: jellyfin
-        image: lscr.io/linuxserver/jellyfin@sha256:ed5dc797d12089271e0e61a740cbf9626c4e513400ca2d96c54d35500eeb907c  # 10.11.5
+        image: lscr.io/linuxserver/jellyfin@sha256:96d21c396f46f10578931c2941e3f2789f7087b5ab0e166afedf29e7385c6aa7  # 10.11.11
         imagePullPolicy: IfNotPresent
         ports:
         - name: http
