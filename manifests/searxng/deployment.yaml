@@ -12,6 +12,9 @@ spec:
       app: searxng
   template:
     metadata:
+      annotations:
+        # Settings are copied into emptyDir by the init container, so changes need a new pod.
+        checksum/searxng-settings: "5db44b3b8e51adfa334cf3c6392e283a10a0086c27b11f5a6a1425b439b050a6"
       labels:
         app: searxng
     spec:

@@ -29,6 +29,9 @@ data:
       formats:
         - html
         - json
+    engines:
+      - name: bing
+        disabled: false
     ui:
       static_use_hash: true
     redis:
