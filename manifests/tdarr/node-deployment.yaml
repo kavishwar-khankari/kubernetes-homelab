@@ -37,7 +37,7 @@ spec:
           - 993  # render
       containers:
       - name: tdarr-node
-        image: ghcr.io/haveagitgat/tdarr_node:latest
+        image: ghcr.io/haveagitgat/tdarr_node@sha256:f46172a4e902c48e4a5679b1d6afbee9fed09584fcd585bd8b63617d01f8b625 # 2.82.02
         imagePullPolicy: IfNotPresent
         env:
         - name: TZ
