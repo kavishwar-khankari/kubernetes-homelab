@@ -29,36 +29,86 @@ spec:
       terminationGracePeriodSeconds: 30
 
       containers:
-        - name: qbittorrent
-          image: lscr.io/linuxserver/qbittorrent:latest
+        - name: gluetun
+          image: qmcgaw/gluetun:latest
           imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+            capabilities:
+              add: ["NET_ADMIN"]
           env:
-            - name: PUID
-              value: "0"
-            - name: PGID
-              value: "0"
+            - name: HTTPPROXY
+              value: "on"
+            - name: SHADOWSOCKS
+              value: "on"
+            - name: VPN_SERVICE_PROVIDER
+              value: "custom"
+            - name: VPN_TYPE
+              value: "wireguard"
+            - name: WIREGUARD_ENDPOINT_IP
+              valueFrom:
+                secretKeyRef:
+                  name: vpn-torr-secrets
+                  key: WIREGUARD_ENDPOINT_IP
+            - name: WIREGUARD_ENDPOINT_PORT
+              value: "61115"
+            - name: WIREGUARD_PUBLIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: vpn-torr-secrets
+                  key: WIREGUARD_PUBLIC_KEY
+            - name: WIREGUARD_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: vpn-torr-secrets
+                  key: WIREGUARD_PRIVATE_KEY
+            - name: WIREGUARD_PRESHARED_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: vpn-torr-secrets
+                  key: WIREGUARD_PRESHARED_KEY
+            - name: WIREGUARD_ADDRESSES
+              value: "10.66.66.3/32,fd42:42:42::3/128,2603:c021:4000:8b7b::3/128"
+            - name: FIREWALL_VPN_INPUT_PORTS
+              value: "6881,6888"
+            - name: IPV6
+              value: "on"
+            - name: BLOCK_IPV6
+              value: "off"
+            - name: FIREWALL_OUTBOUND_SUBNETS_IPV6
+              value: "::/0"
+            - name: WIREGUARD_MTU
+              value: "1280"
+            - name: WIREGUARD_PERSISTENT_KEEPALIVE_INTERVAL
+              value: "25s"
+            - name: DNS_UPSTREAM_RESOLVER_TYPE
+              value: "plain"
+            - name: DNS_UPSTREAM_PLAIN_ADDRESSES
+              value: "1.1.1.1:53"
+            - name: HEALTH_TARGET_ADDRESSES
+              value: "1.1.1.1:443,8.8.8.8:443"
+            - name: FIREWALL_INPUT_PORTS
+              value: "9090,9696,8888,8388,9999,6881,5800,6500,6800,6880"
+            - name: FIREWALL_OUTBOUND_SUBNETS
+              value: "192.168.0.0/24,10.42.0.0/16,10.43.0.0/16"
             - name: TZ
               value: "Asia/Kolkata"
-            - name: WEBUI_PORT
-              value: "9090"
-            - name: TORRENTING_PORT
-              value: "6881"
           ports:
-            - name: qbit-web
-              containerPort: 9090
+            - name: http-proxy
+              containerPort: 8888
               protocol: TCP
-            - name: qbit-tcp
-              containerPort: 6881
+            - name: shadowsocks-tcp
+              containerPort: 8388
               protocol: TCP
-            - name: qbit-udp
-              containerPort: 6881
+            - name: shadowsocks-udp
+              containerPort: 8388
               protocol: UDP
+            - name: health
+              containerPort: 9999
+              protocol: TCP
           volumeMounts:
-            - name: qbittorrent-config
-              mountPath: /config
-            - name: media-nas
-              mountPath: /media_2
-              mountPropagation: HostToContainer
+            - name: dev-tun
+              mountPath: /dev/net/tun
 
         - name: prowlarr
           image: lscr.io/linuxserver/prowlarr:latest
@@ -205,9 +255,10 @@ spec:
 
 
       volumes:
-        - name: qbittorrent-config
-          persistentVolumeClaim:
-            claimName: qbittorrent-config
+        - name: dev-tun
+          hostPath:
+            path: /dev/net/tun
+            type: CharDevice
         - name: media-nas
           hostPath:
             path: /mnt/nas/media
