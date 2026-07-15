@@ -39,7 +39,7 @@ spec:
               add: ["NET_ADMIN"]
           env:
             - name: VPN_SERVICE_PROVIDER
-              value: "protonvpn"
+              value: "custom"
             - name: VPN_TYPE
               value: "wireguard"
             - name: WIREGUARD_PRIVATE_KEY
@@ -47,14 +47,22 @@ spec:
                 secretKeyRef:
                   name: qbittorrent-proton-secrets
                   key: PROTONVPN_WIREGUARD_PRIVATE_KEY
+            - name: WIREGUARD_PUBLIC_KEY
+              value: "QnqJI0C2xQZrKfZLrBaCHa2h3TZ9CBt6sCuzg3ue4X4="
+            - name: WIREGUARD_ENDPOINT_IP
+              value: "146.70.142.18"
+            - name: WIREGUARD_ENDPOINT_PORT
+              value: "51820"
             - name: WIREGUARD_ADDRESSES
               value: "10.2.0.2/32,2a07:b944::2:2/128"
-            - name: SERVER_COUNTRIES
-              value: "India"
-            - name: PORT_FORWARD_ONLY
-              value: "on"
+            - name: WIREGUARD_ALLOWED_IPS
+              value: "0.0.0.0/0,::/0"
+            - name: WIREGUARD_PERSISTENT_KEEPALIVE_INTERVAL
+              value: "25s"
             - name: VPN_PORT_FORWARDING
               value: "on"
+            - name: VPN_PORT_FORWARDING_PROVIDER
+              value: "protonvpn"
             - name: VPN_PORT_FORWARDING_UP_COMMAND
               value: >-
                 /bin/sh -c 'until wget -qO- --timeout=3 --header="Authorization: Bearer ${QBITTORRENT_API_KEY}" http://127.0.0.1:9090/api/v2/app/version; do sleep 2; done; wget -qO- --timeout=5 --header="Authorization: Bearer ${QBITTORRENT_API_KEY}" --post-data="json={\"listen_port\":{{PORT}},\"current_network_interface\":\"{{VPN_INTERFACE}}\",\"random_port\":false,\"upnp\":false}" http://127.0.0.1:9090/api/v2/app/setPreferences'
