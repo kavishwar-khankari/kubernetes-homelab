@@ -24,7 +24,7 @@ spec:
                   - key: kubernetes.io/hostname
                     operator: In
                     values:
-                      - k3s-node-3
+                      - k3s-node-2
 
       terminationGracePeriodSeconds: 30
 
