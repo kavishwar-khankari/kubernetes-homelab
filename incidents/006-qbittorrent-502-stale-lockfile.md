@@ -5,6 +5,33 @@
 **Resolved:** 2026-07-06
 **Severity:** Medium (qBittorrent WebUI unavailable; other `vpn-torr` apps healthy)
 
+## Recurrence: 2026-07-16
+
+The same failure mode recurred while rolling out a longer termination grace
+period before migrating qBittorrent to TrueNAS. The old pod still had the
+previous 30-second grace period and left `/config/qBittorrent/lockfile`
+containing PID `149` on the Longhorn PVC.
+
+The replacement pod was scheduled on `k3s-node-3`. qBittorrent repeatedly
+started and exited cleanly within one second, so port `9090` remained closed.
+The five-minute startup probe eventually restarted the container and the
+Deployment exceeded its progress deadline. Gluetun and the Proton WireGuard
+tunnel remained healthy throughout.
+
+Recovery followed the original incident procedure:
+
+1. Confirmed no `qbittorrent-nox` process was running.
+2. Stopped the s6 qBittorrent service to prevent a restart race.
+3. Moved only the stale lockfile to a timestamped backup.
+4. Restarted the s6 service and verified the Web API returned HTTP 200.
+5. Verified the Deployment, ArgoCD application, IPv4/IPv6 tunnel, dynamic
+   forwarded port, external port reachability, torrent state, and ingress.
+
+Commit `fb05818` increases `terminationGracePeriodSeconds` to 300 for future
+shutdowns. This did not apply to the old pod during this rollout because a
+pod's grace period comes from the pod specification that existed when it was
+created; it is effective on the replacement pod and subsequent shutdowns.
+
 ## Symptoms
 
 - `https://qbittorent.techtronics.top/` returned nginx `502 Bad Gateway`.
@@ -61,7 +88,8 @@ The issue surfaced suddenly because the pod was recreated and the manifest uses 
 
 ## Prevention
 
-- [ ] Pin `lscr.io/linuxserver/qbittorrent` by digest instead of using `latest`.
-- [ ] Add a qBittorrent readiness probe against port `9090` so Kubernetes does not report the pod fully ready when the WebUI process is down.
+- [x] Pin `lscr.io/linuxserver/qbittorrent` by digest instead of using `latest`.
+- [x] Add qBittorrent startup and readiness probes against port `9090` so Kubernetes does not report the pod fully ready when the WebUI process is down.
+- [x] Allow up to 300 seconds for qBittorrent to flush resume state during pod termination.
 - [ ] If qBittorrent exits immediately with code `0`, check `/config/qBittorrent/lockfile` before restarting or recreating the whole pod.
 - [ ] Only remove a qBittorrent lockfile after confirming no other qBittorrent process or pod is actively using the same config PVC.
