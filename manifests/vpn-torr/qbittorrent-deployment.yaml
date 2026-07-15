@@ -47,6 +47,8 @@ spec:
                 secretKeyRef:
                   name: qbittorrent-proton-secrets
                   key: PROTONVPN_WIREGUARD_PRIVATE_KEY
+            - name: WIREGUARD_ADDRESSES
+              value: "10.2.0.2/32,2a07:b944::2:2/128"
             - name: SERVER_COUNTRIES
               value: "India"
             - name: PORT_FORWARD_ONLY
@@ -67,9 +69,9 @@ spec:
             - name: WIREGUARD_MTU
               value: "1320"
             - name: IPV6
-              value: "off"
-            - name: BLOCK_IPV6
               value: "on"
+            - name: BLOCK_IPV6
+              value: "off"
             - name: DNS_UPSTREAM_RESOLVER_TYPE
               value: "plain"
             - name: DNS_UPSTREAM_PLAIN_ADDRESSES
