@@ -1,0 +1,160 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qbittorrent-proton
+  namespace: vpn-torr
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: qbittorrent-proton
+  template:
+    metadata:
+      labels:
+        app: qbittorrent-proton
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k3s-node-2
+
+      terminationGracePeriodSeconds: 30
+
+      initContainers:
+        - name: gluetun
+          image: qmcgaw/gluetun@sha256:1a5bf4b4820a879cdf8d93d7ef0d2d963af56670c9ebff8981860b6804ebc8ab  # v3.41.1
+          imagePullPolicy: IfNotPresent
+          restartPolicy: Always
+          securityContext:
+            privileged: true
+            capabilities:
+              add: ["NET_ADMIN"]
+          env:
+            - name: VPN_SERVICE_PROVIDER
+              value: "protonvpn"
+            - name: VPN_TYPE
+              value: "wireguard"
+            - name: WIREGUARD_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: qbittorrent-proton-secrets
+                  key: PROTONVPN_WIREGUARD_PRIVATE_KEY
+            - name: SERVER_COUNTRIES
+              value: "India"
+            - name: PORT_FORWARD_ONLY
+              value: "on"
+            - name: VPN_PORT_FORWARDING
+              value: "on"
+            - name: VPN_PORT_FORWARDING_UP_COMMAND
+              value: >-
+                /bin/sh -c 'until wget -qO- --timeout=3 --header="Authorization: Bearer ${QBITTORRENT_API_KEY}" http://127.0.0.1:9090/api/v2/app/version; do sleep 2; done; wget -qO- --timeout=5 --header="Authorization: Bearer ${QBITTORRENT_API_KEY}" --post-data="json={\"listen_port\":{{PORT}},\"current_network_interface\":\"{{VPN_INTERFACE}}\",\"random_port\":false,\"upnp\":false}" http://127.0.0.1:9090/api/v2/app/setPreferences'
+            - name: VPN_PORT_FORWARDING_DOWN_COMMAND
+              value: >-
+                /bin/sh -c 'wget -qO- --timeout=5 --header="Authorization: Bearer ${QBITTORRENT_API_KEY}" --post-data="json={\"listen_port\":0,\"current_network_interface\":\"lo\",\"random_port\":false,\"upnp\":false}" http://127.0.0.1:9090/api/v2/app/setPreferences || true'
+            - name: QBITTORRENT_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: qbittorrent-proton-secrets
+                  key: QBITTORRENT_API_KEY
+            - name: WIREGUARD_MTU
+              value: "1320"
+            - name: IPV6
+              value: "off"
+            - name: BLOCK_IPV6
+              value: "on"
+            - name: DNS_UPSTREAM_RESOLVER_TYPE
+              value: "plain"
+            - name: DNS_UPSTREAM_PLAIN_ADDRESSES
+              value: "1.1.1.1:53"
+            - name: HEALTH_TARGET_ADDRESSES
+              value: "1.1.1.1:443,8.8.8.8:443"
+            - name: FIREWALL_INPUT_PORTS
+              value: "9090"
+            - name: FIREWALL_OUTBOUND_SUBNETS
+              value: "192.168.0.0/24,10.42.0.0/16,10.43.0.0/16"
+            - name: TZ
+              value: "Asia/Kolkata"
+          startupProbe:
+            exec:
+              command:
+                - /gluetun-entrypoint
+                - healthcheck
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            exec:
+              command:
+                - /gluetun-entrypoint
+                - healthcheck
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            exec:
+              command:
+                - /gluetun-entrypoint
+                - healthcheck
+            periodSeconds: 20
+            failureThreshold: 3
+          volumeMounts:
+            - name: dev-tun
+              mountPath: /dev/net/tun
+
+      containers:
+        - name: qbittorrent
+          image: lscr.io/linuxserver/qbittorrent@sha256:eeea9f8a8cdde23555186843d26e8ded1222421f31f98a5cc1b50c2882ebcf4e  # 5.2.0
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PUID
+              value: "0"
+            - name: PGID
+              value: "0"
+            - name: TZ
+              value: "Asia/Kolkata"
+            - name: WEBUI_PORT
+              value: "9090"
+          ports:
+            - name: qbit-web
+              containerPort: 9090
+              protocol: TCP
+          startupProbe:
+            tcpSocket:
+              port: 9090
+            periodSeconds: 10
+            failureThreshold: 30
+          readinessProbe:
+            tcpSocket:
+              port: 9090
+            periodSeconds: 10
+            failureThreshold: 3
+          volumeMounts:
+            - name: qbittorrent-config
+              mountPath: /config
+            - name: media-nas
+              mountPath: /media_2
+              mountPropagation: HostToContainer
+
+      volumes:
+        - name: dev-tun
+          hostPath:
+            path: /dev/net/tun
+            type: CharDevice
+        - name: qbittorrent-config
+          persistentVolumeClaim:
+            claimName: qbittorrent-config
+        - name: media-nas
+          hostPath:
+            path: /mnt/nas/media
+            type: Directory
+
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1"

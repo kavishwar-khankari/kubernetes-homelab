@@ -6,19 +6,11 @@ metadata:
   namespace: vpn-torr
 spec:
   selector:
-    app: vpn-torrent
+    app: qbittorrent-proton
   ports:
     - name: web
       port: 9090
       targetPort: 9090
-    - name: bittorrent-tcp
-      port: 6881
-      targetPort: 6881
-      protocol: TCP
-    - name: bittorrent-udp
-      port: 6881
-      targetPort: 6881
-      protocol: UDP
 ---
 apiVersion: v1
 kind: Service
