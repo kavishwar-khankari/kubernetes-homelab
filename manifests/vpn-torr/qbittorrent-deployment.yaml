@@ -26,7 +26,7 @@ spec:
                     values:
                       - k3s-node-3
 
-      terminationGracePeriodSeconds: 30
+      terminationGracePeriodSeconds: 300
 
       initContainers:
         - name: gluetun
