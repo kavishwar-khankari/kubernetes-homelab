@@ -75,7 +75,7 @@ spec:
                   name: qbittorrent-proton-secrets
                   key: QBITTORRENT_API_KEY
             - name: WIREGUARD_MTU
-              value: "1280"
+              value: "1320"
             - name: IPV6
               value: "on"
             - name: BLOCK_IPV6
