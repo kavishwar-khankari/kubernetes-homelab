@@ -75,7 +75,7 @@ spec:
               value: "protonvpn"
             - name: VPN_PORT_FORWARDING_UP_COMMAND
               value: >-
-                /bin/sh -c 'until wget -qO- --timeout=3 --header="Authorization: Bearer ${QBITTORRENT_API_KEY}" http://127.0.0.1:9090/api/v2/app/version; do sleep 2; done; wget -qO- --timeout=5 --header="Authorization: Bearer ${QBITTORRENT_API_KEY}" --post-data="json={\"listen_port\":{{PORT}},\"current_network_interface\":\"{{VPN_INTERFACE}}\",\"random_port\":false,\"upnp\":false}" http://127.0.0.1:9090/api/v2/app/setPreferences'
+                /bin/sh -c 'until wget -qO- --timeout=3 --header="Authorization: Bearer ${QBITTORRENT_API_KEY}" http://127.0.0.1:9090/api/v2/app/version; do sleep 2; done; wget -qO- --timeout=5 --header="Authorization: Bearer ${QBITTORRENT_API_KEY}" --post-data="json={\"listen_port\":{{PORT}},\"current_network_interface\":\"{{VPN_INTERFACE}}\",\"random_port\":false,\"upnp\":false,\"bypass_local_auth\":false,\"bypass_auth_subnet_whitelist\":\"\",\"bypass_auth_subnet_whitelist_enabled\":false}" http://127.0.0.1:9090/api/v2/app/setPreferences'
             - name: VPN_PORT_FORWARDING_DOWN_COMMAND
               value: >-
                 /bin/sh -c 'wget -qO- --timeout=5 --header="Authorization: Bearer ${QBITTORRENT_API_KEY}" --post-data="json={\"listen_port\":0,\"current_network_interface\":\"lo\",\"random_port\":false,\"upnp\":false}" http://127.0.0.1:9090/api/v2/app/setPreferences || true'
