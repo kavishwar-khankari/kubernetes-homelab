@@ -5,7 +5,7 @@ metadata:
   namespace: tdarr
 spec:
   serviceName: tdarr-server
-  replicas: 1
+  replicas: 0
   selector:
     matchLabels:
       app: tdarr

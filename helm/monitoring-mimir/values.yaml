@@ -6,6 +6,7 @@ ingest_storage:
 
 # ── Gateway DNS resolver for RKE2 ──
 gateway:
+  replicas: 0
   nginx:
     config:
       resolver: rke2-coredns-rke2-coredns.kube-system.svc.cluster.local
@@ -16,7 +17,7 @@ minio:
 
 # ── Single replicas for homelab ──
 distributor:
-  replicas: 1
+  replicas: 0
   resources:
     requests: { cpu: 100m, memory: 128Mi }
     limits:   { cpu: 500m, memory: 512Mi }
@@ -31,7 +32,7 @@ distributor:
                 values: [k3s-node-1, k3s-node-2]
 
 ingester:
-  replicas: 1
+  replicas: 0
   zoneAwareReplication:
     enabled: false
   resources:
@@ -52,7 +53,7 @@ ingester:
                 values: [k3s-node-1, k3s-node-2]
 
 querier:
-  replicas: 1
+  replicas: 0
   resources:
     requests: { cpu: 100m, memory: 128Mi }
     limits:   { cpu: 500m, memory: 512Mi }
@@ -67,7 +68,7 @@ querier:
                 values: [k3s-node-1, k3s-node-2]
 
 query_frontend:
-  replicas: 1
+  replicas: 0
   resources:
     requests: { cpu: 50m,  memory: 64Mi }
     limits:   { cpu: 200m, memory: 256Mi }
@@ -82,7 +83,7 @@ query_frontend:
                 values: [k3s-node-1, k3s-node-2]
 
 query_scheduler:
-  replicas: 1
+  replicas: 0
   resources:
     requests: { cpu: 50m,  memory: 64Mi }
     limits:   { cpu: 200m, memory: 256Mi }
@@ -97,7 +98,7 @@ query_scheduler:
                 values: [k3s-node-1, k3s-node-2]
 
 compactor:
-  replicas: 1
+  replicas: 0
   extraArgs:
     config.expand-env: "true"
   extraEnv:
@@ -139,7 +140,7 @@ compactor:
                 values: [k3s-node-1, k3s-node-2]
 
 store_gateway:
-  replicas: 1
+  replicas: 0
   zoneAwareReplication:
     enabled: false
   extraArgs:
@@ -183,7 +184,7 @@ store_gateway:
                 values: [k3s-node-1, k3s-node-2]
 
 ruler:
-  replicas: 1
+  replicas: 0
   extraArgs:
     config.expand-env: "true"
   resources:
@@ -200,7 +201,7 @@ ruler:
                 values: [k3s-node-1, k3s-node-2]
 
 alertmanager:
-  replicas: 1
+  replicas: 0
   zoneAwareReplication:
     enabled: false
   extraArgs:
@@ -233,6 +234,9 @@ alertmanager:
     enabled: true
     size: 5Gi
     storageClass: longhorn
+
+overrides_exporter:
+  replicas: 0
 
 # ── S3 object storage (custom MinIO) ──
 mimir:

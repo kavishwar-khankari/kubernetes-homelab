@@ -2,7 +2,7 @@ deploymentMode: SingleBinary
 
 # ── Single replica ──
 singleBinary:
-  replicas: 1
+  replicas: 0
   extraArgs:
     - "-config.expand-env=true"
     - "-ingester.flush-on-shutdown"
