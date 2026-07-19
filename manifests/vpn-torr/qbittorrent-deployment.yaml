@@ -4,7 +4,7 @@ metadata:
   name: qbittorrent-proton
   namespace: vpn-torr
 spec:
-  replicas: 0
+  replicas: 1
   strategy:
     type: Recreate
   selector:
@@ -17,10 +17,9 @@ spec:
     spec:
       affinity:
         nodeAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              preference:
-                matchExpressions:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
                   - key: kubernetes.io/hostname
                     operator: In
                     values:
@@ -29,6 +28,17 @@ spec:
       terminationGracePeriodSeconds: 300
 
       initContainers:
+        - name: verify-download-volume
+          image: busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662  # 1.36
+          command:
+            - /bin/sh
+            - -ec
+            - test -f /media_2/.qbittorrent-volume
+          volumeMounts:
+            - name: media-ssd
+              mountPath: /media_2
+              readOnly: true
+
         - name: gluetun
           image: qmcgaw/gluetun@sha256:1a5bf4b4820a879cdf8d93d7ef0d2d963af56670c9ebff8981860b6804ebc8ab  # v3.41.1
           imagePullPolicy: IfNotPresent
@@ -48,9 +58,9 @@ spec:
                   name: qbittorrent-proton-secrets
                   key: PROTONVPN_WIREGUARD_PRIVATE_KEY
             - name: WIREGUARD_PUBLIC_KEY
-              value: "QnqJI0C2xQZrKfZLrBaCHa2h3TZ9CBt6sCuzg3ue4X4="
+              value: "60KxPwj1NBzj0awNS6vDNrrOiehjzCwPwXNTh/k0zg0="
             - name: WIREGUARD_ENDPOINT_IP
-              value: "146.70.142.18"
+              value: "149.50.211.168"
             - name: WIREGUARD_ENDPOINT_PORT
               value: "51820"
             - name: WIREGUARD_ADDRESSES
@@ -147,9 +157,8 @@ spec:
           volumeMounts:
             - name: qbittorrent-config
               mountPath: /config
-            - name: media-nas
+            - name: media-ssd
               mountPath: /media_2
-              mountPropagation: HostToContainer
 
       volumes:
         - name: dev-tun
@@ -159,10 +168,9 @@ spec:
         - name: qbittorrent-config
           persistentVolumeClaim:
             claimName: qbittorrent-config
-        - name: media-nas
-          hostPath:
-            path: /mnt/nas/media
-            type: Directory
+        - name: media-ssd
+          persistentVolumeClaim:
+            claimName: qbittorrent-ssd-downloads
 
       dnsConfig:
         options:
