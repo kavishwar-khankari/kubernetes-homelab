@@ -14,3 +14,4 @@ Quick-reference tracker. Each incident has a dedicated file in this directory.
 | [6](./006-qbittorrent-502-stale-lockfile.md) | 2026-07-06, 2026-07-16 | qBittorrent ingress 502 from stale lockfile | Medium | k3s-node-2, k3s-node-3 | stale qBittorrent lockfile from old pod caused WebUI process to exit | Resolved |
 | [7](./007-tdarr-server-pvc-full-statefulset-resize.md) | 2026-07-07 | Tdarr server PVC full after StatefulSet resize drift | High | k3s-node-3 | existing server PVC stayed 5Gi because StatefulSet volumeClaimTemplate resize was immutable | Resolved |
 | [8](./008-cilium-mtu-github-egress.md) | 2026-07-10 | Cilium MTU mismatch blocked GitHub HTTPS egress | High | All nodes | Tailscale MTU 1280 drove Cilium VXLAN auto-detection | Resolved |
+| [9](./009-arr-import-failures-stale-smb-credentials.md) | 2026-07-19 | Arr imports blocked by missing NAS mount | High | k3s-node-2 | stale SMB credentials caused CIFS and mergerfs mount failure | Resolved |
