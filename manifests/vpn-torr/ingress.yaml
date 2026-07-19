@@ -10,12 +10,23 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
+        - qbittorent.techtronics.top
         - jdownloader2.techtronics.top
         - rdtclient.techtronics.top
         - prowlarr.techtronics.top
         - ariang.techtronics.top
         - aria2.techtronics.top
   rules:
+    - host: qbittorent.techtronics.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: qbittorrent
+                port:
+                  number: 9090
     - host: jdownloader2.techtronics.top
       http:
         paths:
