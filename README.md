@@ -50,6 +50,7 @@ GitOps-managed Kubernetes homelab running on RKE2. Media streaming, automation, 
 | **Crafty** | Minecraft server manager | crafty.techtronics.top |
 | **Tachidesk** | Manga reader/downloader | tachi.techtronics.top |
 | **Wizarr** | User invitation system | wizarr.techtronics.top |
+| **Stirling PDF** | PDF processing tools | stirling.techtronics.top |
 
 ### Reverse-Proxied Infrastructure
 

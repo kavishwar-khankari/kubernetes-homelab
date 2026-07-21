@@ -1,0 +1,138 @@
+fullnameOverride: stirling-pdf
+
+replicaCount: 1
+
+strategy:
+  type: Recreate
+
+image:
+  registry: docker.stirlingpdf.com
+  repository: stirlingtools/stirling-pdf
+  tag: "2.14.2"
+  sha: "7ed4d9681d18e4fbc3aa6a63647c4b5c2bcc4b75841df7c05d7e3d2320f5c9a1"
+  pullPolicy: IfNotPresent
+
+rootPath: /
+
+envs:
+  - name: TZ
+    value: Asia/Kolkata
+  - name: SYSTEM_DEFAULTLOCALE
+    value: en-US
+  - name: SYSTEM_MAXFILESIZE
+    value: "500"
+  - name: SECURITY_ENABLELOGIN
+    value: "true"
+  - name: DOCKER_ENABLE_SECURITY
+    value: "true"
+  - name: DISABLE_ADDITIONAL_FEATURES
+    value: "false"
+  - name: SYSTEM_GOOGLEVISIBILITY
+    value: "false"
+  - name: SYSTEM_ENABLEANALYTICS
+    value: "false"
+  - name: SHOW_SURVEY
+    value: "false"
+  - name: METRICS_ENABLED
+    value: "false"
+
+envsFrom:
+  - secretRef:
+      name: stirling-pdf-secrets
+
+deployment:
+  annotations: {}
+  labels: {}
+  extraVolumes: []
+  extraVolumeMounts:
+    - name: storage-volume
+      mountPath: /configs
+  sidecarContainers: {}
+
+service:
+  type: ClusterIP
+  externalPort: 8080
+  annotations: {}
+  labels: {}
+
+ingress:
+  enabled: false
+
+persistence:
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 8Gi
+  storageClass: longhorn
+  path: /configs
+  labels: {}
+  pv:
+    enabled: false
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 1Gi
+  limits:
+    cpu: "2"
+    memory: 4Gi
+
+probes:
+  liveness:
+    enabled: true
+    initialDelaySeconds: 120
+    periodSeconds: 10
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 6
+  livenessHttpGetConfig:
+    scheme: HTTP
+  readiness:
+    enabled: true
+    initialDelaySeconds: 20
+    periodSeconds: 10
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 12
+  readinessHttpGetConfig:
+    scheme: HTTP
+
+securityContext:
+  enabled: true
+  fsGroup: 1000
+  runAsNonRoot: true
+  supplementalGroups:
+    - 1000
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: false
+
+serviceAccount:
+  create: false
+  name: ""
+  automountServiceAccountToken: false
+  annotations: {}
+
+serviceMonitor:
+  enabled: false
+
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - k3s-node-1
+                - k3s-node-2
+
+nodeSelector: {}
+tolerations: []
+podAnnotations: {}
+podLabels: {}
+priorityClassName: ""

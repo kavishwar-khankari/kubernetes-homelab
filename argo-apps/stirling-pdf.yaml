@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: stirling-pdf
+  namespace: default
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: master-project
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: stirling-pdf
+  sources:
+    - repoURL: https://stirling-tools.github.io/Stirling-PDF-chart
+      chart: stirling-pdf-chart
+      targetRevision: 3.1.0
+      helm:
+        valueFiles:
+          - $values/helm/stirling-pdf/values.yaml
+    - repoURL: https://github.com/kavishwar-khankari/kubernetes-homelab.git
+      targetRevision: main
+      ref: values
+      path: manifests/stirling-pdf
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

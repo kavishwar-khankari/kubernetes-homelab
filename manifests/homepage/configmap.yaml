@@ -459,6 +459,10 @@ data:
             href: https://paperless.techtronics.top
             icon: paperless-ngx.png
             description: Document management
+        - stirling-pdf:
+            href: https://stirling.techtronics.top
+            icon: stirling-pdf.png
+            description: Private PDF processing tools
         - nextcloud:
             href: https://nextcloud.techtronics.top/apps/dashboard/
             icon: nextcloud.png
