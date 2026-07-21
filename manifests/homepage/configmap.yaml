@@ -530,6 +530,9 @@ data:
         - YouTube:
             - abbr: YT
               href: https://www.youtube.com/
+        - LeetCode:
+            - abbr: LC
+              href: https://leetcode.com/
     - Piracy:
         - modlist.in:
             - href: https://modlist.in/
