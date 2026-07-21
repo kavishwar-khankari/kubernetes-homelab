@@ -99,7 +99,6 @@ probes:
 securityContext:
   enabled: true
   fsGroup: 1000
-  runAsNonRoot: true
   supplementalGroups:
     - 1000
 
