@@ -98,16 +98,9 @@ probes:
 
 securityContext:
   enabled: true
-  fsGroup: 1000
-  supplementalGroups:
-    - 1000
+  fsGroup: 1001
 
-containerSecurityContext:
-  allowPrivilegeEscalation: false
-  capabilities:
-    drop:
-      - ALL
-  readOnlyRootFilesystem: false
+containerSecurityContext: {}
 
 serviceAccount:
   create: false
