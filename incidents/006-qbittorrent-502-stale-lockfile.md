@@ -5,6 +5,33 @@
 **Resolved:** 2026-07-06
 **Severity:** Medium (qBittorrent WebUI unavailable; other `vpn-torr` apps healthy)
 
+## Recurrence: 2026-07-23
+
+The failure recurred after `k3s-node-3` was powered off to replace the
+qBittorrent download SSD with a passed-through HDD. The download-volume marker
+correctly blocked qBittorrent while no disk was mounted. After the HDD was
+mounted and a GitOps rollout recreated the pod, `qbittorrent-nox` never opened
+port `9090` and the startup probe restarted the container every five minutes.
+
+The retained Longhorn config PVC contained `/config/qBittorrent/lockfile` from
+pod `qbittorrent-proton-764fff4d9d-5lt5j` and PID `170`. The current pod was
+`qbittorrent-proton-767b5c5996-n74vt`. Its `qbittorrent-nox` process slept while
+waiting for the stale lock instead of exiting, which produced no useful
+application log after the LinuxServer startup banner.
+
+Recovery followed the established procedure:
+
+1. Confirmed the lock referenced a terminated pod and unrelated PID.
+2. Stopped the supervised qBittorrent service.
+3. Confirmed no `qbittorrent-nox` process remained.
+4. Archived the lock as `lockfile.stale-20260723T143255Z`.
+5. Restarted the service and verified the WebUI, authenticated API, Proton
+   interface, forwarded port, ingress, and HDD mount.
+
+The pod became `2/2 Running` without recreation. Eight retained torrents were
+reported as `missingFiles`, as expected because their SSD payloads were not
+migrated to the new HDD.
+
 ## Recurrence: 2026-07-16
 
 The same failure mode recurred while rolling out a longer termination grace
