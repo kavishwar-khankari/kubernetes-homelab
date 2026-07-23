@@ -12,6 +12,8 @@ spec:
       app: qbittorrent-proton
   template:
     metadata:
+      annotations:
+        homelab.techtronics.top/storage-generation: "hdd-w3tb8aj0-20260723"
       labels:
         app: qbittorrent-proton
     spec:
@@ -35,7 +37,7 @@ spec:
             - -ec
             - test -f /media_2/.qbittorrent-volume
           volumeMounts:
-            - name: media-ssd
+            - name: media-hdd
               mountPath: /media_2
               readOnly: true
 
@@ -157,7 +159,7 @@ spec:
           volumeMounts:
             - name: qbittorrent-config
               mountPath: /config
-            - name: media-ssd
+            - name: media-hdd
               mountPath: /media_2
 
       volumes:
@@ -168,7 +170,7 @@ spec:
         - name: qbittorrent-config
           persistentVolumeClaim:
             claimName: qbittorrent-config
-        - name: media-ssd
+        - name: media-hdd
           persistentVolumeClaim:
             claimName: qbittorrent-ssd-downloads
 
