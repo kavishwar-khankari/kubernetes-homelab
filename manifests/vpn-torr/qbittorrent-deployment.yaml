@@ -4,7 +4,7 @@ metadata:
   name: qbittorrent-proton
   namespace: vpn-torr
 spec:
-  replicas: 1
+  replicas: 0
   strategy:
     type: Recreate
   selector:
