@@ -1,6 +1,6 @@
-# Incident 009: Arr imports blocked by missing NAS mount on k3s-node-2
+# Incident 009: Arr imports blocked by inaccessible NAS content
 
-**Date:** 2026-07-19  
+**Date:** 2026-07-19, 2026-07-25
 **Detected:** 2026-07-19  
 **Resolved:** 2026-07-19  
 **Severity:** High (all Arr imports on node 2 blocked; hostPath exposed an empty local fallback)  
@@ -56,3 +56,16 @@ Nodes 1 and 3 still had healthy CIFS and mergerfs mounts, but their local creden
 - [ ] Add node monitoring and alerts for failed `mnt-nas-media.mount` and `mergerfs-media.service` units.
 - [ ] Add an Arr startup check that refuses to start unless `/mnt/merged/media` is a mergerfs mount and `/mnt/nas/media` is CIFS-backed.
 - [ ] Avoid writable fallback directories beneath critical hostPath mountpoints, or replace these hostPath volumes with storage resources whose mount failures keep the pod unready.
+
+## Recurrence: 2026-07-25
+
+After TrueNAS disk replacement maintenance, Sonarr again reported `Downloaded - Waiting to Import`, but the CIFS and mergerfs mounts were healthy. qBittorrent successfully rechecked the affected torrents and could read their payloads directly on TrueNAS, while Sonarr and desktop SMB clients saw the same download directories as empty.
+
+The qBittorrent container and TrueNAS host reported the same ZFS filesystem ID, ruling out a stale bind mount. The files existed on the dataset with mode `0666`, but newly-created parent directories inherited a POSIX ACL with `other::rw-`. The SMB user was not covered by the owner or `apps` group entries and lacked directory execute (`x`) permission, which is required to traverse and stat files. A direct `sudo -u kavi ls` reproduced `Permission denied` for every entry.
+
+The immediate fix added an access and default ACL for the SMB user to the affected directory. The permanent targeted fix applied `user:kavi:rwx` access and default ACL entries to directories under `/mnt/TANK_2/media_2/media/qbittorent`. Sonarr immediately saw the payload files through CIFS/mergerfs and resumed importing without another download.
+
+For future occurrences, distinguish the two failure modes before changing mounts:
+
+- Wrong filesystem type or missing root directories inside the pod indicates the original CIFS/mergerfs mount failure.
+- Correct CIFS/mergerfs filesystem types with visible-but-empty download directories indicates server-side traversal or ACL failure; compare container, TrueNAS host, and SMB-user views.
