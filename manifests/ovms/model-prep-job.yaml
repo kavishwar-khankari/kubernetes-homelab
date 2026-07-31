@@ -103,6 +103,7 @@ spec:
             - sh
             - -ec
             - |
+              test -f /models/.prepared.json && exit 0
               test -f /models/config.json
               mv /models/.expected.json /models/.prepared.json
           volumeMounts:
