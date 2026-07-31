@@ -30,6 +30,10 @@ spec:
           image: python:3.13-slim-bookworm@sha256:dd86541a59b252667f4c12f8b2ee17216de37dd65ac773bf097bef996fa78860
           imagePullPolicy: IfNotPresent
           command: ["sh", "-ec", "pip install --no-cache-dir huggingface_hub==0.34.3 && python /scripts/download.py"]
+          env:
+            # Xet's parallel reconstruction exceeded the original 1 GiB limit.
+            - name: HF_HUB_DISABLE_XET
+              value: "1"
           volumeMounts:
             - name: models
               mountPath: /models
@@ -42,7 +46,7 @@ spec:
               memory: 256Mi
             limits:
               cpu: "1"
-              memory: 1Gi
+              memory: 2Gi
         - name: generate-qwen-graph
           image: openvino/model_server@sha256:cc13f88dc249cb94ab30cab90286b0c72a329e3d605da497bd4e594c5d21af00  # 2026.2.1-gpu
           command:
