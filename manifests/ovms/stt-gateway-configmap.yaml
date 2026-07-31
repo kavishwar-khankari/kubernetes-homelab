@@ -1,0 +1,128 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: stt-gateway
+  namespace: ovms
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+data:
+  main.py: |
+    import asyncio
+    import hmac
+    import os
+    import shutil
+    import tempfile
+    from contextlib import asynccontextmanager
+    from pathlib import Path
+
+    import httpx
+    from fastapi import FastAPI, HTTPException, Request
+    from fastapi.responses import JSONResponse
+    from starlette.datastructures import UploadFile
+
+    API_KEY = os.environ.get("STT_GATEWAY_API_KEY", "")
+    OVMS_URL = os.environ.get("OVMS_URL", "http://127.0.0.1:8000").rstrip("/")
+    MAX_UPLOAD_BYTES = int(os.environ.get("MAX_UPLOAD_BYTES", str(100 * 1024 * 1024)))
+    CONVERSION_TIMEOUT_SECONDS = int(os.environ.get("CONVERSION_TIMEOUT_SECONDS", "120"))
+
+
+    @asynccontextmanager
+    async def lifespan(_: FastAPI):
+        if not API_KEY:
+            raise RuntimeError("STT_GATEWAY_API_KEY must be configured")
+        if shutil.which("ffmpeg") is None:
+            raise RuntimeError("ffmpeg is required")
+        yield
+
+
+    app = FastAPI(docs_url=None, redoc_url=None, lifespan=lifespan)
+
+
+    def require_authorization(request: Request) -> str:
+        authorization = request.headers.get("authorization", "")
+        if not hmac.compare_digest(authorization, f"Bearer {API_KEY}"):
+            raise HTTPException(status_code=401, detail="invalid API key")
+        return authorization
+
+
+    async def write_upload(upload: UploadFile, destination: Path) -> None:
+        total = 0
+        with destination.open("wb") as output:
+            while chunk := await upload.read(1024 * 1024):
+                total += len(chunk)
+                if total > MAX_UPLOAD_BYTES:
+                    raise HTTPException(status_code=413, detail="audio upload is too large")
+                output.write(chunk)
+
+
+    async def convert_to_wav(source: Path, destination: Path) -> None:
+        # Keep FFmpeg arguments fixed so request data cannot change execution.
+        process = await asyncio.create_subprocess_exec(
+            "ffmpeg", "-nostdin", "-v", "error", "-i", str(source),
+            "-ac", "1", "-ar", "16000", "-c:a", "pcm_s16le", str(destination),
+            stdout=asyncio.subprocess.DEVNULL,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        try:
+            await asyncio.wait_for(process.communicate(), CONVERSION_TIMEOUT_SECONDS)
+        except TimeoutError:
+            process.kill()
+            await process.wait()
+            raise HTTPException(status_code=504, detail="audio conversion timed out")
+        if process.returncode != 0 or not destination.exists():
+            raise HTTPException(status_code=422, detail="unsupported or invalid audio")
+
+
+    @app.get("/healthz")
+    async def healthz() -> JSONResponse:
+        try:
+            async with httpx.AsyncClient(timeout=2.0) as client:
+                response = await client.get(f"{OVMS_URL}/v2/health/ready")
+                response.raise_for_status()
+        except httpx.HTTPError:
+            return JSONResponse(status_code=503, content={"status": "ovms-unavailable"})
+        return JSONResponse(content={"status": "ok"})
+
+
+    @app.post("/v3/audio/transcriptions")
+    async def transcribe(request: Request) -> JSONResponse:
+        authorization = require_authorization(request)
+        content_length = request.headers.get("content-length")
+        if content_length:
+            try:
+                if int(content_length) > MAX_UPLOAD_BYTES:
+                    raise HTTPException(status_code=413, detail="audio upload is too large")
+            except ValueError:
+                raise HTTPException(status_code=400, detail="invalid content length")
+
+        form = await request.form()
+        upload = form.get("file")
+        if not isinstance(upload, UploadFile):
+            raise HTTPException(status_code=400, detail="multipart field 'file' is required")
+
+        fields = {key: value for key, value in form.multi_items() if key != "file" and isinstance(value, str)}
+        fields.setdefault("model", "whisper-large-v3-turbo")
+
+        with tempfile.TemporaryDirectory(prefix="stt-") as directory:
+            source = Path(directory) / "audio-input"
+            wav = Path(directory) / "audio.wav"
+            await write_upload(upload, source)
+            await convert_to_wav(source, wav)
+            try:
+                with wav.open("rb") as audio, httpx.Client(timeout=600.0) as client:
+                    # OVMS authenticates the forwarded request with the original token.
+                    response = await asyncio.to_thread(
+                        client.post,
+                        f"{OVMS_URL}/v3/audio/transcriptions",
+                        headers={"Authorization": authorization},
+                        data=fields,
+                        files={"file": ("audio.wav", audio, "audio/wav")},
+                    )
+            except httpx.HTTPError:
+                raise HTTPException(status_code=503, detail="transcription service unavailable")
+
+        try:
+            payload = response.json()
+        except ValueError:
+            payload = {"error": {"message": "transcription service returned invalid JSON"}}
+        return JSONResponse(status_code=response.status_code, content=payload)

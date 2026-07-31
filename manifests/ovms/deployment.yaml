@@ -1,0 +1,165 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ovms
+  namespace: ovms
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: ovms
+  template:
+    metadata:
+      labels:
+        app: ovms
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /metrics
+        prometheus.io/port: "8000"
+    spec:
+      automountServiceAccountToken: false
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: intel.feature.node.kubernetes.io/gpu
+                    operator: In
+                    values: ["true"]
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        supplementalGroups:
+          - 44   # video
+          - 993  # render
+      containers:
+        - name: ovms
+          image: openvino/model_server@sha256:cc13f88dc249cb94ab30cab90286b0c72a329e3d605da497bd4e594c5d21af00  # 2026.2.1-gpu
+          imagePullPolicy: IfNotPresent
+          args:
+            - --config_path
+            - /models/config.json
+            - --rest_port
+            - "8000"
+            - --port
+            - "9000"
+            - --api_key_file
+            - /var/run/secrets/ovms-api-key/OVMS_API_KEY
+            - --metrics_enable
+            - --log_level
+            - INFO
+          ports:
+            - name: api
+              containerPort: 8000
+          startupProbe:
+            httpGet:
+              path: /v2/health/ready
+              port: api
+            periodSeconds: 10
+            failureThreshold: 180
+          readinessProbe:
+            httpGet:
+              path: /v2/health/ready
+              port: api
+            periodSeconds: 10
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /v2/health/live
+              port: api
+            periodSeconds: 30
+            timeoutSeconds: 3
+            failureThreshold: 4
+          resources:
+            requests:
+              cpu: "1"
+              memory: 6Gi
+            limits:
+              cpu: "6"
+              memory: 10Gi
+              gpu.intel.com/xe: "1"
+          volumeMounts:
+            - name: models
+              mountPath: /models
+            - name: api-key
+              mountPath: /var/run/secrets/ovms-api-key
+              readOnly: true
+        - name: stt-gateway
+          # Keep the gateway uncustomized: install FFmpeg and pinned Python packages at startup.
+          image: python:3.13-slim-bookworm@sha256:dd86541a59b252667f4c12f8b2ee17216de37dd65ac773bf097bef996fa78860
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -ec
+            - |
+              apt-get update
+              apt-get install -y --no-install-recommends ffmpeg
+              rm -rf /var/lib/apt/lists/*
+              pip install --no-cache-dir fastapi==0.115.12 httpx==0.28.1 python-multipart==0.0.20 uvicorn==0.34.0
+              exec uvicorn main:app --app-dir /app --host 0.0.0.0 --port 8080 --no-access-log
+          ports:
+            - name: stt-gateway
+              containerPort: 8080
+          env:
+            - name: OVMS_URL
+              value: http://127.0.0.1:8000
+            - name: STT_GATEWAY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ovms-api-key
+                  key: OVMS_API_KEY
+            - name: MAX_UPLOAD_BYTES
+              value: "104857600"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            seccompProfile:
+              type: RuntimeDefault
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: stt-gateway
+            periodSeconds: 5
+            failureThreshold: 180
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: stt-gateway
+            periodSeconds: 10
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: stt-gateway
+            periodSeconds: 30
+            timeoutSeconds: 3
+            failureThreshold: 4
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          volumeMounts:
+            - name: gateway-tmp
+              mountPath: /tmp
+            - name: gateway-code
+              mountPath: /app
+              readOnly: true
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: ovms-models
+        - name: api-key
+          secret:
+            secretName: ovms-api-key
+        - name: gateway-tmp
+          emptyDir:
+            sizeLimit: 2Gi
+        - name: gateway-code
+          configMap:
+            name: stt-gateway
+            defaultMode: 0444

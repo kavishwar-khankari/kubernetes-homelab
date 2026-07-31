@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ovms-model-download
+  namespace: ovms
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+data:
+  download.py: |
+    import json
+    import os
+    from pathlib import Path
+
+    from huggingface_hub import snapshot_download
+
+    root = Path("/models")
+    complete = root / ".prepared.json"
+    expected = {
+        "ovms": "2026.2.1",
+        "qwen": {
+            "repo": "OpenVINO/Qwen3.5-4B-int4-ov",
+            "revision": "d481b7fd22e6d2cfedef12e534973dbb3f32c690",
+            "path": "OpenVINO/Qwen3.5-4B-int4-ov",
+        },
+        "whisper": {
+            "repo": "OpenVINO/whisper-large-v3-turbo-fp16-ov",
+            "revision": "131d663658f94202779b0bb98ee7a5f71d5bde1a",
+            "path": "OpenVINO/whisper-large-v3-turbo-fp16-ov",
+        },
+    }
+
+    # Skip downloads only when the persistent cache matches every pinned revision.
+    if complete.exists() and json.loads(complete.read_text()) == expected:
+        raise SystemExit(0)
+
+    for model in (expected["qwen"], expected["whisper"]):
+        snapshot_download(
+            repo_id=model["repo"],
+            revision=model["revision"],
+            local_dir=root / model["path"],
+            local_dir_use_symlinks=False,
+        )
+
+    (root / ".expected.json").write_text(json.dumps(expected, indent=2) + "\n")

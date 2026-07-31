@@ -1,0 +1,112 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ovms-model-prep
+  namespace: ovms
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  backoffLimit: 2
+  ttlSecondsAfterFinished: 3600
+  template:
+    spec:
+      restartPolicy: OnFailure
+      automountServiceAccountToken: false
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: intel.feature.node.kubernetes.io/gpu
+                    operator: In
+                    values: ["true"]
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      initContainers:
+        - name: download-models
+          image: python:3.13-slim-bookworm@sha256:dd86541a59b252667f4c12f8b2ee17216de37dd65ac773bf097bef996fa78860
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-ec", "pip install --no-cache-dir huggingface_hub==0.34.3 && python /scripts/download.py"]
+          volumeMounts:
+            - name: models
+              mountPath: /models
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+        - name: generate-qwen-graph
+          image: openvino/model_server@sha256:cc13f88dc249cb94ab30cab90286b0c72a329e3d605da497bd4e594c5d21af00  # 2026.2.1-gpu
+          command:
+            - sh
+            - -ec
+            - |
+              # Pull mode sees the pinned local checkout and only writes OVMS graph files.
+              test -f /models/.prepared.json && exit 0
+              rm -f /models/config.json
+              ovms --pull --source_model OpenVINO/Qwen3.5-4B-int4-ov --model_repository_path /models --model_name qwen3.5-4b --task text_generation --target_device GPU
+              ovms --add_to_config --model_name qwen3.5-4b --model_path /models/OpenVINO/Qwen3.5-4B-int4-ov --config_path /models/config.json
+          volumeMounts:
+            - name: models
+              mountPath: /models
+          resources:
+            requests:
+              cpu: 250m
+              memory: 1Gi
+            limits:
+              cpu: "2"
+              memory: 4Gi
+        - name: generate-whisper-graph
+          image: openvino/model_server@sha256:cc13f88dc249cb94ab30cab90286b0c72a329e3d605da497bd4e594c5d21af00  # 2026.2.1-gpu
+          command:
+            - sh
+            - -ec
+            - |
+              # The completion marker makes repeated Argo syncs cheap and idempotent.
+              test -f /models/.prepared.json && exit 0
+              ovms --pull --source_model OpenVINO/whisper-large-v3-turbo-fp16-ov --model_repository_path /models --model_name whisper-large-v3-turbo --task speech2text --target_device GPU
+              ovms --add_to_config --model_name whisper-large-v3-turbo --model_path /models/OpenVINO/whisper-large-v3-turbo-fp16-ov --config_path /models/config.json
+          volumeMounts:
+            - name: models
+              mountPath: /models
+          resources:
+            requests:
+              cpu: 250m
+              memory: 1Gi
+            limits:
+              cpu: "2"
+              memory: 4Gi
+      containers:
+        - name: mark-complete
+          image: python:3.13-slim-bookworm@sha256:dd86541a59b252667f4c12f8b2ee17216de37dd65ac773bf097bef996fa78860
+          command:
+            - sh
+            - -ec
+            - |
+              test -f /models/config.json
+              mv /models/.expected.json /models/.prepared.json
+          volumeMounts:
+            - name: models
+              mountPath: /models
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: ovms-models
+        - name: scripts
+          configMap:
+            name: ovms-model-download
+            defaultMode: 0444

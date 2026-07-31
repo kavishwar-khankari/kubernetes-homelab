@@ -453,6 +453,10 @@ data:
             href: https://reddit-mcp.techtronics.top/health
             icon: reddit.png
             description: Remote Reddit MCP server
+        - local inference:
+            href: https://inference.techtronics.top
+            icon: openai.png
+            description: Qwen3.5 and Whisper on Intel Arc
 
     - Cloud:
         - paperless:

@@ -1,0 +1,33 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ovms
+  namespace: ovms
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - inference.techtronics.top
+  rules:
+    - host: inference.techtronics.top
+      http:
+        paths:
+          # OpenWhispr WebM uploads must be converted before OVMS sees them.
+          - path: /v3/audio/transcriptions
+            pathType: Prefix
+            backend:
+              service:
+                name: ovms
+                port:
+                  name: stt-gateway
+          - path: /v3
+            pathType: Prefix
+            backend:
+              service:
+                name: ovms
+                port:
+                  name: api

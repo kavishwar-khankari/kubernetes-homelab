@@ -51,6 +51,7 @@ GitOps-managed Kubernetes homelab running on RKE2. Media streaming, automation, 
 | **Tachidesk** | Manga reader/downloader | tachi.techtronics.top |
 | **Wizarr** | User invitation system | wizarr.techtronics.top |
 | **Stirling PDF** | PDF processing tools | stirling.techtronics.top |
+| **OVMS** | Local Qwen3.5 and Whisper inference (Intel Arc) | inference.techtronics.top |
 
 ### Reverse-Proxied Infrastructure
 

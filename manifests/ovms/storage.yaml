@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ovms
+  annotations:
+    argocd.argoproj.io/sync-wave: "-3"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ovms-models
+  namespace: ovms
+  annotations:
+    argocd.argoproj.io/sync-wave: "-3"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 30Gi
