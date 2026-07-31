@@ -43,7 +43,7 @@ metadata:
     app: minecraft-server
 spec:
   serviceName: minecraft-server
-  replicas: 0
+  replicas: 1
   selector:
     matchLabels:
       app: minecraft-server
