@@ -53,14 +53,18 @@ spec:
             - sh
             - -ec
             - |
-              # Pull mode sees the pinned local checkout and only writes OVMS graph files.
+              # Generate the graph in scratch space; retain only the graph beside pinned weights.
               test -f /models/.prepared.json && exit 0
               rm -f /models/config.json
-              ovms --pull --source_model OpenVINO/Qwen3.5-4B-int4-ov --model_repository_path /models --model_name qwen3.5-4b --task text_generation --target_device GPU
+              rm -rf /graph-workspace/*
+              ovms --pull --source_model OpenVINO/Qwen3.5-4B-int4-ov --model_repository_path /graph-workspace --model_name qwen3.5-4b --task text_generation --target_device GPU
+              cp /graph-workspace/OpenVINO/Qwen3.5-4B-int4-ov/graph.pbtxt /models/OpenVINO/Qwen3.5-4B-int4-ov/
               ovms --add_to_config --model_name qwen3.5-4b --model_path /models/OpenVINO/Qwen3.5-4B-int4-ov --config_path /models/config.json
           volumeMounts:
             - name: models
               mountPath: /models
+            - name: graph-workspace
+              mountPath: /graph-workspace
           resources:
             requests:
               cpu: 250m
@@ -76,11 +80,15 @@ spec:
             - |
               # The completion marker makes repeated Argo syncs cheap and idempotent.
               test -f /models/.prepared.json && exit 0
-              ovms --pull --source_model OpenVINO/whisper-large-v3-turbo-fp16-ov --model_repository_path /models --model_name whisper-large-v3-turbo --task speech2text --target_device GPU
+              rm -rf /graph-workspace/*
+              ovms --pull --source_model OpenVINO/whisper-large-v3-turbo-fp16-ov --model_repository_path /graph-workspace --model_name whisper-large-v3-turbo --task speech2text --target_device GPU
+              cp /graph-workspace/OpenVINO/whisper-large-v3-turbo-fp16-ov/graph.pbtxt /models/OpenVINO/whisper-large-v3-turbo-fp16-ov/
               ovms --add_to_config --model_name whisper-large-v3-turbo --model_path /models/OpenVINO/whisper-large-v3-turbo-fp16-ov --config_path /models/config.json
           volumeMounts:
             - name: models
               mountPath: /models
+            - name: graph-workspace
+              mountPath: /graph-workspace
           resources:
             requests:
               cpu: 250m
@@ -114,3 +122,6 @@ spec:
           configMap:
             name: ovms-model-download
             defaultMode: 0444
+        - name: graph-workspace
+          emptyDir:
+            sizeLimit: 10Gi
