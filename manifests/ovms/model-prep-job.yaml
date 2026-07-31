@@ -29,7 +29,7 @@ spec:
         - name: download-models
           image: python:3.13-slim-bookworm@sha256:dd86541a59b252667f4c12f8b2ee17216de37dd65ac773bf097bef996fa78860
           imagePullPolicy: IfNotPresent
-          command: ["sh", "-ec", "pip install --no-cache-dir huggingface_hub==0.34.3 && python /scripts/download.py"]
+          command: ["sh", "-ec", "pip install --no-cache-dir huggingface_hub==0.34.3 && python /scripts/download.py && chmod -R g+rwX /models"]
           env:
             # Xet's parallel reconstruction exceeded the original 1 GiB limit.
             - name: HF_HUB_DISABLE_XET
