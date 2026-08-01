@@ -23,14 +23,16 @@ data:
             "path": "OpenVINO/Qwen3.5-4B-int4-ov",
         },
         "whisper": {
-            "repo": "OpenVINO/whisper-large-v3-turbo-fp16-ov",
-            "revision": "131d663658f94202779b0bb98ee7a5f71d5bde1a",
-            "path": "OpenVINO/whisper-large-v3-turbo-fp16-ov",
+            "repo": "OpenVINO/whisper-large-v3-fp16-ov",
+            "revision": "220761e60602a5ca694c409d5f424563b75d6820",
+            "path": "OpenVINO/whisper-large-v3-fp16-ov",
         },
     }
+    expected_json = json.dumps(expected, indent=2) + "\n"
 
-    # Skip downloads only when the persistent cache matches every pinned revision.
+    # Always write the desired marker so graph generation can distinguish a model change.
     if complete.exists() and json.loads(complete.read_text()) == expected:
+        (root / ".expected.json").write_text(expected_json)
         raise SystemExit(0)
 
     for model in (expected["qwen"], expected["whisper"]):
@@ -41,4 +43,4 @@ data:
             local_dir_use_symlinks=False,
         )
 
-    (root / ".expected.json").write_text(json.dumps(expected, indent=2) + "\n")
+    (root / ".expected.json").write_text(expected_json)

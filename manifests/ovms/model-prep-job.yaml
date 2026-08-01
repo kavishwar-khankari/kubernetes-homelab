@@ -53,8 +53,8 @@ spec:
             - sh
             - -ec
             - |
-              # Generate the graph in scratch space; retain only the graph beside pinned weights.
-              test -f /models/.prepared.json && exit 0
+              # Rebuild only when the pinned model set has changed.
+              test -f /models/.expected.json && cmp -s /models/.prepared.json /models/.expected.json && exit 0
               rm -f /models/config.json
               rm -rf /graph-workspace/*
               ovms --pull --source_model OpenVINO/Qwen3.5-4B-int4-ov --model_repository_path /graph-workspace --model_name qwen3.5-4b --task text_generation --target_device GPU
@@ -78,12 +78,12 @@ spec:
             - sh
             - -ec
             - |
-              # The completion marker makes repeated Argo syncs cheap and idempotent.
-              test -f /models/.prepared.json && exit 0
+              # Rebuild only when the pinned model set has changed.
+              test -f /models/.expected.json && cmp -s /models/.prepared.json /models/.expected.json && exit 0
               rm -rf /graph-workspace/*
-              ovms --pull --source_model OpenVINO/whisper-large-v3-turbo-fp16-ov --model_repository_path /graph-workspace --model_name whisper-large-v3-turbo --task speech2text --target_device GPU
-              cp /graph-workspace/OpenVINO/whisper-large-v3-turbo-fp16-ov/graph.pbtxt /models/OpenVINO/whisper-large-v3-turbo-fp16-ov/
-              ovms --add_to_config --model_name whisper-large-v3-turbo --model_path /models/OpenVINO/whisper-large-v3-turbo-fp16-ov --config_path /models/config.json
+              ovms --pull --source_model OpenVINO/whisper-large-v3-fp16-ov --model_repository_path /graph-workspace --model_name whisper-large-v3-turbo --task speech2text --target_device GPU
+              cp /graph-workspace/OpenVINO/whisper-large-v3-fp16-ov/graph.pbtxt /models/OpenVINO/whisper-large-v3-fp16-ov/
+              ovms --add_to_config --model_name whisper-large-v3-turbo --model_path /models/OpenVINO/whisper-large-v3-fp16-ov --config_path /models/config.json
           volumeMounts:
             - name: models
               mountPath: /models
@@ -103,9 +103,10 @@ spec:
             - sh
             - -ec
             - |
-              test -f /models/.prepared.json && exit 0
+              test -f /models/.expected.json
+              test -f /models/.prepared.json && cmp -s /models/.prepared.json /models/.expected.json && exit 0
               test -f /models/config.json
-              mv /models/.expected.json /models/.prepared.json
+              mv -f /models/.expected.json /models/.prepared.json
           volumeMounts:
             - name: models
               mountPath: /models
