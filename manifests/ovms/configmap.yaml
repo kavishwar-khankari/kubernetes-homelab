@@ -23,6 +23,7 @@ data:
             "path": "OpenVINO/Qwen3.5-4B-int4-ov",
         },
         "whisper": {
+            "served_name": "whisper-large-v3",
             "repo": "OpenVINO/whisper-large-v3-fp16-ov",
             "revision": "220761e60602a5ca694c409d5f424563b75d6820",
             "path": "OpenVINO/whisper-large-v3-fp16-ov",

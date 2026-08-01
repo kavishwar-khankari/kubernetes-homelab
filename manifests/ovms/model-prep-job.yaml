@@ -81,9 +81,9 @@ spec:
               # Rebuild only when the pinned model set has changed.
               test -f /models/.expected.json && cmp -s /models/.prepared.json /models/.expected.json && exit 0
               rm -rf /graph-workspace/*
-              ovms --pull --source_model OpenVINO/whisper-large-v3-fp16-ov --model_repository_path /graph-workspace --model_name whisper-large-v3-turbo --task speech2text --target_device GPU
+              ovms --pull --source_model OpenVINO/whisper-large-v3-fp16-ov --model_repository_path /graph-workspace --model_name whisper-large-v3 --task speech2text --target_device GPU
               cp /graph-workspace/OpenVINO/whisper-large-v3-fp16-ov/graph.pbtxt /models/OpenVINO/whisper-large-v3-fp16-ov/
-              ovms --add_to_config --model_name whisper-large-v3-turbo --model_path /models/OpenVINO/whisper-large-v3-fp16-ov --config_path /models/config.json
+              ovms --add_to_config --model_name whisper-large-v3 --model_path /models/OpenVINO/whisper-large-v3-fp16-ov --config_path /models/config.json
           volumeMounts:
             - name: models
               mountPath: /models

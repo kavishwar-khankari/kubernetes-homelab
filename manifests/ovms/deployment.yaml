@@ -16,7 +16,7 @@ spec:
         app: ovms
       annotations:
         # Change to reload mounted gateway and model configuration.
-        homelab.techtronics.top/restarted-at: "2026-08-01T08:36:24Z"
+        homelab.techtronics.top/restarted-at: "2026-08-01T08:53:27Z"
         prometheus.io/scrape: "true"
         prometheus.io/path: /metrics
         prometheus.io/port: "8000"

@@ -110,7 +110,7 @@ data:
             raise HTTPException(status_code=400, detail="multipart field 'file' is required")
 
         fields = {key: value for key, value in form.multi_items() if key != "file" and isinstance(value, str)}
-        fields.setdefault("model", "whisper-large-v3-turbo")
+        fields.setdefault("model", "whisper-large-v3")
 
         with tempfile.TemporaryDirectory(prefix="stt-") as directory:
             source = Path(directory) / "audio-input"
