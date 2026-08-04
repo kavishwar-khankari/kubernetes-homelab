@@ -26,7 +26,7 @@ spec:
                     values: [k3s-node-1, k3s-node-2]
       containers:
         - name: dashy
-          image: lissy93/dashy@sha256:8166e7e269abbe8e9244748a1a3fb8070d934cfa3f7d121e68084b9b16c8594b # v3.2.4
+          image: lissy93/dashy@sha256:8c04ab116bb52bd784137d3922acaa945b5559de49a14f163dbbcf0605adf3e6 # v3.3.1
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

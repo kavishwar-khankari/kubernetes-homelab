@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: {{ .Values.name | quote }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}{{ if .Values.image.digest }}@{{ .Values.image.digest }}{{ end }}"
           imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
           ports:
             - containerPort: 80

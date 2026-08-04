@@ -134,7 +134,7 @@ spec:
               memory: 3Gi
               cpu: "2"
         - name: gotenberg
-          image: docker.io/gotenberg/gotenberg@sha256:f9104080d9a7ecab253fb5ebe75100329cf5699c33ec0448f2ea02d885dfde4b  # 8.25
+          image: docker.io/gotenberg/gotenberg@sha256:67097317623a503ba2a6a7e9ae8db6929a1f7e1bbd88077bacf2d325fbdab923  # 8.34.0
           imagePullPolicy: IfNotPresent
           args:
             - gotenberg
@@ -163,7 +163,7 @@ spec:
               memory: 1Gi
               cpu: "1"
         - name: tika
-          image: docker.io/apache/tika@sha256:c0154cb95587cde64be74f35ada1a2bd7892219f3f0ac3c9dc6cab34046b3573  # 3.2.3.0
+          image: docker.io/apache/tika@sha256:90b7fa1dc018434075fce9e1d9b88b1e3d0ea6979d0cf86e116c79a8073ae973  # 3.3.1.0
           imagePullPolicy: IfNotPresent
           ports:
             - name: tika

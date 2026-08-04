@@ -50,7 +50,7 @@ spec:
               mountPath: /etc/searxng
       containers:
         - name: searxng
-          image: searxng/searxng@sha256:b2211b2ad11fc9822ed8d94502a609a862d6587e13f052e18847559586c76b71 # latest @ 2026-05-05
+          image: searxng/searxng@sha256:77a4f1013b9e2ba857b360dcfea68bc10b3cc5f63572f3d7861cc323cba22c16 # 2026.8.3
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

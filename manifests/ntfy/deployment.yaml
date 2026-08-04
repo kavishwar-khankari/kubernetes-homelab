@@ -26,7 +26,7 @@ spec:
                     values: [k3s-node-1, k3s-node-2]
       containers:
         - name: ntfy
-          image: binwiederhier/ntfy@sha256:04873ec9343d39595567e9ac761744ef074d168deb5b9bafd5f73392ff18cebf # v2.22.0
+          image: binwiederhier/ntfy@sha256:f2419f405127afa868f10985c1a41449e673477cee1eb19994339a5ae8b592e7 # v2.27.0
           imagePullPolicy: IfNotPresent
           args: ["serve"]
           ports:

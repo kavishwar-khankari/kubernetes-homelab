@@ -58,7 +58,7 @@ spec:
         # Container 1: Crafty Controller 4
         # =====================================================================
         - name: crafty
-          image: registry.gitlab.com/crafty-controller/crafty-4:4.10.0
+          image: registry.gitlab.com/crafty-controller/crafty-4@sha256:166a06f73d8c831fe594550885655fc051546f042fc5ff79f373542fed4f644f  # 4.10.8
           ports:
             - containerPort: 8443
               name: web-ui
