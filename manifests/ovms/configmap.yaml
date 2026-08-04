@@ -17,11 +17,6 @@ data:
     complete = root / ".prepared.json"
     expected = {
         "ovms": "2026.2.1",
-        "qwen": {
-            "repo": "OpenVINO/Qwen3.5-4B-int4-ov",
-            "revision": "d481b7fd22e6d2cfedef12e534973dbb3f32c690",
-            "path": "OpenVINO/Qwen3.5-4B-int4-ov",
-        },
         "whisper": {
             "served_name": "whisper-large-v3",
             "repo": "OpenVINO/whisper-large-v3-fp16-ov",
@@ -36,7 +31,9 @@ data:
         (root / ".expected.json").write_text(expected_json)
         raise SystemExit(0)
 
-    for model in (expected["qwen"], expected["whisper"]):
+    for model in expected.values():
+        if not isinstance(model, dict):
+            continue
         snapshot_download(
             repo_id=model["repo"],
             revision=model["revision"],

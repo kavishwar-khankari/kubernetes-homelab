@@ -456,7 +456,7 @@ data:
         - local inference:
             href: https://inference.techtronics.top
             icon: openai.png
-            description: Qwen3.5 and Whisper on Intel Arc
+            description: Whisper Large V3 on Intel Arc
 
     - Cloud:
         - paperless:
