@@ -55,6 +55,7 @@ spec:
             - |
               # Rebuild only when the pinned model set has changed.
               test -f /models/.expected.json && cmp -s /models/.prepared.json /models/.expected.json && exit 0
+              rm -f /models/config.json
               rm -rf /graph-workspace/*
               ovms --pull --source_model OpenVINO/whisper-large-v3-fp16-ov --model_repository_path /graph-workspace --model_name whisper-large-v3 --task speech2text --target_device GPU
               cp /graph-workspace/OpenVINO/whisper-large-v3-fp16-ov/graph.pbtxt /models/OpenVINO/whisper-large-v3-fp16-ov/
