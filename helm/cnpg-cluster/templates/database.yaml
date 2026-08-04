@@ -1,0 +1,26 @@
+{{- if .Values.database.enabled }}
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: {{ include "cnpg-cluster.name" . }}-{{ .Values.bootstrap.database }}
+  labels:
+    {{- include "cnpg-cluster.labels" . | nindent 4 }}
+spec:
+  name: {{ .Values.bootstrap.database }}
+  owner: {{ .Values.bootstrap.owner }}
+  cluster:
+    name: {{ include "cnpg-cluster.name" . }}
+  ensure: present
+  databaseReclaimPolicy: retain
+  extensions:
+    {{- range .Values.database.extensions }}
+    - name: {{ .name }}
+      ensure: present
+      {{- with .version }}
+      version: {{ . | quote }}
+      {{- end }}
+      {{- with .schema }}
+      schema: {{ . }}
+      {{- end }}
+    {{- end }}
+{{- end }}

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: cnpg-cluster
+description: Reusable CloudNativePG database cluster chart for the homelab
+type: application
+version: 0.1.0
+appVersion: "1.29.2"

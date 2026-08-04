@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cloudnative-pg
+  namespace: default
+  annotations:
+    argocd.argoproj.io/sync-wave: "-3"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: master-project
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cnpg-system
+  source:
+    repoURL: https://cloudnative-pg.github.io/charts
+    chart: cloudnative-pg
+    targetRevision: 0.28.3
+    helm:
+      values: |
+        # Chart 0.28.3 defaults to operator 1.29.1. Pin the supported 1.29.2
+        # security release until this RKE2 cluster is upgraded to Kubernetes 1.34.
+        image:
+          tag: 1.29.2
+        crds:
+          create: true
+        config:
+          clusterWide: true
+        monitoring:
+          podMonitorEnabled: false
+          grafanaDashboard:
+            create: false
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

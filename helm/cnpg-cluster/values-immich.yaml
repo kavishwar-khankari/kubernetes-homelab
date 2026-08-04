@@ -1,0 +1,38 @@
+name: immich-postgres
+
+imageName: ghcr.io/kavishwar-khankari/immich-postgres@sha256:965e22f5123254e2d5635d1b719392c61c48398a50f91370d17529ffedd37709
+instances: 1
+enablePDB: false
+
+postgresql:
+  sharedPreloadLibraries:
+    - vchord
+
+storage:
+  storageClass: cnpg-longhorn
+  size: 10Gi
+
+bootstrap:
+  database: immich
+  owner: immich
+  # Phase 0 must create and prove this existing kubernetes.io/basic-auth Secret
+  # from Doppler before this production Cluster is added to the ApplicationSet.
+  credentialSecret: immich-db-owner
+  dataChecksums: true
+
+# No resource requests or limits are chosen until the disposable storage and
+# pgbench benchmarks establish an evidence-based baseline.
+resources: {}
+
+temporaryService:
+  enabled: false
+
+# Do not create this resource until after the logical restore. The extension
+# declarations are retained here to render only when database.enabled is true.
+database:
+  enabled: false
+  extensions:
+    - name: vector
+      version: "0.8.1"
+    - name: vchord
+      version: "0.4.3"

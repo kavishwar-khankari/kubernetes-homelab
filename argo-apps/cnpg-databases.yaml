@@ -1,0 +1,48 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: cnpg-databases
+  namespace: default
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  # Generated Applications omit the resource finalizer. Removing this
+  # ApplicationSet or an entry must not cascade-delete a database Application.
+  syncPolicy:
+    preserveResourcesOnDeletion: true
+  generators:
+    - list:
+        elements:
+          - name: immich-postgres-lab
+            namespace: immich
+            valuesFile: values-immich-lab.yaml
+  template:
+    metadata:
+      name: "cnpg-{{ .name }}"
+      labels:
+        app.kubernetes.io/component: database
+        app.kubernetes.io/part-of: cnpg
+    spec:
+      project: master-project
+      source:
+        repoURL: https://github.com/kavishwar-khankari/kubernetes-homelab.git
+        targetRevision: main
+        path: helm/cnpg-cluster
+        helm:
+          valueFiles:
+            - values.yaml
+            - "{{ .valuesFile }}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "{{ .namespace }}"
+      syncPolicy:
+        automated:
+          # CNPG deletes owned PVCs if a Cluster CR is deleted. Never let a
+          # chart or generator removal turn into an automatic database deletion.
+          prune: false
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true

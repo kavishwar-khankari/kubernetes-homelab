@@ -1,0 +1,56 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: {{ include "cnpg-cluster.name" . }}
+  labels:
+    {{- include "cnpg-cluster.labels" . | nindent 4 }}
+spec:
+  instances: {{ .Values.instances }}
+  enablePDB: {{ .Values.enablePDB }}
+  imageName: {{ required "imageName is required" .Values.imageName }}
+  storage:
+    storageClass: {{ required "storage.storageClass is required" .Values.storage.storageClass }}
+    size: {{ required "storage.size is required" .Values.storage.size }}
+  bootstrap:
+    initdb:
+      database: {{ required "bootstrap.database is required" .Values.bootstrap.database }}
+      owner: {{ required "bootstrap.owner is required" .Values.bootstrap.owner }}
+      dataChecksums: {{ .Values.bootstrap.dataChecksums }}
+      {{- with .Values.bootstrap.credentialSecret }}
+      secret:
+        name: {{ . }}
+      {{- end }}
+  postgresql:
+    {{- with .Values.postgresql.sharedPreloadLibraries }}
+    shared_preload_libraries:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.postgresql.parameters }}
+    parameters:
+      {{- range $key, $value := . }}
+      {{ $key }}: {{ $value | quote }}
+      {{- end }}
+    {{- end }}
+  {{- with .Values.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- if .Values.temporaryService.enabled }}
+  managed:
+    services:
+      additional:
+        - selectorType: rw
+          updateStrategy: patch
+          serviceTemplate:
+            metadata:
+              name: {{ required "temporaryService.name is required when enabled" .Values.temporaryService.name }}
+              {{- with .Values.temporaryService.annotations }}
+              annotations:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+            spec:
+              type: LoadBalancer
+              {{- with .Values.temporaryService.loadBalancerClass }}
+              loadBalancerClass: {{ . }}
+              {{- end }}
+  {{- end }}

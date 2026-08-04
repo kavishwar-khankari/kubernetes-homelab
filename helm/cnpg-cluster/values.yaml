@@ -1,0 +1,35 @@
+# Generic defaults. Database-specific values must provide name, image, storage,
+# and bootstrap credentials explicitly.
+name: ""
+
+imageName: ""
+instances: 1
+enablePDB: false
+
+postgresql:
+  parameters: {}
+  sharedPreloadLibraries: []
+
+storage:
+  storageClass: ""
+  size: ""
+
+bootstrap:
+  database: ""
+  owner: ""
+  credentialSecret: ""
+  dataChecksums: true
+
+resources: {}
+
+temporaryService:
+  enabled: false
+  name: ""
+  annotations: {}
+  loadBalancerClass: ""
+
+# Disabled until a restored disposable cluster proves CNPG Database extension
+# reconciliation with the pinned operator image.
+database:
+  enabled: false
+  extensions: []

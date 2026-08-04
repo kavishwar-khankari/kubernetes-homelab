@@ -1,0 +1,34 @@
+name: immich-postgres-lab
+
+imageName: ghcr.io/kavishwar-khankari/immich-postgres@sha256:965e22f5123254e2d5635d1b719392c61c48398a50f91370d17529ffedd37709
+instances: 1
+enablePDB: false
+
+postgresql:
+  sharedPreloadLibraries:
+    - vchord
+
+storage:
+  storageClass: cnpg-longhorn
+  size: 10Gi
+
+bootstrap:
+  database: immich
+  owner: immich
+  # CNPG generates the lab owner credential. The production entry will instead
+  # require a Doppler-managed basic-auth Secret after that flow is proven.
+  credentialSecret: ""
+  dataChecksums: true
+
+resources: {}
+
+temporaryService:
+  enabled: false
+
+database:
+  enabled: false
+  extensions:
+    - name: vector
+      version: "0.8.1"
+    - name: vchord
+      version: "0.4.3"
