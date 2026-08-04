@@ -9,6 +9,7 @@ spec:
     - "https://grafana.github.io/helm-charts"
     - "https://prometheus-community.github.io/helm-charts"
     - "https://docs.stirlingpdf.com/Stirling-PDF-chart"
+    - "https://cloudnative-pg.github.io/charts"
   destinations:
     - namespace: "*"
       server: https://kubernetes.default.svc
