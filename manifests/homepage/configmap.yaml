@@ -1030,13 +1030,20 @@ data:
     /* ─── QUEUE SCROLL ──────────────────────────────────────────── */
 
     .theme-gray .hp-queue-scroll {
-      max-height: 100px !important;
+      max-height: 154px !important; /* ~6 rows @ 22px + padding */
       overflow-y: auto !important;
       margin: 0 14px 14px !important;
       padding: 6px 10px !important;
       background: rgba(28, 28, 42, 0.45) !important;
       border: 1px solid var(--hair) !important;
       border-radius: 8px !important;
+      scrollbar-width: thin;
+      scrollbar-color: var(--surface1) transparent;
+    }
+    .theme-gray .hp-queue-scroll::-webkit-scrollbar { width: 6px; }
+    .theme-gray .hp-queue-scroll::-webkit-scrollbar-thumb {
+      background: var(--surface1);
+      border-radius: 4px;
     }
     .theme-gray .hp-queue-scroll > div {
       height: 22px !important;
@@ -1404,27 +1411,32 @@ data:
       // ─── 1. Queue scroll-wrap ──────────────────────────────────────
     
       function isQueueRow(el) {
+        if (!(el instanceof HTMLElement) || el.tagName !== "DIV") return false;
+        if (el.classList.contains("hp-queue-scroll")) return false;
+        const c = typeof el.className === "string" ? el.className : "";
+        // QueueEntry: "relative h-5 rounded-md bg-theme-200/50 ... m-1 ..."
         return (
-          el instanceof HTMLElement &&
-          el.tagName === "DIV" &&
           el.classList.contains("h-5") &&
           el.classList.contains("rounded-md") &&
-          el.className.includes("bg-theme-200/50")
+          (c.includes("bg-theme-200/50") || c.includes("bg-theme-900/20"))
         );
       }
-    
+
       function wrapQueues() {
-        document.querySelectorAll("li.service-card, .service-card").forEach((card) => {
+        document.querySelectorAll(".service-card").forEach((card) => {
+          // Direct children first; also catch rows left as loose siblings after re-render
           const looseRows = Array.from(card.children).filter(isQueueRow);
           if (looseRows.length === 0) return;
-    
+
           let wrapper = card.querySelector(":scope > .hp-queue-scroll");
           if (!wrapper) {
             wrapper = document.createElement("div");
             wrapper.className = "hp-queue-scroll";
             card.insertBefore(wrapper, looseRows[0]);
           }
-          looseRows.forEach((row) => wrapper.appendChild(row));
+          looseRows.forEach((row) => {
+            if (row.parentNode !== wrapper) wrapper.appendChild(row);
+          });
         });
       }
     
@@ -1640,6 +1652,7 @@ data:
       }
     
       function runAll() {
+        wrapQueues();
         classifyGauges();
         classifyPings();
         swapTailscaleStatus();
