@@ -43,6 +43,14 @@ spec:
           # chart or generator removal turn into an automatic database deletion.
           prune: false
           selfHeal: true
+        # The operator webhook may not be ready when this ApplicationSet first
+        # generates a database Application. Retry long enough for its rollout.
+        retry:
+          limit: 10
+          backoff:
+            duration: 10s
+            factor: 2
+            maxDuration: 3m
         syncOptions:
           - CreateNamespace=true
           - ServerSideApply=true
