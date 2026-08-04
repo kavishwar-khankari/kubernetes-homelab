@@ -13,7 +13,7 @@ The CNPG standard base contains a newer pgvector package. The Dockerfile removes
 ## Published Image
 
 ```text
-ghcr.io/kavishwar-khankari/immich-postgres@sha256:965e22f5123254e2d5635d1b719392c61c48398a50f91370d17529ffedd37709
+ghcr.io/kavishwar-khankari/immich-postgres:17.10-pgvector0.8.1-vchord0.4.3@sha256:965e22f5123254e2d5635d1b719392c61c48398a50f91370d17529ffedd37709
 ```
 
 The manifest list contains the tested `linux/amd64` image and its BuildKit provenance attestation. The tag `17.10-pgvector0.8.1-vchord0.4.3` is retained for humans, but deployment manifests must use the digest above.

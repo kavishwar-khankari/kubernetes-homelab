@@ -1,6 +1,6 @@
 name: immich-postgres-lab
 
-imageName: ghcr.io/kavishwar-khankari/immich-postgres@sha256:965e22f5123254e2d5635d1b719392c61c48398a50f91370d17529ffedd37709
+imageName: ghcr.io/kavishwar-khankari/immich-postgres:17.10-pgvector0.8.1-vchord0.4.3@sha256:965e22f5123254e2d5635d1b719392c61c48398a50f91370d17529ffedd37709
 instances: 1
 enablePDB: false
 
