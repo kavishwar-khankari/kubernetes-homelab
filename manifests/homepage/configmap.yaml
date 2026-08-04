@@ -1027,35 +1027,50 @@ data:
     }
     .theme-gray .service-card.hp-bad .site-monitor-status > div { color: var(--red) !important; }
 
-    /* ─── QUEUE SCROLL ──────────────────────────────────────────── */
+    /* ─── QUEUE SCROLL ────────────────────────────────────────────
+       Marked by custom.js (.hp-has-queue) when a card has QueueEntry
+       rows. Do NOT reparent those rows — React owns that DOM and
+       move/removeChild causes NotFoundError on SWR refresh. */
 
-    .theme-gray .hp-queue-scroll {
-      max-height: 154px !important; /* ~6 rows @ 22px + padding */
+    .theme-gray li.service:has(> .service-card.hp-has-queue) {
+      height: auto !important;
+      max-height: 260px;
+      align-self: start;
+    }
+    .theme-gray .service-card.hp-has-queue {
+      max-height: 260px !important;
       overflow-y: auto !important;
-      margin: 0 14px 14px !important;
-      padding: 6px 10px !important;
-      background: rgba(28, 28, 42, 0.45) !important;
-      border: 1px solid var(--hair) !important;
-      border-radius: 8px !important;
+      overflow-x: hidden !important;
       scrollbar-width: thin;
       scrollbar-color: var(--surface1) transparent;
     }
-    .theme-gray .hp-queue-scroll::-webkit-scrollbar { width: 6px; }
-    .theme-gray .hp-queue-scroll::-webkit-scrollbar-thumb {
+    .theme-gray .service-card.hp-has-queue::-webkit-scrollbar { width: 6px; }
+    .theme-gray .service-card.hp-has-queue::-webkit-scrollbar-thumb {
       background: var(--surface1);
       border-radius: 4px;
     }
-    .theme-gray .hp-queue-scroll > div {
-      height: 22px !important;
-      padding: 0 8px !important;
-      background: transparent !important;
-      border-bottom: 1px solid rgba(205, 214, 244, 0.04) !important;
-      border-radius: 0 !important;
+    /* Keep title + metric blocks visible while the queue scrolls */
+    .theme-gray .service-card.hp-has-queue .service-title {
+      position: sticky !important;
+      top: 0 !important;
+      z-index: 6 !important;
+      background: rgba(38, 38, 56, 0.96) !important;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    .theme-gray .service-card.hp-has-queue .service-container {
+      position: sticky !important;
+      top: 34px !important;
+      z-index: 5 !important;
+      background: rgba(38, 38, 56, 0.96) !important;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      flex: 0 0 auto !important;
+    }
+    .theme-gray .service-card.hp-has-queue > div.h-5 {
       font-family: var(--font-mono) !important;
       font-size: 10.5px !important;
-      margin: 0 !important;
     }
-    .theme-gray .hp-queue-scroll > div:last-child { border-bottom: none !important; }
 
     /* ─── BOOKMARKS ─────────────────────────────────────────────── */
 
@@ -1162,8 +1177,8 @@ data:
   custom.js: |
     // custom.js — runtime DOM patches that pair with custom.css
     //
-    // 1. Queue scroll-wrap: gathers loose *arr QueueEntry rows into a single
-    //    .hp-queue-scroll div so CSS can cap them with overflow-y: auto.
+    // 1. Queue scroll: toggles .hp-has-queue on cards that have QueueEntry
+    //    rows (CSS max-height + overflow). Never reparents React nodes.
     //
     // 2. Tailscale status swap: replaces "Last Seen: NOW / 5m ago" with
     //    "Status: ONLINE / OFFLINE" — a more meaningful at-a-glance signal.
@@ -1408,11 +1423,10 @@ data:
         });
       }
     
-      // ─── 1. Queue scroll-wrap ──────────────────────────────────────
+      // ─── 1. Queue scroll (class only — never move React DOM) ───────
     
       function isQueueRow(el) {
         if (!(el instanceof HTMLElement) || el.tagName !== "DIV") return false;
-        if (el.classList.contains("hp-queue-scroll")) return false;
         const c = typeof el.className === "string" ? el.className : "";
         // QueueEntry: "relative h-5 rounded-md bg-theme-200/50 ... m-1 ..."
         return (
@@ -1422,21 +1436,12 @@ data:
         );
       }
 
-      function wrapQueues() {
+      function markQueueCards() {
         document.querySelectorAll(".service-card").forEach((card) => {
-          // Direct children first; also catch rows left as loose siblings after re-render
-          const looseRows = Array.from(card.children).filter(isQueueRow);
-          if (looseRows.length === 0) return;
-
-          let wrapper = card.querySelector(":scope > .hp-queue-scroll");
-          if (!wrapper) {
-            wrapper = document.createElement("div");
-            wrapper.className = "hp-queue-scroll";
-            card.insertBefore(wrapper, looseRows[0]);
-          }
-          looseRows.forEach((row) => {
-            if (row.parentNode !== wrapper) wrapper.appendChild(row);
-          });
+          const rows = Array.from(card.children).filter(isQueueRow);
+          // Cap only when the list would actually blow the layout.
+          // Class toggle only — never appendChild/removeChild React nodes.
+          card.classList.toggle("hp-has-queue", rows.length > 4);
         });
       }
     
@@ -1652,7 +1657,7 @@ data:
       }
     
       function runAll() {
-        wrapQueues();
+        markQueueCards();
         classifyGauges();
         classifyPings();
         swapTailscaleStatus();
