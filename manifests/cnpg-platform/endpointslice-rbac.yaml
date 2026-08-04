@@ -1,0 +1,28 @@
+# CNPG 1.29.2 watches EndpointSlices for CNPG-i plugin rollouts. Helm chart
+# 0.28.3 predates that operator permission; remove this overlay with chart 0.29+.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cnpg-endpointslices
+rules:
+  - apiGroups:
+      - discovery.k8s.io
+    resources:
+      - endpointslices
+    verbs:
+      - get
+      - list
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cnpg-endpointslices
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cnpg-endpointslices
+subjects:
+  - kind: ServiceAccount
+    name: cloudnative-pg
+    namespace: cnpg-system
