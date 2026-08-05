@@ -24,9 +24,9 @@ dopplerSecret:
   project: rke2-cluster
   config: main
   secrets:
-    - name: DB_USERNAME
+    - name: IMMICH_DB_USERNAME
       asName: username
-    - name: DB_PASSWORD
+    - name: IMMICH_DB_PASSWORD
       asName: password
   managedSecret:
     name: immich-db-owner
