@@ -18,6 +18,10 @@ bootstrap:
   credentialSecret: immich-db-owner
   dataChecksums: true
 
+superuserAccess:
+  enabled: true
+  credentialSecret: immich-db-owner
+
 dopplerSecret:
   enabled: true
   name: immich-db-owner

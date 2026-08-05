@@ -20,6 +20,11 @@ spec:
       secret:
         name: {{ . }}
       {{- end }}
+  enableSuperuserAccess: {{ .Values.superuserAccess.enabled }}
+  {{- if .Values.superuserAccess.enabled }}
+  superuserSecret:
+    name: {{ required "superuserAccess.credentialSecret is required when superuser access is enabled" .Values.superuserAccess.credentialSecret }}
+  {{- end }}
   postgresql:
     {{- with .Values.postgresql.sharedPreloadLibraries }}
     shared_preload_libraries:

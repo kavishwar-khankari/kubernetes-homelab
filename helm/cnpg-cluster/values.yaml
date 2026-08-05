@@ -20,6 +20,10 @@ bootstrap:
   credentialSecret: ""
   dataChecksums: true
 
+superuserAccess:
+  enabled: false
+  credentialSecret: ""
+
 dopplerSecret:
   enabled: false
   name: ""
