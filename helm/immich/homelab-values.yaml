@@ -41,7 +41,7 @@ server:
   enabled: true
   controllers:
     main:
-      replicas: 0
+      replicas: 1
       strategy: Recreate
       containers:
         main:
@@ -64,7 +64,23 @@ server:
                   key: password
   ingress:
     main:
-      enabled: false
+      enabled: true
+      className: nginx
+      annotations:
+        nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+        nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+        nginx.ingress.kubernetes.io/proxy-body-size: "100g"
+        nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+      hosts:
+        - host: immich.techtronics.top
+          paths:
+            - path: /
+              pathType: Prefix
+              service:
+                identifier: main
+      tls:
+        - hosts:
+            - immich.techtronics.top
   service:
     main:
       type: ClusterIP
