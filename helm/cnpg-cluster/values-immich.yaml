@@ -15,10 +15,21 @@ storage:
 bootstrap:
   database: immich
   owner: immich
-  # Phase 0 must create and prove this existing kubernetes.io/basic-auth Secret
-  # from Doppler before this production Cluster is added to the ApplicationSet.
   credentialSecret: immich-db-owner
   dataChecksums: true
+
+dopplerSecret:
+  enabled: true
+  name: immich-db-owner
+  project: rke2-cluster
+  config: main
+  secrets:
+    - name: DB_USERNAME
+      asName: username
+    - name: DB_PASSWORD
+      asName: password
+  managedSecret:
+    name: immich-db-owner
 
 # No resource requests or limits are chosen until the disposable storage and
 # pgbench benchmarks establish an evidence-based baseline.

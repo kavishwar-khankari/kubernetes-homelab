@@ -20,6 +20,15 @@ bootstrap:
   credentialSecret: ""
   dataChecksums: true
 
+dopplerSecret:
+  enabled: false
+  name: ""
+  project: ""
+  config: ""
+  secrets: []
+  managedSecret:
+    name: ""
+
 resources: {}
 
 temporaryService:
