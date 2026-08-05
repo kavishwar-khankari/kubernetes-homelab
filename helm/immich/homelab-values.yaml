@@ -1,0 +1,137 @@
+# Staged native Immich (chart 0.13.1 / app v3.0.3).
+# Stage 1: supporting stack + server replicas 0, ingress off.
+# Public cutover and server scale-up are intentional later steps only.
+# External Immich (reverse-proxy -> 192.168.0.197) remains the sole writer.
+
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          tag: v3.0.3
+        env:
+          TZ: Asia/Kolkata
+          REDIS_HOSTNAME: '{{ printf "%s-valkey" .Release.Name }}'
+          IMMICH_MACHINE_LEARNING_URL: '{{ printf "http://%s-machine-learning:3003" .Release.Name }}'
+
+immich:
+  metrics:
+    enabled: false
+  persistence:
+    library:
+      existingClaim: immich-library
+  configuration: {}
+
+valkey:
+  enabled: true
+  controllers:
+    main:
+      containers:
+        main:
+          image:
+            repository: docker.io/valkey/valkey
+            tag: 9.1-alpine@sha256:ee91f7a174ac4d6a6b0685b3a60e321f0a9dbbb691f9b0e285be2ba1d1be8328  # 9.1-alpine
+            pullPolicy: IfNotPresent
+  persistence:
+    data:
+      enabled: true
+      type: emptyDir
+
+server:
+  enabled: true
+  controllers:
+    main:
+      replicas: 0
+      strategy: Recreate
+      containers:
+        main:
+          image:
+            repository: ghcr.io/immich-app/immich-server
+            tag: v3.0.3@sha256:c716dc20f957aafd89fa9d284a2ec63e25c9e2d8d8e87c6197d540a3dce237db  # v3.0.3
+            pullPolicy: IfNotPresent
+          env:
+            DB_HOSTNAME: immich-postgres-rw
+            DB_DATABASE_NAME: immich
+            DB_USERNAME:
+              valueFrom:
+                secretKeyRef:
+                  name: immich-db-owner
+                  key: username
+            DB_PASSWORD:
+              valueFrom:
+                secretKeyRef:
+                  name: immich-db-owner
+                  key: password
+  ingress:
+    main:
+      enabled: false
+  service:
+    main:
+      type: ClusterIP
+  # Library PVC is the media share root; subPaths match on-disk layout and DB paths.
+  persistence:
+    data:
+      enabled: true
+      existingClaim: immich-library
+      globalMounts:
+        - path: /data
+          subPath: immich_data
+    external-kavi:
+      enabled: true
+      type: persistentVolumeClaim
+      existingClaim: immich-library
+      globalMounts:
+        - path: /usr/src/app/external/kavi
+          subPath: nextcloud_personal/kavi/InstantUpload
+          readOnly: true
+    external-prashant:
+      enabled: true
+      type: persistentVolumeClaim
+      existingClaim: immich-library
+      globalMounts:
+        - path: /usr/src/app/external/prashant
+          subPath: nextcloud_data/prashant/files/InstantUpload
+          readOnly: true
+    external-rashmi:
+      enabled: true
+      type: persistentVolumeClaim
+      existingClaim: immich-library
+      globalMounts:
+        - path: /usr/src/app/external/rashmi
+          subPath: nextcloud_data/Rashmi/files/InstantUpload
+          readOnly: true
+    external-nushka:
+      enabled: true
+      type: persistentVolumeClaim
+      existingClaim: immich-library
+      globalMounts:
+        - path: /usr/src/app/external/nushka
+          subPath: nextcloud_data/Nushka/files/InstantUpload
+          readOnly: true
+
+machine-learning:
+  enabled: true
+  controllers:
+    main:
+      pod:
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: intel.feature.node.kubernetes.io/gpu
+                      operator: In
+                      values: ["true"]
+      containers:
+        main:
+          image:
+            repository: ghcr.io/immich-app/immich-machine-learning
+            tag: v3.0.3-openvino@sha256:42295f06067186ee62f8bc20379c72a263e600b8ad22dc9fb22385712d00944e  # v3.0.3-openvino
+            pullPolicy: IfNotPresent
+          resources:
+            limits:
+              gpu.intel.com/xe: "1"
+  persistence:
+    cache:
+      enabled: true
+      type: emptyDir
