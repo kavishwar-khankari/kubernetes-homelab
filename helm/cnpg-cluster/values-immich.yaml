@@ -30,6 +30,8 @@ dopplerSecret:
       asName: password
   managedSecret:
     name: immich-db-owner
+    labels:
+      cnpg.io/reload: "true"
 
 # No resource requests or limits are chosen until the disposable storage and
 # pgbench benchmarks establish an evidence-based baseline.
