@@ -92,35 +92,15 @@ server:
       globalMounts:
         - path: /data
           subPath: immich_data
-    external-kavi:
-      enabled: true
-      type: persistentVolumeClaim
-      existingClaim: immich-library
-      globalMounts:
         - path: /usr/src/app/external/kavi
           subPath: nextcloud_personal/kavi/InstantUpload
           readOnly: true
-    external-prashant:
-      enabled: true
-      type: persistentVolumeClaim
-      existingClaim: immich-library
-      globalMounts:
         - path: /usr/src/app/external/prashant
           subPath: nextcloud_data/prashant/files/InstantUpload
           readOnly: true
-    external-rashmi:
-      enabled: true
-      type: persistentVolumeClaim
-      existingClaim: immich-library
-      globalMounts:
         - path: /usr/src/app/external/rashmi
           subPath: nextcloud_data/Rashmi/files/InstantUpload
           readOnly: true
-    external-nushka:
-      enabled: true
-      type: persistentVolumeClaim
-      existingClaim: immich-library
-      globalMounts:
         - path: /usr/src/app/external/nushka
           subPath: nextcloud_data/Nushka/files/InstantUpload
           readOnly: true
