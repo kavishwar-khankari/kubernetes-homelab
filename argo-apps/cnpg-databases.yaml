@@ -15,9 +15,6 @@ spec:
   generators:
     - list:
         elements:
-          - name: immich-postgres-lab
-            namespace: immich
-            valuesFile: values-immich-lab.yaml
           - name: immich-postgres
             namespace: immich
             valuesFile: values-immich.yaml
