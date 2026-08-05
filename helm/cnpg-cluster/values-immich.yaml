@@ -36,7 +36,8 @@ dopplerSecret:
 resources: {}
 
 temporaryService:
-  enabled: false
+  enabled: true
+  name: immich-postgres-lan
 
 # Do not create this resource until after the logical restore. The extension
 # declarations are retained here to render only when database.enabled is true.
