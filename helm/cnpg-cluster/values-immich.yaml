@@ -14,7 +14,7 @@ storage:
 
 bootstrap:
   database: immich
-  owner: immich
+  owner: postgres
   credentialSecret: immich-db-owner
   dataChecksums: true
 
