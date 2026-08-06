@@ -124,10 +124,16 @@ machine-learning:
             repository: ghcr.io/immich-app/immich-machine-learning
             tag: v3.0.3-openvino@sha256:42295f06067186ee62f8bc20379c72a263e600b8ad22dc9fb22385712d00944e  # v3.0.3-openvino
             pullPolicy: IfNotPresent
+          env:
+            MACHINE_LEARNING_OPENVINO_PRECISION: FP16
+            MACHINE_LEARNING_REQUEST_THREADS: "1"
+            MACHINE_LEARNING_MODEL_TTL: "300"
+            MACHINE_LEARNING_MODEL_ARENA: "false"
           resources:
             limits:
               gpu.intel.com/xe: "1"
   persistence:
     cache:
       enabled: true
-      type: emptyDir
+      type: persistentVolumeClaim
+      existingClaim: immich-ml-cache
