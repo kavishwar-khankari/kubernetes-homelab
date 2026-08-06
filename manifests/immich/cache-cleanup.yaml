@@ -1,0 +1,66 @@
+# Prunes stale OpenVINO OpenCL kernel caches (.cl_cache) from the Immich ML
+# hostPath cache on k3s-node-3.
+#
+# Why: OpenVINO's GPU plugin writes one .cl_cache file per distinct OCR input
+# shape and never evicts them (upstream immich issue #30517: ~18GB / 89k files
+# after a full OCR run). The cache is purely a speed optimization - deletion is
+# safe and only causes a recompile on next use.
+#
+# Design constraints:
+# - The ML pod is hard-pinned to the GPU node via required node affinity, so the
+#   hostPath lives only on k3s-node-3. This CronJob mirrors that affinity.
+# - Deletes .cl_cache files older than 720 minutes (12h) so disk stays bounded;
+#   runs every 6h so files never age more than ~18h.
+# - Never touches model files or compiled .blob graphs, only *.cl_cache.
+# - Runs as root (same identity as the ML container, which creates the files).
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: immich-ml-cache-cleanup
+  namespace: immich
+spec:
+  schedule: "0 */6 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          restartPolicy: OnFailure
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: intel.feature.node.kubernetes.io/gpu
+                        operator: In
+                        values: ["true"]
+          containers:
+            - name: prune-cl-cache
+              image: busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662  # 1.36
+              securityContext:
+                runAsUser: 0
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  find /cache -type f -name '*.cl_cache' -mmin +720 -delete
+                  find /cache -path '*/openvino' -type d -empty -delete
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 16Mi
+                limits:
+                  cpu: 100m
+                  memory: 64Mi
+              volumeMounts:
+                - name: ml-cache
+                  mountPath: /cache
+          volumes:
+            - name: ml-cache
+              hostPath:
+                path: /var/lib/immich-ml-cache
+                type: DirectoryOrCreate

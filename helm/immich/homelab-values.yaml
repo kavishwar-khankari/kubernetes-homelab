@@ -135,5 +135,8 @@ machine-learning:
   persistence:
     cache:
       enabled: true
-      type: persistentVolumeClaim
-      existingClaim: immich-ml-cache
+      type: hostPath
+      hostPath: /var/lib/immich-ml-cache
+      hostPathType: DirectoryOrCreate
+      globalMounts:
+        - path: /cache
