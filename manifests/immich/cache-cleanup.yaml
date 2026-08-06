@@ -9,8 +9,8 @@
 # Design constraints:
 # - The ML pod is hard-pinned to the GPU node via required node affinity, so the
 #   hostPath lives only on k3s-node-3. This CronJob mirrors that affinity.
-# - Deletes .cl_cache files older than 720 minutes (12h) so disk stays bounded;
-#   runs every 6h so files never age more than ~18h.
+# - Deletes .cl_cache files older than 180 minutes (3h) so disk stays bounded;
+#   runs every 3h so files never age more than ~6h.
 # - Never touches model files or compiled .blob graphs, only *.cl_cache.
 # - Runs as root (same identity as the ML container, which creates the files).
 
@@ -20,7 +20,7 @@ metadata:
   name: immich-ml-cache-cleanup
   namespace: immich
 spec:
-  schedule: "0 */6 * * *"
+  schedule: "0 */3 * * *"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 2
   failedJobsHistoryLimit: 2
@@ -47,7 +47,7 @@ spec:
                 - /bin/sh
                 - -c
                 - |
-                  find /cache -type f -name '*.cl_cache' -mmin +720 -delete
+                  find /cache -type f -name '*.cl_cache' -mmin +180 -delete
                   find /cache -path '*/openvino' -type d -empty -delete
               resources:
                 requests:
