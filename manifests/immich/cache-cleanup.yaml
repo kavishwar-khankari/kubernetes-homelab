@@ -11,6 +11,10 @@
 #   hostPath lives only on k3s-node-3. This CronJob mirrors that affinity.
 # - Deletes .cl_cache files older than 180 minutes (3h) so disk stays bounded;
 #   runs every 3h so files never age more than ~6h.
+# TODO: TEMPORARY setting for the bulk OCR run. After the bulk OCR completes,
+# relax the retention back to a day or more (e.g. -mmin +2880 = 48h, schedule
+# 0 4 * * * = daily). The 3h window throws away recompiled kernels too fast for
+# steady-state use; it exists only to cap disk during the heavy one-time pass.
 # - Never touches model files or compiled .blob graphs, only *.cl_cache.
 # - Runs as root (same identity as the ML container, which creates the files).
 
