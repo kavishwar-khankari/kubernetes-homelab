@@ -130,7 +130,10 @@ machine-learning:
             MACHINE_LEARNING_MODEL_TTL: "300"
             MACHINE_LEARNING_MODEL_ARENA: "false"
           resources:
+            requests:
+              memory: 2Gi
             limits:
+              memory: 4Gi
               gpu.intel.com/xe: "1"
   persistence:
     cache:
