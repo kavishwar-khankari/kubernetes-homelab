@@ -133,15 +133,15 @@ data:
 
     setup_firewall() {
       iptables -t nat -C PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j DNAT --to-destination "$LB_IP" 2>/dev/null || \
-        iptables -t nat -A PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j DNAT --to-destination "$LB_IP"
+        iptables -t nat -I PREROUTING 1 -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j DNAT --to-destination "$LB_IP"
       iptables -C INPUT -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT 2>/dev/null || \
-        iptables -A INPUT -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+        iptables -I INPUT 1 -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
       iptables -C FORWARD -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT 2>/dev/null || \
-        iptables -A FORWARD -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+        iptables -I FORWARD 1 -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
       iptables -C FORWARD -o "$WG_IF" -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT 2>/dev/null || \
-        iptables -A FORWARD -o "$WG_IF" -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+        iptables -I FORWARD 1 -o "$WG_IF" -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
       iptables -C OUTPUT -o "$WG_IF" -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT 2>/dev/null || \
-        iptables -A OUTPUT -o "$WG_IF" -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+        iptables -I OUTPUT 1 -o "$WG_IF" -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
     }
 
     deactivate() {
