@@ -15,7 +15,8 @@ data:
     readonly WG_IF="wg-jellyfin"
     readonly WG_CONFIG="/etc/wireguard/wg-jellyfin.conf"
     readonly TABLE="100"
-    readonly RULE_PREF="100"
+    readonly RULE_PREF="110"
+    readonly LEGACY_RULE_PREF="100"
     readonly SECRET_DIR="/run/wg-secret"
     readonly CONFIG_DIR="/etc/wg-config"
 
@@ -74,6 +75,7 @@ data:
 
     flush_policy() {
       ip rule del pref "$RULE_PREF" from "$LB_IP/32" table "$TABLE" 2>/dev/null || true
+      ip rule del pref "$LEGACY_RULE_PREF" from "$LB_IP/32" table "$TABLE" 2>/dev/null || true
       ip route flush table "$TABLE" 2>/dev/null || true
     }
 

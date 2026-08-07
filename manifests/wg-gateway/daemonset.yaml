@@ -16,6 +16,7 @@ spec:
     spec:
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
+      automountServiceAccountToken: false
       tolerations:
         - operator: Exists
       containers:
@@ -26,7 +27,10 @@ spec:
             - /bin/bash
             - /usr/local/bin/entrypoint.sh
           securityContext:
+            allowPrivilegeEscalation: false
             capabilities:
+              drop:
+                - ALL
               add:
                 - NET_ADMIN
                 - NET_RAW
