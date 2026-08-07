@@ -87,13 +87,20 @@ data:
       ip route flush table "$TABLE" 2>/dev/null || true
     }
 
-    delete_firewall_rules() {
-      while iptables -t mangle -C PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j CONNMARK --set-mark "$ROUTE_MARK" 2>/dev/null; do
-        iptables -t mangle -D PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j CONNMARK --set-mark "$ROUTE_MARK"
+    delete_restore_mark_rules() {
+      while iptables -t mangle -C PREROUTING -m conntrack --ctstate RELATED,ESTABLISHED -j CONNMARK --restore-mark --nfmask "$ROUTE_MARK" --ctmask "$ROUTE_MARK" 2>/dev/null; do
+        iptables -t mangle -D PREROUTING -m conntrack --ctstate RELATED,ESTABLISHED -j CONNMARK --restore-mark --nfmask "$ROUTE_MARK" --ctmask "$ROUTE_MARK"
       done
       while iptables -t mangle -C PREROUTING -m conntrack --ctstate RELATED,ESTABLISHED --ctorigdst "$TUNNEL_IP" -j CONNMARK --restore-mark --nfmask "$ROUTE_MARK" --ctmask "$ROUTE_MARK" 2>/dev/null; do
         iptables -t mangle -D PREROUTING -m conntrack --ctstate RELATED,ESTABLISHED --ctorigdst "$TUNNEL_IP" -j CONNMARK --restore-mark --nfmask "$ROUTE_MARK" --ctmask "$ROUTE_MARK"
       done
+    }
+
+    delete_firewall_rules() {
+      while iptables -t mangle -C PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j CONNMARK --set-mark "$ROUTE_MARK" 2>/dev/null; do
+        iptables -t mangle -D PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j CONNMARK --set-mark "$ROUTE_MARK"
+      done
+      delete_restore_mark_rules
       while iptables -t nat -C PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -j CNI-HOSTPORT-DNAT 2>/dev/null; do
         iptables -t nat -D PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -j CNI-HOSTPORT-DNAT
       done
@@ -153,9 +160,7 @@ data:
       while iptables -t mangle -C PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j CONNMARK --set-mark "$ROUTE_MARK" 2>/dev/null; do
         iptables -t mangle -D PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j CONNMARK --set-mark "$ROUTE_MARK"
       done
-      while iptables -t mangle -C PREROUTING -m conntrack --ctstate RELATED,ESTABLISHED --ctorigdst "$TUNNEL_IP" -j CONNMARK --restore-mark --nfmask "$ROUTE_MARK" --ctmask "$ROUTE_MARK" 2>/dev/null; do
-        iptables -t mangle -D PREROUTING -m conntrack --ctstate RELATED,ESTABLISHED --ctorigdst "$TUNNEL_IP" -j CONNMARK --restore-mark --nfmask "$ROUTE_MARK" --ctmask "$ROUTE_MARK"
-      done
+      delete_restore_mark_rules
       iptables -t mangle -I PREROUTING 2 -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j CONNMARK --set-mark "$ROUTE_MARK"
       iptables -t mangle -I PREROUTING 3 -m conntrack --ctstate RELATED,ESTABLISHED --ctorigdst "$TUNNEL_IP" -j CONNMARK --restore-mark --nfmask "$ROUTE_MARK" --ctmask "$ROUTE_MARK"
       if iptables -t nat -L CNI-HOSTPORT-DNAT >/dev/null 2>&1; then
