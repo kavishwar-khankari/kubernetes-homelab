@@ -13,6 +13,8 @@ spec:
     metadata:
       labels:
         app: wg-jellyfin
+      annotations:
+        wg-gateway/config-revision: "3"
     spec:
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
