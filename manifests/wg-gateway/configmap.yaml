@@ -62,11 +62,12 @@ data:
     [Interface]
     Address = 10.77.77.2/32
     MTU = 1420
+    Table = off
     PrivateKey = $private_key
 
     [Peer]
     PublicKey = $vps_public_key
-    AllowedIPs = 10.77.77.1/32
+    AllowedIPs = 0.0.0.0/0
     Endpoint = $endpoint
     PersistentKeepalive = 25
     EOF
