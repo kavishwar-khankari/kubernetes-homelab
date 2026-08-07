@@ -26,7 +26,7 @@ spec:
                     values: [k3s-node-1, k3s-node-2]
       containers:
         - name: open-webui
-          image: ghcr.io/open-webui/open-webui@sha256:dcd09c38681c57a876866a2a95a4b35d16cd0c24eda434b9d9d14f3a292a6c5c # v0.11.0
+          image: ghcr.io/open-webui/open-webui@sha256:21a1ece1e32d1c79681c8d6b36a6f2f54abeb96d0f648965d793265dbef541f6 # v0.11.0 (amd64)
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
