@@ -1,0 +1,196 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wg-jellyfin-config
+  namespace: wg-gateway
+data:
+  vps-public-key: "LnFS2GhvFwuKGY03NYo7ZKl1H2LYQfjK8VD0lOlrBns="
+  vps-endpoint: "161.118.165.106:51822"
+  vps-endpoint-ip: "161.118.165.106"
+  entrypoint.sh: |
+    #!/usr/bin/env bash
+    set -Eeuo pipefail
+
+    readonly LB_IP="192.168.0.40"
+    readonly WG_IF="wg-jellyfin"
+    readonly WG_CONFIG="/etc/wireguard/wg-jellyfin.conf"
+    readonly TABLE="100"
+    readonly RULE_PREF="100"
+    readonly SECRET_DIR="/run/wg-secret"
+    readonly CONFIG_DIR="/etc/wg-config"
+
+    active=0
+    lan_if=""
+    lan_mac=""
+
+    log() {
+      printf '[wg-follower] %s\n' "$*" >&2
+    }
+
+    route_field() {
+      local key="$1"
+      shift
+      local -a fields=("$@")
+      local i
+      for ((i = 0; i < ${#fields[@]}; i++)); do
+        if [[ "${fields[i]}" == "$key" ]]; then
+          printf '%s' "${fields[i + 1]:-}"
+          return
+        fi
+      done
+    }
+
+    discover_lan() {
+      lan_if="$(ip -o route get 192.168.0.1 | awk '{for (i = 1; i <= NF; i++) if ($i == "dev") {print $(i + 1); exit}}')"
+      [[ -n "$lan_if" ]] || { log "cannot find LAN interface"; return 1; }
+      lan_mac="$(< "/sys/class/net/$lan_if/address")"
+    }
+
+    write_wg_config() {
+      local private_key vps_public_key endpoint
+      private_key="$(< "$SECRET_DIR/WG_JELLYFIN_HOME_PRIVATE_KEY")"
+      vps_public_key="$(< "$CONFIG_DIR/vps-public-key")"
+      endpoint="$(< "$CONFIG_DIR/vps-endpoint")"
+      [[ -n "$private_key" && -n "$vps_public_key" && -n "$endpoint" ]] || {
+        log "WireGuard configuration input is incomplete"
+        return 1
+      }
+
+      umask 077
+      cat > "$WG_CONFIG" <<EOF
+    [Interface]
+    Address = 10.77.77.2/32
+    MTU = 1420
+    PrivateKey = $private_key
+
+    [Peer]
+    PublicKey = $vps_public_key
+    AllowedIPs = 10.77.77.1/32
+    Endpoint = $endpoint
+    PersistentKeepalive = 25
+    EOF
+      chmod 600 "$WG_CONFIG"
+    }
+
+    flush_policy() {
+      ip rule del pref "$RULE_PREF" from "$LB_IP/32" table "$TABLE" 2>/dev/null || true
+      ip route flush table "$TABLE" 2>/dev/null || true
+    }
+
+    delete_firewall_rules() {
+      while iptables -t nat -C PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j DNAT --to-destination "$LB_IP" 2>/dev/null; do
+        iptables -t nat -D PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j DNAT --to-destination "$LB_IP"
+      done
+      while iptables -C INPUT -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT 2>/dev/null; do
+        iptables -D INPUT -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+      done
+      while iptables -C FORWARD -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT 2>/dev/null; do
+        iptables -D FORWARD -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+      done
+      while iptables -C FORWARD -o "$WG_IF" -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT 2>/dev/null; do
+        iptables -D FORWARD -o "$WG_IF" -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+      done
+      while iptables -C OUTPUT -o "$WG_IF" -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT 2>/dev/null; do
+        iptables -D OUTPUT -o "$WG_IF" -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+      done
+    }
+
+    copy_main_routes() {
+      local line route
+      while IFS= read -r line; do
+        [[ -z "$line" || "$line" == default* || "$line" == *" dev $WG_IF"* ]] && continue
+        route="${line%% proto *}"
+        route="${route%% src *}"
+        route="${route%% metric *}"
+        route="${route%% mtu *}"
+        route="${route%% expires *}"
+        [[ -n "$route" ]] || continue
+        read -r -a route_args <<< "$route"
+        ip route replace "${route_args[@]}" table "$TABLE" 2>/dev/null || true
+      done < <(ip -4 route show table main)
+    }
+
+    setup_policy() {
+      local endpoint_ip endpoint_line endpoint_dev endpoint_via
+      endpoint_ip="$(< "$CONFIG_DIR/vps-endpoint-ip")"
+      endpoint_line="$(ip -4 route get "$endpoint_ip" | head -n 1)"
+      endpoint_dev="$(route_field dev $endpoint_line)"
+      endpoint_via="$(route_field via $endpoint_line)"
+
+      flush_policy
+      copy_main_routes
+      if [[ -n "$endpoint_via" ]]; then
+        ip route replace "$endpoint_ip/32" via "$endpoint_via" dev "$endpoint_dev" table "$TABLE"
+      else
+        ip route replace "$endpoint_ip/32" dev "$endpoint_dev" table "$TABLE"
+      fi
+      ip route replace default dev "$WG_IF" table "$TABLE"
+      ip rule add pref "$RULE_PREF" from "$LB_IP/32" table "$TABLE"
+    }
+
+    setup_firewall() {
+      iptables -t nat -C PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j DNAT --to-destination "$LB_IP" 2>/dev/null || \
+        iptables -t nat -A PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j DNAT --to-destination "$LB_IP"
+      iptables -C INPUT -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT 2>/dev/null || \
+        iptables -A INPUT -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+      iptables -C FORWARD -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT 2>/dev/null || \
+        iptables -A FORWARD -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+      iptables -C FORWARD -o "$WG_IF" -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT 2>/dev/null || \
+        iptables -A FORWARD -o "$WG_IF" -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+      iptables -C OUTPUT -o "$WG_IF" -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT 2>/dev/null || \
+        iptables -A OUTPUT -o "$WG_IF" -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+    }
+
+    deactivate() {
+      if ip link show "$WG_IF" >/dev/null 2>&1; then
+        wg-quick down "$WG_CONFIG" >/dev/null 2>&1 || true
+      fi
+      delete_firewall_rules
+      flush_policy
+      active=0
+    }
+
+    activate() {
+      log "MetalLB ownership detected on $lan_if ($lan_mac); starting tunnel"
+      if ! wg-quick up "$WG_CONFIG" >/dev/null 2>&1; then
+        log "wg-quick up failed"
+        deactivate
+        return 1
+      fi
+      if ! setup_policy || ! setup_firewall; then
+        log "policy/firewall setup failed; tearing tunnel down"
+        deactivate
+        return 1
+      fi
+      active=1
+      log "tunnel active; policy table $TABLE installed"
+    }
+
+    is_announcer() {
+      local route responder
+      route="$(ip -o route get "$LB_IP" 2>/dev/null || true)"
+      if [[ "$route" == local* ]]; then
+        return 0
+      fi
+      ping -c 1 -W 1 -I "$lan_if" "$LB_IP" >/dev/null 2>&1 || true
+      responder="$(ip neigh show "$LB_IP" dev "$lan_if" 2>/dev/null | awk '/lladdr/ {print tolower($5); exit}')"
+      [[ "$responder" == "${lan_mac,,}" ]]
+    }
+
+    trap 'deactivate; exit 0' INT TERM
+    discover_lan
+    write_wg_config
+    deactivate
+    log "watching $LB_IP via $lan_if"
+
+    while true; do
+      if is_announcer; then
+        if [[ "$active" -eq 0 ]]; then
+          activate || true
+        fi
+      elif [[ "$active" -eq 1 ]]; then
+        log "MetalLB ownership lost; stopping tunnel"
+        deactivate
+      fi
+      sleep 3
+    done

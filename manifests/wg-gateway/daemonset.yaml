@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: wg-jellyfin
+  namespace: wg-gateway
+  labels:
+    app: wg-jellyfin
+spec:
+  selector:
+    matchLabels:
+      app: wg-jellyfin
+  template:
+    metadata:
+      labels:
+        app: wg-jellyfin
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      tolerations:
+        - operator: Exists
+      containers:
+        - name: wg-follower
+          image: lscr.io/linuxserver/wireguard@sha256:917277d4b3f490d96120c56279c3fd2bdd1f8081e631921bb7c3fec02d3a0d1b # latest (amd64, 2026-08-08)
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/bash
+            - /usr/local/bin/entrypoint.sh
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+                - NET_RAW
+          volumeMounts:
+            - name: wg-secret
+              mountPath: /run/wg-secret
+              readOnly: true
+            - name: wg-config
+              mountPath: /etc/wg-config
+              readOnly: true
+            - name: entrypoint
+              mountPath: /usr/local/bin/entrypoint.sh
+              subPath: entrypoint.sh
+              readOnly: true
+            - name: wireguard-config
+              mountPath: /etc/wireguard
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+      volumes:
+        - name: wg-secret
+          secret:
+            secretName: wg-jellyfin-doppler
+            defaultMode: 0400
+        - name: wg-config
+          configMap:
+            name: wg-jellyfin-config
+            items:
+              - key: vps-public-key
+                path: vps-public-key
+              - key: vps-endpoint
+                path: vps-endpoint
+              - key: vps-endpoint-ip
+                path: vps-endpoint-ip
+        - name: entrypoint
+          configMap:
+            name: wg-jellyfin-config
+            defaultMode: 0755
+            items:
+              - key: entrypoint.sh
+                path: entrypoint.sh
+        - name: wireguard-config
+          emptyDir:
+            medium: Memory
+      terminationGracePeriodSeconds: 10
