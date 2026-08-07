@@ -15,7 +15,12 @@ data:
     readonly WG_IF="wg-jellyfin"
     readonly WG_CONFIG="/etc/wireguard/wg-jellyfin.conf"
     readonly TUNNEL_IP="10.77.77.2"
-    readonly ROUTE_MARK="0x10000"
+    # Cilium uses bits 16-31 for endpoint identity; use its unallocated magic
+    # mark 0x0600 instead so policy routing cannot catch ordinary pod traffic.
+    readonly ROUTE_MARK="0x0600"
+    readonly ROUTE_MARK_MASK="0x0f00"
+    readonly LEGACY_ROUTE_MARK="0x10000"
+    readonly LEGACY_ROUTE_MARK_MASK="0x10000"
     readonly TABLE="100"
     readonly MARK_RULE_PREF="8"
     readonly RULE_PREF="109"
@@ -78,8 +83,10 @@ data:
     }
 
     flush_policy() {
-      ip rule del pref "$MARK_RULE_PREF" fwmark "$ROUTE_MARK/$ROUTE_MARK" table "$TABLE" 2>/dev/null || true
-      ip rule del pref 90 fwmark "$ROUTE_MARK/$ROUTE_MARK" table "$TABLE" 2>/dev/null || true
+      ip rule del pref "$MARK_RULE_PREF" fwmark "$ROUTE_MARK/$ROUTE_MARK_MASK" table "$TABLE" 2>/dev/null || true
+      ip rule del pref "$MARK_RULE_PREF" fwmark "$LEGACY_ROUTE_MARK/$LEGACY_ROUTE_MARK_MASK" table "$TABLE" 2>/dev/null || true
+      ip rule del pref 90 fwmark "$ROUTE_MARK/$ROUTE_MARK_MASK" table "$TABLE" 2>/dev/null || true
+      ip rule del pref 90 fwmark "$LEGACY_ROUTE_MARK/$LEGACY_ROUTE_MARK_MASK" table "$TABLE" 2>/dev/null || true
       for source in "$TUNNEL_IP/32" "$LB_IP/32"; do
         ip rule del pref "$RULE_PREF" from "$source" table "$TABLE" 2>/dev/null || true
         ip rule del pref "$LEGACY_RULE_PREF" from "$source" table "$TABLE" 2>/dev/null || true
@@ -88,17 +95,23 @@ data:
     }
 
     delete_restore_mark_rules() {
-      while iptables -t mangle -C PREROUTING -m conntrack --ctstate RELATED,ESTABLISHED -j CONNMARK --restore-mark --nfmask "$ROUTE_MARK" --ctmask "$ROUTE_MARK" 2>/dev/null; do
-        iptables -t mangle -D PREROUTING -m conntrack --ctstate RELATED,ESTABLISHED -j CONNMARK --restore-mark --nfmask "$ROUTE_MARK" --ctmask "$ROUTE_MARK"
+      while iptables -t mangle -C PREROUTING -m conntrack --ctstate RELATED,ESTABLISHED -j CONNMARK --restore-mark --nfmask "$LEGACY_ROUTE_MARK" --ctmask "$LEGACY_ROUTE_MARK" 2>/dev/null; do
+        iptables -t mangle -D PREROUTING -m conntrack --ctstate RELATED,ESTABLISHED -j CONNMARK --restore-mark --nfmask "$LEGACY_ROUTE_MARK" --ctmask "$LEGACY_ROUTE_MARK"
       done
-      while iptables -t mangle -C PREROUTING -m conntrack --ctstate RELATED,ESTABLISHED --ctorigdst "$TUNNEL_IP" -j CONNMARK --restore-mark --nfmask "$ROUTE_MARK" --ctmask "$ROUTE_MARK" 2>/dev/null; do
-        iptables -t mangle -D PREROUTING -m conntrack --ctstate RELATED,ESTABLISHED --ctorigdst "$TUNNEL_IP" -j CONNMARK --restore-mark --nfmask "$ROUTE_MARK" --ctmask "$ROUTE_MARK"
+      while iptables -t mangle -C PREROUTING -m conntrack --ctstate RELATED,ESTABLISHED --ctorigdst "$TUNNEL_IP" -j CONNMARK --restore-mark --nfmask "$LEGACY_ROUTE_MARK" --ctmask "$LEGACY_ROUTE_MARK" 2>/dev/null; do
+        iptables -t mangle -D PREROUTING -m conntrack --ctstate RELATED,ESTABLISHED --ctorigdst "$TUNNEL_IP" -j CONNMARK --restore-mark --nfmask "$LEGACY_ROUTE_MARK" --ctmask "$LEGACY_ROUTE_MARK"
+      done
+      while iptables -t mangle -C PREROUTING -m conntrack --ctstate RELATED,ESTABLISHED --ctdir REPLY --ctorigdst "$TUNNEL_IP" -j CONNMARK --restore-mark --nfmask "$ROUTE_MARK_MASK" --ctmask "$ROUTE_MARK_MASK" 2>/dev/null; do
+        iptables -t mangle -D PREROUTING -m conntrack --ctstate RELATED,ESTABLISHED --ctdir REPLY --ctorigdst "$TUNNEL_IP" -j CONNMARK --restore-mark --nfmask "$ROUTE_MARK_MASK" --ctmask "$ROUTE_MARK_MASK"
       done
     }
 
     delete_firewall_rules() {
-      while iptables -t mangle -C PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j CONNMARK --set-mark "$ROUTE_MARK" 2>/dev/null; do
-        iptables -t mangle -D PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j CONNMARK --set-mark "$ROUTE_MARK"
+      while iptables -t mangle -C PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j CONNMARK --set-mark "$LEGACY_ROUTE_MARK" 2>/dev/null; do
+        iptables -t mangle -D PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j CONNMARK --set-mark "$LEGACY_ROUTE_MARK"
+      done
+      while iptables -t mangle -C PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j CONNMARK --set-xmark "$ROUTE_MARK/$ROUTE_MARK_MASK" 2>/dev/null; do
+        iptables -t mangle -D PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j CONNMARK --set-xmark "$ROUTE_MARK/$ROUTE_MARK_MASK"
       done
       delete_restore_mark_rules
       while iptables -t nat -C PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -j CNI-HOSTPORT-DNAT 2>/dev/null; do
@@ -152,17 +165,20 @@ data:
       fi
       ip route replace default dev "$WG_IF" table "$TABLE"
       # Tailscale installs fwmark 0x200 at priority 9; gateway replies must win first.
-      ip rule add pref "$MARK_RULE_PREF" fwmark "$ROUTE_MARK/$ROUTE_MARK" table "$TABLE"
+      ip rule add pref "$MARK_RULE_PREF" fwmark "$ROUTE_MARK/$ROUTE_MARK_MASK" table "$TABLE"
       ip rule add pref "$RULE_PREF" from "$TUNNEL_IP/32" table "$TABLE"
     }
 
     setup_firewall() {
-      while iptables -t mangle -C PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j CONNMARK --set-mark "$ROUTE_MARK" 2>/dev/null; do
-        iptables -t mangle -D PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j CONNMARK --set-mark "$ROUTE_MARK"
+      while iptables -t mangle -C PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j CONNMARK --set-mark "$LEGACY_ROUTE_MARK" 2>/dev/null; do
+        iptables -t mangle -D PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j CONNMARK --set-mark "$LEGACY_ROUTE_MARK"
+      done
+      while iptables -t mangle -C PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j CONNMARK --set-xmark "$ROUTE_MARK/$ROUTE_MARK_MASK" 2>/dev/null; do
+        iptables -t mangle -D PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j CONNMARK --set-xmark "$ROUTE_MARK/$ROUTE_MARK_MASK"
       done
       delete_restore_mark_rules
-      iptables -t mangle -I PREROUTING 2 -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j CONNMARK --set-mark "$ROUTE_MARK"
-      iptables -t mangle -I PREROUTING 3 -m conntrack --ctstate RELATED,ESTABLISHED --ctorigdst "$TUNNEL_IP" -j CONNMARK --restore-mark --nfmask "$ROUTE_MARK" --ctmask "$ROUTE_MARK"
+      iptables -t mangle -I PREROUTING 2 -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j CONNMARK --set-xmark "$ROUTE_MARK/$ROUTE_MARK_MASK"
+      iptables -t mangle -I PREROUTING 3 -m conntrack --ctstate RELATED,ESTABLISHED --ctdir REPLY --ctorigdst "$TUNNEL_IP" -j CONNMARK --restore-mark --nfmask "$ROUTE_MARK_MASK" --ctmask "$ROUTE_MARK_MASK"
       if iptables -t nat -L CNI-HOSTPORT-DNAT >/dev/null 2>&1; then
         while iptables -t nat -C PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -j CNI-HOSTPORT-DNAT 2>/dev/null; do
           iptables -t nat -D PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -j CNI-HOSTPORT-DNAT
