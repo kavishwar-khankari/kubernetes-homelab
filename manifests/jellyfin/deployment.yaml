@@ -88,7 +88,7 @@ spec:
             gpu.intel.com/xe: '1'
 
       - name: meilisearch
-        image: getmeili/meilisearch:v1.34
+        image: getmeili/meilisearch:v1.34.3@sha256:779b7f3ec3279f9230b5e6399814ee93a873b077433a5ef635d644db3d491a05 # v1.34.3
         imagePullPolicy: IfNotPresent
         ports:
         - name: meili-http
