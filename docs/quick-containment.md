@@ -99,16 +99,10 @@ The existing public controller is an RKE2 DaemonSet using pod networking with `h
 
 Frostbite is currently `hostNetwork` and Cilium node-selector labels are disabled, so the private egress policy permits TCP `8000` to Cilium `host`/`remote-node` entities. Narrow that rule after enabling and validating node-label selection during the planned Cilium upgrade.
 
-## Gateway Note: VIP-DNAT change reverted (2026-08-11)
+## Gateway Note: VIP-DNAT broke public path; fixed with direct pod DNAT (2026-08-11)
 
 The first attempt to pin the tunnel to `192.168.0.40` (config-revision 10-12) broke the public path and was reverted to revision 8 (`CNI-HOSTPORT-DNAT`), restoring service.
 
-Root cause: the DNAT chain (`KUBE-SVL-*`) correctly rewrote tunnel traffic to the ingress pod, but pod replies egress `wg-jellyfin` via the route-mark policy table without masquerade, so the VPS saw replies from `10.42.3.210` instead of `10.77.77.2` and dropped them. The working `CNI-HOSTPORT` path avoids this by marking replies (`CNI-HOSTPORT-SETMARK`) and masquerading them in POSTROUTING (`CNI-HOSTPORT-MASQ`).
+Root cause: `-j DNAT` is a terminating nat-table target. A DNAT rule at PREROUTING position 1 rewrote tunnel traffic to the MetalLB VIP and stopped chain traversal, so kube-proxy's `KUBE-SERVICES` (which maps the VIP to the ingress pod) never ran. The packet was routed to the VIP as a local address with no listener and silently dropped. Established sessions survived because conntrack holds their full NAT mapping; only new SYNs died.
 
-Re-attempting the VIP-DNAT hardening requires adding the equivalent reply handling, e.g.:
-
-```bash
-iptables -t nat -A POSTROUTING -o wg-jellyfin -m conntrack --ctstate RELATED,ESTABLISHED -j MASQUERADE
-```
-
-and must be tested against the public path before rollout.
+Fix (config-revision 14): DNAT tunnel traffic directly to the local public-ingress pod IP (resolved from Cilium's own `CNI-HOSTPORT-DNAT` chain on each reconcile), so no second NAT hop is needed — the same destination the old hostPort path used. A POSTROUTING MASQUERADE for `RELATED,ESTABLISHED` replies exiting `wg-jellyfin` is also installed so pod replies leave the tunnel as `10.77.77.2`; without it the VPS drops them (it expects replies from the tunnel address).
