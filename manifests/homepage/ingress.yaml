@@ -4,7 +4,7 @@ metadata:
   name: homepage
   namespace: homepage
 spec:
-  ingressClassName: nginx
+  ingressClassName: nginx-private
   tls:
     - hosts:
         - homepage.techtronics.top

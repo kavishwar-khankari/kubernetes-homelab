@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: truenas-2-ingress
 spec:
-  ingressClassName: nginx
+  ingressClassName: nginx-private
   tls:
     - hosts:
         - truenas-2.techtronics.top

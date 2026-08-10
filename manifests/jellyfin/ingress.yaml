@@ -4,6 +4,7 @@ metadata:
   name: jellyfin-ingress
   namespace: jellyfin
   annotations:
+    argocd.argoproj.io/sync-wave: "-1"
     # Jellyfin uses websockets + long-lived streams
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
@@ -18,7 +19,6 @@ spec:
   tls:
     - hosts:
         - jellyfin.techtronics.top
-        - threadfin.techtronics.top
   rules:
     - host: jellyfin.techtronics.top
       http:
@@ -30,6 +30,20 @@ spec:
                 name: jellyfin
                 port:
                   number: 8096
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: threadfin-private-ingress
+  namespace: jellyfin
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  ingressClassName: nginx-private
+  tls:
+    - hosts:
+        - threadfin.techtronics.top
+  rules:
     - host: threadfin.techtronics.top
       http:
         paths:

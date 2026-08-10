@@ -8,7 +8,7 @@ metadata:
     # If you want "always encrypted", enable redirect:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
-  ingressClassName: nginx
+  ingressClassName: nginx-private
   tls:
     - hosts:
         - longhorn.techtronics.top

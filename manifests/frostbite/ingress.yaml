@@ -9,7 +9,7 @@ metadata:
     # Allow large WebSocket frames for live dashboard updates
     nginx.ingress.kubernetes.io/proxy-body-size: "10m"
 spec:
-  ingressClassName: nginx
+  ingressClassName: nginx-private
   tls:
     - hosts:
         - frostbite.techtronics.top

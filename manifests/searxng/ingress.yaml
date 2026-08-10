@@ -8,7 +8,7 @@ metadata:
     nginx.ingress.kubernetes.io/auth-secret: searxng-basic-auth
     nginx.ingress.kubernetes.io/auth-realm: "Authentication Required"
 spec:
-  ingressClassName: nginx
+  ingressClassName: nginx-private
   tls:
     - hosts:
         - searxng.techtronics.top

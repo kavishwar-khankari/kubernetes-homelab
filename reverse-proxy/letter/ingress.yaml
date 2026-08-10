@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: letter-ingress
 spec:
-  ingressClassName: nginx
+  ingressClassName: nginx-private
   tls:
     - hosts:
         - letter.techtronics.top

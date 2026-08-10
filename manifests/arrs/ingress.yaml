@@ -4,17 +4,16 @@ metadata:
   name: arr-stack-ingress
   namespace: arr-stack
   annotations:
+    argocd.argoproj.io/sync-wave: "-1"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
 spec:
-  ingressClassName: nginx
+  ingressClassName: nginx-private
   tls:
     - hosts:
         - sonarr.techtronics.top
         - radarr.techtronics.top
         - lidarr.techtronics.top
-        - wizarr.techtronics.top
-        - jellyseerr.techtronics.top
   rules:
     - host: sonarr.techtronics.top
       http:
@@ -46,6 +45,23 @@ spec:
                 name: arr-stack-service
                 port:
                   number: 8686
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: arr-stack-public-ingress
+  namespace: arr-stack
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - wizarr.techtronics.top
+        - jellyseerr.techtronics.top
+  rules:
     - host: wizarr.techtronics.top
       http:
         paths:

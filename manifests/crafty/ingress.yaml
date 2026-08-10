@@ -19,13 +19,8 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
     nginx.ingress.kubernetes.io/upstream-hash-by: "$remote_addr"
-    nginx.ingress.kubernetes.io/server-snippets: |
-      location / {
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-      }
 spec:
-  ingressClassName: nginx     # Adjust to match your cluster's ingress class
+  ingressClassName: nginx-private     # Private ingress plane
   tls:
     - hosts:
         - crafty.techtronics.top

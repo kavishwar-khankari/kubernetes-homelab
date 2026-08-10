@@ -4,7 +4,7 @@ metadata:
   name: argocd-ingress
   namespace: default
 spec:
-  ingressClassName: nginx
+  ingressClassName: nginx-private
   tls:
     - hosts:
         - argocd.techtronics.top

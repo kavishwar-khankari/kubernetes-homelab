@@ -17,9 +17,12 @@ affinity:
 # ── Ingress ──
 ingress:
   enabled: true
-  ingressClassName: nginx
+  ingressClassName: nginx-private
   hosts:
     - grafana.techtronics.top
+  tls:
+    - hosts:
+        - grafana.techtronics.top
 
 # ── Datasources ──
 datasources:
