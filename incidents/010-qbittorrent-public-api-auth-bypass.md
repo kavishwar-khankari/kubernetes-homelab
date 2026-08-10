@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-20  
 **Detected:** During validation after restoring `qbittorent.techtronics.top`  
-**Resolved:** 2026-07-20  
+**Resolved:** 2026-07-20; external endpoint remediated 2026-08-11
 **Severity:** High (the public Web API allowed unauthenticated access)  
 
 ## Symptoms
@@ -47,4 +47,12 @@ The `0.0.0.0/0` whitelist matched every IPv4 source. Restoring the public ingres
 - [x] Disable subnet authentication bypass and clear broad whitelist entries.
 - [x] Enforce the authentication settings through the GitOps-managed Gluetun integration.
 - [x] Test sensitive API endpoints without credentials before declaring an ingress rollout healthy.
-- [ ] Review qBittorrent authentication preferences after future config restores or migrations.
+- [ ] Review the external qBittorrent instance at `192.168.0.75:9090` after future config restores or migrations.
+
+## Containment Follow-up: 2026-08-11
+
+The GitOps changes reclassify the public reverse-proxy endpoint as private and will serve it only through the dedicated `nginx-private` ingress plane after commit and sync. Until that cutover, the current live ingress remains unchanged. The existing GitOps-managed qBittorrent deployment already reapplies the safe preferences through Gluetun. The external instance behind `qbittorent-service` is not configured by Kubernetes, so its preferences were corrected through its local API as an explicitly documented operational exception.
+
+- [ ] Move `qbittorent.techtronics.top` to the private ingress plane after GitOps sync.
+- [ ] Remove the public WireGuard gateway fallback to `CNI-HOSTPORT-DNAT` after GitOps sync.
+- [x] Verify unauthenticated `/api/v2/torrents/info` and `/api/v2/app/preferences` return `403` from the external instance.
