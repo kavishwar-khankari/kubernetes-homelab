@@ -120,19 +120,11 @@ data:
       while iptables -t nat -C PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j DNAT --to-destination "$LB_IP" 2>/dev/null; do
         iptables -t nat -D PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j DNAT --to-destination "$LB_IP"
       done
-      # Match the conntrack original destination: packets arrive on wg-jellyfin
-      # addressed to the tunnel IP, before this node's DNAT to the public VIP.
-      while iptables -C INPUT -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctorigdst "$TUNNEL_IP" --ctstate NEW,ESTABLISHED -j ACCEPT 2>/dev/null; do
-        iptables -D INPUT -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctorigdst "$TUNNEL_IP" --ctstate NEW,ESTABLISHED -j ACCEPT
-      done
       while iptables -C INPUT -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT 2>/dev/null; do
         iptables -D INPUT -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
       done
       while iptables -C FORWARD -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT 2>/dev/null; do
         iptables -D FORWARD -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
-      done
-      while iptables -C FORWARD -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctorigdst "$TUNNEL_IP" --ctstate NEW,ESTABLISHED -j ACCEPT 2>/dev/null; do
-        iptables -D FORWARD -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctorigdst "$TUNNEL_IP" --ctstate NEW,ESTABLISHED -j ACCEPT
       done
       while iptables -C FORWARD -o "$WG_IF" -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT 2>/dev/null; do
         iptables -D FORWARD -o "$WG_IF" -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
@@ -187,31 +179,25 @@ data:
       delete_restore_mark_rules
       iptables -t mangle -I PREROUTING 2 -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j CONNMARK --set-xmark "$ROUTE_MARK/$ROUTE_MARK_MASK"
       iptables -t mangle -I PREROUTING 3 -m conntrack --ctstate RELATED,ESTABLISHED --ctdir REPLY --ctorigdst "$TUNNEL_IP" -j CONNMARK --restore-mark --nfmask "$ROUTE_MARK_MASK" --ctmask "$ROUTE_MARK_MASK"
-      # Never delegate tunnel traffic to a node-wide hostPort chain. The
-      # public tunnel has one destination: the public ingress VIP.
-      while iptables -t nat -C PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -j CNI-HOSTPORT-DNAT 2>/dev/null; do
-        iptables -t nat -D PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -j CNI-HOSTPORT-DNAT
-      done
-      while iptables -t nat -C PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j DNAT --to-destination "$LB_IP" 2>/dev/null; do
-        iptables -t nat -D PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j DNAT --to-destination "$LB_IP"
-      done
-      iptables -t nat -I PREROUTING 1 -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j DNAT --to-destination "$LB_IP"
-      # Match the conntrack original destination: packets arrive on wg-jellyfin
-      # addressed to the tunnel IP, before this node's DNAT to the public VIP.
-      while iptables -C INPUT -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctorigdst "$TUNNEL_IP" --ctstate NEW,ESTABLISHED -j ACCEPT 2>/dev/null; do
-        iptables -D INPUT -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctorigdst "$TUNNEL_IP" --ctstate NEW,ESTABLISHED -j ACCEPT
-      done
+      if iptables -t nat -L CNI-HOSTPORT-DNAT >/dev/null 2>&1; then
+        while iptables -t nat -C PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -j CNI-HOSTPORT-DNAT 2>/dev/null; do
+          iptables -t nat -D PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -j CNI-HOSTPORT-DNAT
+        done
+        iptables -t nat -I PREROUTING 1 -i "$WG_IF" -p tcp -m multiport --dports 80,443 -j CNI-HOSTPORT-DNAT
+      else
+        while iptables -t nat -C PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j DNAT --to-destination "$LB_IP" 2>/dev/null; do
+          iptables -t nat -D PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j DNAT --to-destination "$LB_IP"
+        done
+        iptables -t nat -I PREROUTING 1 -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j DNAT --to-destination "$LB_IP"
+      fi
       while iptables -C INPUT -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT 2>/dev/null; do
         iptables -D INPUT -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
       done
-      iptables -I INPUT 1 -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctorigdst "$TUNNEL_IP" --ctstate NEW,ESTABLISHED -j ACCEPT
+      iptables -I INPUT 1 -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
       while iptables -C FORWARD -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT 2>/dev/null; do
         iptables -D FORWARD -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
       done
-      while iptables -C FORWARD -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctorigdst "$TUNNEL_IP" --ctstate NEW,ESTABLISHED -j ACCEPT 2>/dev/null; do
-        iptables -D FORWARD -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctorigdst "$TUNNEL_IP" --ctstate NEW,ESTABLISHED -j ACCEPT
-      done
-      iptables -I FORWARD 1 -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctorigdst "$TUNNEL_IP" --ctstate NEW,ESTABLISHED -j ACCEPT
+      iptables -I FORWARD 1 -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
       while iptables -C FORWARD -o "$WG_IF" -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT 2>/dev/null; do
         iptables -D FORWARD -o "$WG_IF" -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
       done
