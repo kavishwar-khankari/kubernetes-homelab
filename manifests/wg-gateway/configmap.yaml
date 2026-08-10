@@ -106,7 +106,23 @@ data:
       done
     }
 
+    resolve_ingress_pod_ip() {
+      # DNAT to the public ingress pod directly: a terminating DNAT to the
+      # MetalLB VIP would stop the nat chain before kube-proxy's
+      # KUBE-SERVICES can map the VIP to the pod. Reuse Cilium's hostPort
+      # mapping, which already resolves the local ingress DS pod.
+      local chain ip
+      chain="$(iptables -t nat -S CNI-HOSTPORT-DNAT 2>/dev/null | awk '/CNI-DN-/ && /dports 80,443/ {for (i = 1; i <= NF; i++) if ($i ~ /^CNI-DN-/) {print $i; exit}}')"
+      [[ -n "$chain" ]] || return 1
+      ip="$(iptables -t nat -S "$chain" 2>/dev/null | awk '/DNAT/ && /dport 443/ {for (i = 1; i <= NF; i++) if ($i == "--to-destination") {print $(i + 1); exit}}')"
+      ip="${ip%:*}"
+      [[ "$ip" =~ ^10\.42\.[0-9]+\.[0-9]+$ ]] || return 1
+      printf '%s' "$ip"
+    }
+
     delete_firewall_rules() {
+      local ingress_pod_ip
+      ingress_pod_ip="$(resolve_ingress_pod_ip || true)"
       while iptables -t mangle -C PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j CONNMARK --set-mark "$LEGACY_ROUTE_MARK" 2>/dev/null; do
         iptables -t mangle -D PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j CONNMARK --set-mark "$LEGACY_ROUTE_MARK"
       done
@@ -120,6 +136,11 @@ data:
       while iptables -t nat -C PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j DNAT --to-destination "$LB_IP" 2>/dev/null; do
         iptables -t nat -D PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j DNAT --to-destination "$LB_IP"
       done
+      if [[ -n "$ingress_pod_ip" ]]; then
+        while iptables -t nat -C PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j DNAT --to-destination "$ingress_pod_ip" 2>/dev/null; do
+          iptables -t nat -D PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j DNAT --to-destination "$ingress_pod_ip"
+        done
+      fi
       while iptables -t nat -C POSTROUTING -o "$WG_IF" -m conntrack --ctstate RELATED,ESTABLISHED -j MASQUERADE 2>/dev/null; do
         iptables -t nat -D POSTROUTING -o "$WG_IF" -m conntrack --ctstate RELATED,ESTABLISHED -j MASQUERADE
       done
@@ -181,6 +202,7 @@ data:
     }
 
     setup_firewall() {
+      local ingress_pod_ip
       while iptables -t mangle -C PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j CONNMARK --set-mark "$LEGACY_ROUTE_MARK" 2>/dev/null; do
         iptables -t mangle -D PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j CONNMARK --set-mark "$LEGACY_ROUTE_MARK"
       done
@@ -191,14 +213,25 @@ data:
       iptables -t mangle -I PREROUTING 2 -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j CONNMARK --set-xmark "$ROUTE_MARK/$ROUTE_MARK_MASK"
       iptables -t mangle -I PREROUTING 3 -m conntrack --ctstate RELATED,ESTABLISHED --ctdir REPLY --ctorigdst "$TUNNEL_IP" -j CONNMARK --restore-mark --nfmask "$ROUTE_MARK_MASK" --ctmask "$ROUTE_MARK_MASK"
       # Never delegate tunnel traffic to a node-wide hostPort chain. The
-      # public tunnel has one destination: the public ingress VIP.
+      # public tunnel has one destination: the local public ingress pod.
+      # A terminating DNAT to the MetalLB VIP would stop the nat chain before
+      # kube-proxy's KUBE-SERVICES maps the VIP to the pod, so DNAT directly
+      # to the pod IP that Cilium's hostPort chain already resolves.
+      ingress_pod_ip="$(resolve_ingress_pod_ip || true)"
+      if [[ -z "$ingress_pod_ip" ]]; then
+        log "cannot resolve local public ingress pod; tunnel DNAT disabled"
+        return 1
+      fi
       while iptables -t nat -C PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -j CNI-HOSTPORT-DNAT 2>/dev/null; do
         iptables -t nat -D PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -j CNI-HOSTPORT-DNAT
       done
       while iptables -t nat -C PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j DNAT --to-destination "$LB_IP" 2>/dev/null; do
         iptables -t nat -D PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j DNAT --to-destination "$LB_IP"
       done
-      iptables -t nat -I PREROUTING 1 -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j DNAT --to-destination "$LB_IP"
+      while iptables -t nat -C PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j DNAT --to-destination "$ingress_pod_ip" 2>/dev/null; do
+        iptables -t nat -D PREROUTING -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j DNAT --to-destination "$ingress_pod_ip"
+      done
+      iptables -t nat -I PREROUTING 1 -i "$WG_IF" -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j DNAT --to-destination "$ingress_pod_ip"
       # Pod replies routed back through the tunnel must masquerade as the
       # tunnel address; without this the VPS drops them because it expects
       # replies from $TUNNEL_IP. Replaces the CNI hostPort masquerade.

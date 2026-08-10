@@ -14,7 +14,7 @@ spec:
       labels:
         app: wg-jellyfin
       annotations:
-        wg-gateway/config-revision: "13"
+        wg-gateway/config-revision: "14"
     spec:
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
