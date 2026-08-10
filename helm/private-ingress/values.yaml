@@ -1,0 +1,64 @@
+fullnameOverride: private-ingress-nginx
+
+controller:
+  image:
+    registry: registry.k8s.io
+    image: ingress-nginx/controller
+    tag: v1.13.4
+    digest: sha256:4042ae3c512c5d7bcf9682b0fdff96cd7b46a23dcbe15a762349094cd8087be7
+    pullPolicy: IfNotPresent
+  ingressClass: nginx-private
+  ingressClassByName: true
+  ingressClassResource:
+    name: nginx-private
+    enabled: true
+    default: false
+    controllerValue: k8s.io/ingress-nginx-private
+  watchIngressWithoutClass: false
+  electionID: private-ingress-nginx-leader
+  kind: Deployment
+  replicaCount: 2
+  minAvailable: 1
+  hostNetwork: false
+  hostPort:
+    enabled: false
+  allowSnippetAnnotations: false
+  config:
+    annotations-risk-level: Medium
+    allow-snippet-annotations: "false"
+  extraArgs:
+    default-ssl-certificate: kube-system/techtronics-wildcard-tls
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: metallb-announce
+                operator: In
+                values:
+                  - "true"
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchLabels:
+              app.kubernetes.io/instance: private-ingress-nginx
+              app.kubernetes.io/name: ingress-nginx
+              app.kubernetes.io/component: controller
+          topologyKey: kubernetes.io/hostname
+  resources:
+    requests:
+      cpu: 100m
+      memory: 90Mi
+  service:
+    type: LoadBalancer
+    loadBalancerIP: 192.168.0.43
+    externalTrafficPolicy: Local
+    ipFamilyPolicy: SingleStack
+    ipFamilies:
+      - IPv4
+    annotations:
+      metallb.universe.tf/address-pool: lan-pool
+  admissionWebhooks:
+    enabled: false
+  metrics:
+    enabled: false
