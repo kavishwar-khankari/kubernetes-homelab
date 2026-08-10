@@ -1,0 +1,226 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: private-ingress-egress
+  namespace: private-ingress
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  endpointSelector:
+    matchLabels:
+      k8s:app.kubernetes.io/instance: private-ingress-nginx
+      k8s:app.kubernetes.io/name: ingress-nginx
+      k8s:app.kubernetes.io/component: controller
+  egress:
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+            - port: "6443"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s:k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: apprise
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: arr-stack
+      toPorts:
+        - ports:
+            - port: "7878"
+              protocol: TCP
+            - port: "8686"
+              protocol: TCP
+            - port: "8989"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: default
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "8080"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: dashy
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "8080"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: homepage
+      toPorts:
+        - ports:
+            - port: "3000"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: jellyfin
+      toPorts:
+        - ports:
+            - port: "34400"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: longhorn-system
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "8000"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: minecraft
+      toPorts:
+        - ports:
+            - port: "8443"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: monitoring
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "3000"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: openwebui
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: ovms
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+            - port: "8080"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: paperless
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "8000"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: reddit-mcp
+      toPorts:
+        - ports:
+            - port: "3000"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: searxng
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: tdarr
+      toPorts:
+        - ports:
+            - port: "8265"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: vpn-torr
+      toPorts:
+        - ports:
+            - port: "5800"
+              protocol: TCP
+            - port: "6500"
+              protocol: TCP
+            - port: "6800"
+              protocol: TCP
+            - port: "6880"
+              protocol: TCP
+            - port: "9696"
+              protocol: TCP
+    - toCIDRSet:
+        - cidr: 192.168.0.1/32
+        - cidr: 192.168.0.75/32
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+    - toCIDRSet:
+        - cidr: 192.168.0.30/32
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
+    - toCIDRSet:
+        - cidr: 192.168.0.75/32
+      toPorts:
+        - ports:
+            - port: "9090"
+              protocol: TCP
+    - toCIDRSet:
+        - cidr: 192.168.0.150/32
+      toPorts:
+        - ports:
+            - port: "8007"
+              protocol: TCP
+    # Frostbite uses hostNetwork, so its headless Service resolves to a node
+    # IP rather than a namespaced pod endpoint. Node selector labels are
+    # disabled in the current Cilium configuration, so use host entities.
+    - toEntities:
+        - host
+        - remote-node
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+    - toCIDRSet:
+        - cidr: 192.168.0.197/32
+      toPorts:
+        - ports:
+            - port: "4040"
+              protocol: TCP
+            - port: "8080"
+              protocol: TCP
+    - toCIDRSet:
+        - cidr: 192.168.0.211/32
+        - cidr: 192.168.0.212/32
+        - cidr: 192.168.0.213/32
+        - cidr: 192.168.0.214/32
+      toPorts:
+        - ports:
+            - port: "8006"
+              protocol: TCP
+    - toCIDRSet:
+        - cidr: 192.168.0.237/32
+      toPorts:
+        - ports:
+            - port: "8082"
+              protocol: TCP

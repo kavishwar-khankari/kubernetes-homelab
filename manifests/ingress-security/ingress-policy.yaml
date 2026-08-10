@@ -1,0 +1,78 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: explicit-ingress-plane
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["networking.k8s.io"]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["ingresses"]
+        scope: "*"
+  validations:
+    - expression: >-
+        has(object.spec.ingressClassName) &&
+        (object.spec.ingressClassName == 'nginx' ||
+        object.spec.ingressClassName == 'nginx-private')
+      message: >-
+        Ingress must select exactly one approved ingress plane:
+        nginx (public) or nginx-private (private).
+    - expression: >-
+        has(object.spec.ingressClassName) &&
+        has(object.spec.rules) &&
+        object.spec.rules.size() > 0 &&
+        object.spec.rules.all(rule, has(rule.host) && rule.host != '' &&
+          (object.spec.ingressClassName == 'nginx'
+            ? ['jellyfin.techtronics.top', 'immich.techtronics.top',
+               'vaultwarden.techtronics.top', 'ntfy.techtronics.top',
+               'nextcloud.techtronics.top', 'ob-lsync.techtronics.top',
+               'jellyseerr.techtronics.top', 'wizarr.techtronics.top',
+               'tachi.techtronics.top', 'librespeed.techtronics.top',
+               'stirling.techtronics.top', 'files-2.techtronics.top',
+               'speed.techtronics.top'].exists(host, host == rule.host)
+            : !['jellyfin.techtronics.top', 'immich.techtronics.top',
+                'vaultwarden.techtronics.top', 'ntfy.techtronics.top',
+                'nextcloud.techtronics.top', 'ob-lsync.techtronics.top',
+                'jellyseerr.techtronics.top', 'wizarr.techtronics.top',
+                'tachi.techtronics.top', 'librespeed.techtronics.top',
+                'stirling.techtronics.top', 'files-2.techtronics.top',
+                'speed.techtronics.top'].exists(host, host == rule.host)))
+      message: >-
+        Public ingress hosts must be explicitly allowlisted and private ingress
+        hosts must not be in the public allowlist.
+    - expression: >-
+        !has(object.spec.tls) || object.spec.tls.all(tls,
+          !has(tls.hosts) || tls.hosts.all(host,
+            has(object.spec.ingressClassName) &&
+            (object.spec.ingressClassName == 'nginx'
+              ? ['jellyfin.techtronics.top', 'immich.techtronics.top',
+                 'vaultwarden.techtronics.top', 'ntfy.techtronics.top',
+                 'nextcloud.techtronics.top', 'ob-lsync.techtronics.top',
+                 'jellyseerr.techtronics.top', 'wizarr.techtronics.top',
+                 'tachi.techtronics.top', 'librespeed.techtronics.top',
+                 'stirling.techtronics.top', 'files-2.techtronics.top',
+                 'speed.techtronics.top'].exists(allowed, allowed == host)
+              : !['jellyfin.techtronics.top', 'immich.techtronics.top',
+                  'vaultwarden.techtronics.top', 'ntfy.techtronics.top',
+                  'nextcloud.techtronics.top', 'ob-lsync.techtronics.top',
+                  'jellyseerr.techtronics.top', 'wizarr.techtronics.top',
+                  'tachi.techtronics.top', 'librespeed.techtronics.top',
+                  'stirling.techtronics.top', 'files-2.techtronics.top',
+                  'speed.techtronics.top'].exists(allowed, allowed == host))))
+      message: >-
+        TLS hosts must belong to the same approved public or private ingress
+        plane as the Ingress rules.
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: explicit-ingress-plane
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  policyName: explicit-ingress-plane
+  validationActions: [Deny]
