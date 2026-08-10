@@ -98,3 +98,17 @@ Anything not explicitly listed is private.
 The existing public controller is an RKE2 DaemonSet using pod networking with `hostPort` 80/443, so its hostPort path remains outside the private controller's Cilium egress policy. The immediate containment comes from removing private Ingress objects from its watched class and restricting the VPS relay to `192.168.0.40`; the maintained controller migration remains future work.
 
 Frostbite is currently `hostNetwork` and Cilium node-selector labels are disabled, so the private egress policy permits TCP `8000` to Cilium `host`/`remote-node` entities. Narrow that rule after enabling and validating node-label selection during the planned Cilium upgrade.
+
+## Gateway Note: VIP-DNAT change reverted (2026-08-11)
+
+The first attempt to pin the tunnel to `192.168.0.40` (config-revision 10-12) broke the public path and was reverted to revision 8 (`CNI-HOSTPORT-DNAT`), restoring service.
+
+Root cause: the DNAT chain (`KUBE-SVL-*`) correctly rewrote tunnel traffic to the ingress pod, but pod replies egress `wg-jellyfin` via the route-mark policy table without masquerade, so the VPS saw replies from `10.42.3.210` instead of `10.77.77.2` and dropped them. The working `CNI-HOSTPORT` path avoids this by marking replies (`CNI-HOSTPORT-SETMARK`) and masquerading them in POSTROUTING (`CNI-HOSTPORT-MASQ`).
+
+Re-attempting the VIP-DNAT hardening requires adding the equivalent reply handling, e.g.:
+
+```bash
+iptables -t nat -A POSTROUTING -o wg-jellyfin -m conntrack --ctstate RELATED,ESTABLISHED -j MASQUERADE
+```
+
+and must be tested against the public path before rollout.
