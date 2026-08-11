@@ -156,6 +156,16 @@ data:
               enableMediaControl: false
               showEpisodeNumber: true
               fields: ["movies", "series", "episodes", "songs"]
+        - teapot-public:
+            href: https://teapot.techtronics.top/
+            icon: jellyfin.png
+            widget:
+              type: jellyfin
+              url: https://teapot.techtronics.top
+              key: "{{HOMEPAGE_VAR_JELLYFIN_API_KEY}}"
+              version: 2
+              enableBlocks: true
+              enableNowPlaying: false
         - sonarr:
             href: https://sonarr.techtronics.top
             icon: sonarr.png

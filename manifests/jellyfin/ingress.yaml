@@ -54,3 +54,69 @@ spec:
                 name: jellyfin
                 port:
                   number: 34400
+---
+# Public (Reddit) endpoint: same Jellyfin instance, only shared with strangers.
+# Keep jellyfin.techtronics.top for personal/friends use.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jellyfin-public-ingress
+  namespace: jellyfin
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+    # Jellyfin uses websockets + long-lived streams
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+
+    nginx.ingress.kubernetes.io/proxy-buffering: "on"   # required "on" for limit-rate
+    nginx.ingress.kubernetes.io/limit-rate-after: "10240" #10MB
+    nginx.ingress.kubernetes.io/limit-rate: "12500" #80Mbps
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "Referrer-Policy: strict-origin-when-cross-origin";
+      more_set_headers "X-Frame-Options: SAMEORIGIN";
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - teapot.techtronics.top
+  rules:
+    - host: teapot.techtronics.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: jellyfin
+                port:
+                  number: 8096
+---
+# Brute-force guard for the public login endpoint only (per-IP rate limit).
+# The personal jellyfin.techtronics.top host is unaffected.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jellyfin-public-auth-ingress
+  namespace: jellyfin
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+    nginx.ingress.kubernetes.io/limit-rps: "4"
+    nginx.ingress.kubernetes.io/limit-burst-multiplier: "5"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - teapot.techtronics.top
+  rules:
+    - host: teapot.techtronics.top
+      http:
+        paths:
+          - path: /Users/AuthenticateByName
+            pathType: Exact
+            backend:
+              service:
+                name: jellyfin
+                port:
+                  number: 8096
