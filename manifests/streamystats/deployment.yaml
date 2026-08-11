@@ -48,6 +48,10 @@ spec:
           value: scram-sha-256
         - name: POSTGRES_INITDB_ARGS
           value: "--auth-host=scram-sha-256"
+        # Longhorn PVCs are ext4-formatted: the mount root contains lost+found,
+        # which initdb refuses to initialize into. Use a subdirectory as PGDATA.
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
         readinessProbe:
           exec:
             command: ["/usr/lib/postgresql/17/bin/pg_isready", "-h", "127.0.0.1", "-U", "streamystats", "-d", "streamystats"]
