@@ -164,8 +164,8 @@ spec:
         persistentVolumeClaim:
           claimName: meilisearch-data
       - name: cache
-        emptyDir:
-          sizeLimit: 10Gi
+        persistentVolumeClaim:
+          claimName: jellyfin-cache
       - name: media2-media
         hostPath:
           path: /mnt/merged/media
