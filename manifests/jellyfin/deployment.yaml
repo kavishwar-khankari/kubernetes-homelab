@@ -165,8 +165,7 @@ spec:
           claimName: meilisearch-data
       - name: cache
         emptyDir:
-          medium: Memory
-          sizeLimit: 3Gi
+          sizeLimit: 10Gi
       - name: media2-media
         hostPath:
           path: /mnt/merged/media
