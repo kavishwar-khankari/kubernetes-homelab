@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: streamystats-ingress
+  namespace: streamystats
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+    # SSE event stream (job progress) needs unbuffered proxying
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "Referrer-Policy: strict-origin-when-cross-origin";
+      more_set_headers "X-Frame-Options: SAMEORIGIN";
+spec:
+  ingressClassName: nginx-private
+  tls:
+    - hosts:
+        - streamystats.techtronics.top
+  rules:
+    - host: streamystats.techtronics.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: streamystats
+                port:
+                  number: 3000

@@ -1,0 +1,182 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: streamystats
+  namespace: streamystats
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: streamystats
+  template:
+    metadata:
+      labels:
+        app: streamystats
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k3s-node-2
+      containers:
+      - name: vectorchord
+        image: tensorchord/vchord-postgres:pg17-v0.4.1@sha256:17eeb202eac4b1bd80b42c6fe2d46e90ea5584f5a1e25457d938ef9a0a2bb263  # pg17-v0.4.1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: postgres
+          containerPort: 5432
+        env:
+        - name: TZ
+          value: Asia/Kolkata
+        - name: POSTGRES_USER
+          value: streamystats
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: streamystats-secrets
+              key: POSTGRES_PASSWORD
+        - name: POSTGRES_DB
+          value: streamystats
+        - name: POSTGRES_HOST_AUTH_METHOD
+          value: scram-sha-256
+        - name: POSTGRES_INITDB_ARGS
+          value: "--auth-host=scram-sha-256"
+        readinessProbe:
+          exec:
+            command: ["/usr/lib/postgresql/17/bin/pg_isready", "-h", "127.0.0.1", "-U", "streamystats", "-d", "streamystats"]
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 30
+        livenessProbe:
+          exec:
+            command: ["/usr/lib/postgresql/17/bin/pg_isready", "-h", "127.0.0.1", "-U", "streamystats", "-d", "streamystats"]
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+          periodSeconds: 20
+          successThreshold: 1
+          failureThreshold: 6
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/postgresql/data
+
+      - name: job-server
+        image: ghcr.io/fredrikburmester/streamystats-job-server@sha256:fba43363b72e1418418e881aca05a8f85652fde5461ff7d71cda209f5d50ab4a  # v2.18.1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: job-http
+          containerPort: 3005
+        env:
+        - name: TZ
+          value: Asia/Kolkata
+        - name: NODE_ENV
+          value: production
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: streamystats-secrets
+              key: DATABASE_URL
+        - name: PORT
+          value: "3005"
+        - name: HOST
+          value: 0.0.0.0
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 3005
+            scheme: HTTP
+          periodSeconds: 10
+          failureThreshold: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3005
+            scheme: HTTP
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+          periodSeconds: 15
+          successThreshold: 1
+          failureThreshold: 6
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3005
+            scheme: HTTP
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+          periodSeconds: 30
+          successThreshold: 1
+          failureThreshold: 6
+
+      - name: nextjs-app
+        image: ghcr.io/fredrikburmester/streamystats-nextjs@sha256:5560e0a936617a56e70f1951700d202b440072dcd2d7ebffd35e7999c388be8b  # v2.18.1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 3000
+        env:
+        - name: TZ
+          value: Asia/Kolkata
+        - name: NODE_ENV
+          value: production
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: streamystats-secrets
+              key: DATABASE_URL
+        - name: JOB_SERVER_URL
+          value: http://127.0.0.1:3005
+        - name: HOSTNAME
+          value: 0.0.0.0
+        - name: PORT
+          value: "3000"
+        - name: SESSION_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: streamystats-secrets
+              key: SESSION_SECRET
+        - name: NEXT_SERVER_ACTIONS_ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: streamystats-secrets
+              key: NEXT_SERVER_ACTIONS_ENCRYPTION_KEY
+        startupProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+            scheme: HTTP
+          periodSeconds: 10
+          failureThreshold: 30
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+          periodSeconds: 15
+          successThreshold: 1
+          failureThreshold: 6
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+          periodSeconds: 30
+          successThreshold: 1
+          failureThreshold: 6
+
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: streamystats-data

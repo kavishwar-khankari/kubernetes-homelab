@@ -166,6 +166,10 @@ data:
               version: 2
               enableBlocks: true
               enableNowPlaying: false
+        - streamystats:
+            href: https://streamystats.techtronics.top/
+            icon: streamystats.png
+            description: Jellyfin watch stats
         - sonarr:
             href: https://sonarr.techtronics.top
             icon: sonarr.png
