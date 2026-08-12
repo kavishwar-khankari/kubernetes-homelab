@@ -44,12 +44,28 @@ metadata:
   name: rdtclient
   namespace: vpn-torr
 spec:
-  selector:
-    app: rdtclient-aria
   ports:
     - name: http
       port: 6500
-      targetPort: 6500
+---
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: rdtclient-truenas
+  namespace: vpn-torr
+  labels:
+    kubernetes.io/service-name: rdtclient
+    endpointslice.kubernetes.io/managed-by: kubernetes-homelab
+addressType: IPv4
+ports:
+  - name: http
+    port: 30249
+    protocol: TCP
+endpoints:
+  - addresses:
+      - 192.168.0.75
+    conditions:
+      ready: true
 ---
 apiVersion: v1
 kind: Service
