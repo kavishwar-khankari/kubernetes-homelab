@@ -48,24 +48,18 @@ spec:
     - name: http
       port: 6500
 ---
-apiVersion: discovery.k8s.io/v1
-kind: EndpointSlice
+apiVersion: v1
+kind: Endpoints
 metadata:
-  name: rdtclient-truenas
+  name: rdtclient
   namespace: vpn-torr
-  labels:
-    kubernetes.io/service-name: rdtclient
-    endpointslice.kubernetes.io/managed-by: kubernetes-homelab
-addressType: IPv4
-ports:
-  - name: http
-    port: 30249
-    protocol: TCP
-endpoints:
+subsets:
   - addresses:
-      - 192.168.0.75
-    conditions:
-      ready: true
+      - ip: 192.168.0.75
+    ports:
+      - name: http
+        port: 30249
+        protocol: TCP
 ---
 apiVersion: v1
 kind: Service
