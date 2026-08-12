@@ -45,7 +45,7 @@ metadata:
   namespace: vpn-torr
 spec:
   selector:
-    app: vpn-torrent
+    app: rdtclient-aria
   ports:
     - name: http
       port: 6500
@@ -58,7 +58,7 @@ metadata:
   namespace: vpn-torr
 spec:
   selector:
-    app: vpn-torrent
+    app: rdtclient-aria
   ports:
     - name: rpc
       port: 6800
@@ -72,7 +72,7 @@ metadata:
   namespace: vpn-torr
 spec:
   selector:
-    app: vpn-torrent
+    app: rdtclient-aria
   ports:
     - name: http
       port: 6880

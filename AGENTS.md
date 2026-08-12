@@ -34,7 +34,7 @@ For exposing a non-k8s service (Proxmox node, TrueNAS, etc.) under `<app>.techtr
 
 ## Patterns
 
-- **Multi-container pods**: co-locate tightly-coupled containers in one pod when they share networking. Examples: `jellyfin` (jellyfin + meilisearch + threadfin), `vpn-torr` (gluetun + qbittorrent + prowlarr + jdownloader2 + rdtclient + aria2 + ariang), `crafty+tailscale.yaml` (crafty + tailscale sidecar, StatefulSet).
+- **Multi-container pods**: co-locate tightly-coupled containers in one pod when they share networking. Examples: `jellyfin` (jellyfin + meilisearch + threadfin), `vpn-torr` (gluetun + qbittorrent + prowlarr + jdownloader2), `rdtclient-aria` (rdtclient + aria2 + ariang — a VPN-free pod in `vpn-torr` so downloads use the home network), `crafty+tailscale.yaml` (crafty + tailscale sidecar, StatefulSet).
 - **Secrets**: two patterns:
   - **DopplerSecret** (preferred): `DopplerSecret` CR lives in `doppler-operator-system` namespace, references the `doppler-token-secret`, and creates a `managedSecret` in the target app namespace. The `processors` field can rename keys (e.g. `VAULTWARDEN_ADMIN_TOKEN` → `ADMIN_TOKEN`). See `manifests/vaultwarden/secrets.yaml` or `manifests/cert-manager/cloudflare-token.dopplersecret.yaml`.
   - **K8s Secret**: plain `Secret` resources, referenced via `secretKeyRef` or `envFrom[].secretRef`. See `manifests/jellyfin/meilisearch-secret.yaml`.
