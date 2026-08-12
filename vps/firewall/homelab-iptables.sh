@@ -91,7 +91,12 @@ install_input_chain() {
     "$bin" -w -A "$chain" -i "$WAN_IF" -p udp --dport "$FAMILY_WG_PORT" -j ACCEPT
     "$bin" -w -A "$chain" -i "$WAN_IF" -p udp --dport "$APP_WG_PORT" -j ACCEPT
     "$bin" -w -A "$chain" -i "$WAN_IF" -p tcp -m multiport --dports 80,443,853 -j ACCEPT
-    "$bin" -w -A "$chain" -i "$WAN_IF" -p udp --sport 67 --dport 68 -j ACCEPT
+    if [[ "$bin" == "ip6tables" ]]; then
+      # DHCPv6 replies use server port 547 and client port 546.
+      "$bin" -w -A "$chain" -i "$WAN_IF" -p udp --sport 547 --dport 546 -j ACCEPT
+    else
+      "$bin" -w -A "$chain" -i "$WAN_IF" -p udp --sport 67 --dport 68 -j ACCEPT
+    fi
   fi
 
   "$bin" -w -A "$chain" -p udp --sport 123 -j ACCEPT

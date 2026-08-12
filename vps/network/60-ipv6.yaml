@@ -1,0 +1,6 @@
+network:
+  version: 2
+  ethernets:
+    enp0s6:
+      dhcp6: true
+      accept-ra: true
