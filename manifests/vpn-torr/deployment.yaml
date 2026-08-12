@@ -68,16 +68,16 @@ spec:
                   name: vpn-torr-secrets
                   key: WIREGUARD_PRESHARED_KEY
             - name: WIREGUARD_ADDRESSES
-              value: "10.66.66.3/32"
-              # Previous dual-stack value, retained for future re-enable:
-              # value: "10.66.66.3/32,fd42:42:42::3/128,2603:c021:4000:8b7b::3/128"
+              value: "10.66.66.3/32,fd42:42:42::3/128,2603:c021:4000:8b7b::3/128"
+              # IPv4-only fallback:
+              # value: "10.66.66.3/32"
             - name: WIREGUARD_ALLOWED_IPS
-              value: "0.0.0.0/0"
-              # Previous dual-stack value, retained for future re-enable:
-              # value: "0.0.0.0/0,::/0"
+              value: "0.0.0.0/0,::/0"
+              # IPv4-only fallback:
+              # value: "0.0.0.0/0"
             - name: FIREWALL_VPN_INPUT_PORTS
               value: "6881,6888"
-            # IPv6 toggles are retained as comments for reference; Gluetun v3.41.3 ignores them.
+            # These legacy toggles are retained as comments; Gluetun v3.41.3 auto-detects IPv6.
             # - name: IPV6
             #   value: "on"
             # - name: BLOCK_IPV6
@@ -213,8 +213,8 @@ spec:
             - name: DISK_CACHE
               value: "1024M"
             - name: IPV6_MODE
-              value: "false"
-              # Previous dual-stack value, retained for future re-enable: "true"
+              value: "true"
+              # IPv4-only fallback: "false"
             - name: UPDATE_TRACKERS
               value: "true"
           ports:
