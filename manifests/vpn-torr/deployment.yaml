@@ -68,15 +68,22 @@ spec:
                   name: vpn-torr-secrets
                   key: WIREGUARD_PRESHARED_KEY
             - name: WIREGUARD_ADDRESSES
-              value: "10.66.66.3/32,fd42:42:42::3/128,2603:c021:4000:8b7b::3/128"
+              value: "10.66.66.3/32"
+              # Previous dual-stack value, retained for future re-enable:
+              # value: "10.66.66.3/32,fd42:42:42::3/128,2603:c021:4000:8b7b::3/128"
+            - name: WIREGUARD_ALLOWED_IPS
+              value: "0.0.0.0/0"
+              # Previous dual-stack value, retained for future re-enable:
+              # value: "0.0.0.0/0,::/0"
             - name: FIREWALL_VPN_INPUT_PORTS
               value: "6881,6888"
-            - name: IPV6
-              value: "on"
-            - name: BLOCK_IPV6
-              value: "off"
-            - name: FIREWALL_OUTBOUND_SUBNETS_IPV6
-              value: "::/0"
+            # IPv6 toggles are retained as comments for reference; Gluetun v3.41.3 ignores them.
+            # - name: IPV6
+            #   value: "on"
+            # - name: BLOCK_IPV6
+            #   value: "off"
+            # - name: FIREWALL_OUTBOUND_SUBNETS_IPV6
+            #   value: "::/0"
             - name: WIREGUARD_MTU
               value: "1280"
             - name: WIREGUARD_PERSISTENT_KEEPALIVE_INTERVAL
@@ -174,8 +181,6 @@ spec:
               value: "1000"
             - name: TZ
               value: "Asia/Kolkata"
-            - name: DOTNET_SYSTEM_NET_DISABLEIPV6
-              value: "1"
           volumeMounts:
             - name: rdtclient-db
               mountPath: /data/db
@@ -208,7 +213,8 @@ spec:
             - name: DISK_CACHE
               value: "1024M"
             - name: IPV6_MODE
-              value: "true"
+              value: "false"
+              # Previous dual-stack value, retained for future re-enable: "true"
             - name: UPDATE_TRACKERS
               value: "true"
           ports:
