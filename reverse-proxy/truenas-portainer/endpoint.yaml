@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Endpoints
 metadata:
-  name: trunas-portainer-service # needs to match Service name
+  name: truenas-portainer-service # needs to match Service name
 subsets:
   - addresses:
       - ip: 192.168.0.75

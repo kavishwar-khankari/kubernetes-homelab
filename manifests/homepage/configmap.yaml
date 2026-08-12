@@ -300,8 +300,8 @@ data:
               env: 1
               key: "{{HOMEPAGE_VAR_PORT_1_API_KEY}}"
               fields: ["running", "stopped", "total"]
-        - trunas-portainer:
-            href: https://trunas-portainer.techtronics.top
+        - truenas-portainer:
+            href: https://truenas-portainer.techtronics.top
             icon: portainer.png
         - proxmox 1:
             href: https://proxmox-1.techtronics.top
