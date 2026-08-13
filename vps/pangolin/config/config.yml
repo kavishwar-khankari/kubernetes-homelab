@@ -19,6 +19,12 @@ domains:
 
 server:
     integration_port: 3003
+    # GeoIP/ASN lookup DBs (GeoLite2, refreshed by the geoipupdate
+    # container). Loaded at startup only — restart pangolin after the
+    # updater's first download. Powers analytics country breakdown and
+    # country/ASN resource rules.
+    maxmind_db_path: "./config/GeoLite2/GeoLite2-Country.mmdb"
+    maxmind_asn_path: "./config/GeoLite2/GeoLite2-ASN.mmdb"
     cors:
         origins: ["https://pangolin.techtronics.top"]
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH"]

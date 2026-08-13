@@ -72,6 +72,20 @@ services:
       - ./config/traefik/logs:/var/log/traefik # Volume to store Traefik logs
       - ./config/plugins:/plugins-storage # Persist the badger plugin cache across container recreations
 
+  geoipupdate:
+    image: ghcr.io/maxmind/geoipupdate
+    container_name: geoipupdate
+    restart: unless-stopped
+    env_file:
+      - /root/pangolin/secrets.env # GEOIPUPDATE_ACCOUNT_ID, GEOIPUPDATE_LICENSE_KEY
+    environment:
+      - GEOIPUPDATE_EDITION_IDS=GeoLite2-Country GeoLite2-ASN
+      - GEOIPUPDATE_FREQUENCY=72 # hours between DB refreshes
+    volumes:
+      # Writes into ./config/GeoLite2 on the host; the pangolin container
+      # reads the same path via server.maxmind_db_path (see config.yml).
+      - ./config/GeoLite2:/usr/share/GeoIP
+
 networks:
   default:
     driver: bridge
