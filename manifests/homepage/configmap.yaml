@@ -140,6 +140,19 @@ data:
         - switch:
             href: http://192.168.0.2
             icon: tp-link.png
+        - pangolin:
+            href: https://pangolin.techtronics.top
+            icon: pangolin.png
+            description: Tunneled reverse proxy (VPS)
+            widget:
+              type: customapi
+              url: https://pangolin.techtronics.top/api/v1/
+              mappings:
+                - field: message
+                  label: Status
+                  remap:
+                    - value: Healthy
+                      to: ✅ Healthy
 
     - Media:
         - jellyfin:
