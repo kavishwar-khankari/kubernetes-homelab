@@ -23,6 +23,12 @@ log:
   maxAge: 3
   compress: true
 
+# Request-level observability + real-client-IP verification (proves the
+# ip6tables DNAT path preserves source IPs for both families).
+accessLog:
+  filePath: "/var/log/traefik/access.log"
+  format: "json"
+
 certificatesResolvers:
   letsencrypt:
     acme:
