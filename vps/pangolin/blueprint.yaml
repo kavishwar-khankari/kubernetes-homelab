@@ -13,6 +13,8 @@
 #   SSO defaults to disabled) PLUS a catch-all allow rule that bypasses auth
 #   (docs: allow = bypass auth).
 # - Backends are in-cluster Service DNS names reachable from the Newt pods.
+# - Healthchecks: `status` omitted (any 2xx passes); `mode: tcp` for
+#   backends with no unauthenticated HTTP endpoint (CouchDB).
 # - No secrets, no private resources, nothing internal beyond what is
 #   already public in this repo.
 #
@@ -45,7 +47,6 @@ public-resources:
           timeout: 5
           healthy-threshold: 2
           unhealthy-threshold: 3
-          status: 200
       - site: k3s-node-2
         hostname: librespeed.librespeed
         port: 80
@@ -61,7 +62,6 @@ public-resources:
           timeout: 5
           healthy-threshold: 2
           unhealthy-threshold: 3
-          status: 200
       - site: k3s-node-3
         hostname: librespeed.librespeed
         port: 80
@@ -77,4 +77,728 @@ public-resources:
           timeout: 5
           healthy-threshold: 2
           unhealthy-threshold: 3
-          status: 200
+  jellyfin:
+    name: Jellyfin
+    mode: http
+    full-domain: jellyfin.techtronics.top
+    ssl: true
+    enabled: true
+    rules:
+      - action: allow
+        match: cidr
+        value: 0.0.0.0/0
+    targets:
+      - site: k3s-node-1
+        hostname: jellyfin.jellyfin
+        port: 8096
+        method: http
+        healthcheck:
+          hostname: jellyfin.jellyfin
+          port: 8096
+          path: /health
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-2
+        hostname: jellyfin.jellyfin
+        port: 8096
+        method: http
+        healthcheck:
+          hostname: jellyfin.jellyfin
+          port: 8096
+          path: /health
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-3
+        hostname: jellyfin.jellyfin
+        port: 8096
+        method: http
+        healthcheck:
+          hostname: jellyfin.jellyfin
+          port: 8096
+          path: /health
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+  teapot:
+    name: Teapot
+    mode: http
+    full-domain: teapot.techtronics.top
+    ssl: true
+    enabled: true
+    rules:
+      - action: allow
+        match: cidr
+        value: 0.0.0.0/0
+    targets:
+      - site: k3s-node-1
+        hostname: jellyfin.jellyfin
+        port: 8096
+        method: http
+        healthcheck:
+          hostname: jellyfin.jellyfin
+          port: 8096
+          path: /health
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-2
+        hostname: jellyfin.jellyfin
+        port: 8096
+        method: http
+        healthcheck:
+          hostname: jellyfin.jellyfin
+          port: 8096
+          path: /health
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-3
+        hostname: jellyfin.jellyfin
+        port: 8096
+        method: http
+        healthcheck:
+          hostname: jellyfin.jellyfin
+          port: 8096
+          path: /health
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+  immich:
+    name: Immich
+    mode: http
+    full-domain: immich.techtronics.top
+    ssl: true
+    enabled: true
+    rules:
+      - action: allow
+        match: cidr
+        value: 0.0.0.0/0
+    targets:
+      - site: k3s-node-1
+        hostname: immich-server.immich.svc.cluster.local
+        port: 2283
+        method: http
+        healthcheck:
+          hostname: immich-server.immich.svc.cluster.local
+          port: 2283
+          path: /api/server/ping
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-2
+        hostname: immich-server.immich.svc.cluster.local
+        port: 2283
+        method: http
+        healthcheck:
+          hostname: immich-server.immich.svc.cluster.local
+          port: 2283
+          path: /api/server/ping
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-3
+        hostname: immich-server.immich.svc.cluster.local
+        port: 2283
+        method: http
+        healthcheck:
+          hostname: immich-server.immich.svc.cluster.local
+          port: 2283
+          path: /api/server/ping
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+  vaultwarden:
+    name: Vaultwarden
+    mode: http
+    full-domain: vaultwarden.techtronics.top
+    ssl: true
+    enabled: true
+    rules:
+      - action: allow
+        match: cidr
+        value: 0.0.0.0/0
+    targets:
+      - site: k3s-node-1
+        hostname: vaultwarden.vaultwarden
+        port: 80
+        method: http
+        healthcheck:
+          hostname: vaultwarden.vaultwarden
+          port: 80
+          path: /
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-2
+        hostname: vaultwarden.vaultwarden
+        port: 80
+        method: http
+        healthcheck:
+          hostname: vaultwarden.vaultwarden
+          port: 80
+          path: /
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-3
+        hostname: vaultwarden.vaultwarden
+        port: 80
+        method: http
+        healthcheck:
+          hostname: vaultwarden.vaultwarden
+          port: 80
+          path: /
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+  ntfy:
+    name: ntfy
+    mode: http
+    full-domain: ntfy.techtronics.top
+    ssl: true
+    enabled: true
+    rules:
+      - action: allow
+        match: cidr
+        value: 0.0.0.0/0
+    targets:
+      - site: k3s-node-1
+        hostname: ntfy.ntfy
+        port: 80
+        method: http
+        healthcheck:
+          hostname: ntfy.ntfy
+          port: 80
+          path: /v1/health
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-2
+        hostname: ntfy.ntfy
+        port: 80
+        method: http
+        healthcheck:
+          hostname: ntfy.ntfy
+          port: 80
+          path: /v1/health
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-3
+        hostname: ntfy.ntfy
+        port: 80
+        method: http
+        healthcheck:
+          hostname: ntfy.ntfy
+          port: 80
+          path: /v1/health
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+  nextcloud:
+    name: Nextcloud
+    mode: http
+    full-domain: nextcloud.techtronics.top
+    ssl: true
+    enabled: true
+    rules:
+      - action: allow
+        match: cidr
+        value: 0.0.0.0/0
+    targets:
+      - site: k3s-node-1
+        hostname: 192.168.0.197
+        port: 11000
+        method: http
+        healthcheck:
+          hostname: 192.168.0.197
+          port: 11000
+          path: /status.php
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-2
+        hostname: 192.168.0.197
+        port: 11000
+        method: http
+        healthcheck:
+          hostname: 192.168.0.197
+          port: 11000
+          path: /status.php
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-3
+        hostname: 192.168.0.197
+        port: 11000
+        method: http
+        healthcheck:
+          hostname: 192.168.0.197
+          port: 11000
+          path: /status.php
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+  ob-lsync:
+    name: Obsidian LiveSync
+    mode: http
+    full-domain: ob-lsync.techtronics.top
+    ssl: true
+    enabled: true
+    rules:
+      - action: allow
+        match: cidr
+        value: 0.0.0.0/0
+    targets:
+      - site: k3s-node-1
+        hostname: 192.168.0.15
+        port: 5984
+        method: http
+        healthcheck:
+          hostname: 192.168.0.15
+          port: 5984
+          enabled: true
+          mode: tcp
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-2
+        hostname: 192.168.0.15
+        port: 5984
+        method: http
+        healthcheck:
+          hostname: 192.168.0.15
+          port: 5984
+          enabled: true
+          mode: tcp
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-3
+        hostname: 192.168.0.15
+        port: 5984
+        method: http
+        healthcheck:
+          hostname: 192.168.0.15
+          port: 5984
+          enabled: true
+          mode: tcp
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+  jellyseerr:
+    name: Jellyseerr
+    mode: http
+    full-domain: jellyseerr.techtronics.top
+    ssl: true
+    enabled: true
+    rules:
+      - action: allow
+        match: cidr
+        value: 0.0.0.0/0
+    targets:
+      - site: k3s-node-1
+        hostname: arr-stack-service.arr-stack
+        port: 5055
+        method: http
+        healthcheck:
+          hostname: arr-stack-service.arr-stack
+          port: 5055
+          path: /api/v1/status
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-2
+        hostname: arr-stack-service.arr-stack
+        port: 5055
+        method: http
+        healthcheck:
+          hostname: arr-stack-service.arr-stack
+          port: 5055
+          path: /api/v1/status
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-3
+        hostname: arr-stack-service.arr-stack
+        port: 5055
+        method: http
+        healthcheck:
+          hostname: arr-stack-service.arr-stack
+          port: 5055
+          path: /api/v1/status
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+  wizarr:
+    name: Wizarr
+    mode: http
+    full-domain: wizarr.techtronics.top
+    ssl: true
+    enabled: true
+    rules:
+      - action: allow
+        match: cidr
+        value: 0.0.0.0/0
+    targets:
+      - site: k3s-node-1
+        hostname: arr-stack-service.arr-stack
+        port: 5690
+        method: http
+        healthcheck:
+          hostname: arr-stack-service.arr-stack
+          port: 5690
+          path: /login
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-2
+        hostname: arr-stack-service.arr-stack
+        port: 5690
+        method: http
+        healthcheck:
+          hostname: arr-stack-service.arr-stack
+          port: 5690
+          path: /login
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-3
+        hostname: arr-stack-service.arr-stack
+        port: 5690
+        method: http
+        healthcheck:
+          hostname: arr-stack-service.arr-stack
+          port: 5690
+          path: /login
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+  tachidesk:
+    name: Tachidesk
+    mode: http
+    full-domain: tachi.techtronics.top
+    ssl: true
+    enabled: true
+    rules:
+      - action: allow
+        match: cidr
+        value: 0.0.0.0/0
+    targets:
+      - site: k3s-node-1
+        hostname: tachidesk.tachidesk
+        port: 4567
+        method: http
+        healthcheck:
+          hostname: tachidesk.tachidesk
+          port: 4567
+          path: /
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-2
+        hostname: tachidesk.tachidesk
+        port: 4567
+        method: http
+        healthcheck:
+          hostname: tachidesk.tachidesk
+          port: 4567
+          path: /
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-3
+        hostname: tachidesk.tachidesk
+        port: 4567
+        method: http
+        healthcheck:
+          hostname: tachidesk.tachidesk
+          port: 4567
+          path: /
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+  stirling:
+    name: Stirling PDF
+    mode: http
+    full-domain: stirling.techtronics.top
+    ssl: true
+    enabled: true
+    rules:
+      - action: allow
+        match: cidr
+        value: 0.0.0.0/0
+    targets:
+      - site: k3s-node-1
+        hostname: stirling-pdf.stirling-pdf
+        port: 8080
+        method: http
+        healthcheck:
+          hostname: stirling-pdf.stirling-pdf
+          port: 8080
+          path: /login
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-2
+        hostname: stirling-pdf.stirling-pdf
+        port: 8080
+        method: http
+        healthcheck:
+          hostname: stirling-pdf.stirling-pdf
+          port: 8080
+          path: /login
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-3
+        hostname: stirling-pdf.stirling-pdf
+        port: 8080
+        method: http
+        healthcheck:
+          hostname: stirling-pdf.stirling-pdf
+          port: 8080
+          path: /login
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+  files-2:
+    name: Files-2
+    mode: http
+    full-domain: files-2.techtronics.top
+    ssl: true
+    enabled: true
+    rules:
+      - action: allow
+        match: cidr
+        value: 0.0.0.0/0
+    targets:
+      - site: k3s-node-1
+        hostname: 192.168.0.75
+        port: 30051
+        method: http
+        healthcheck:
+          hostname: 192.168.0.75
+          port: 30051
+          path: /
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-2
+        hostname: 192.168.0.75
+        port: 30051
+        method: http
+        healthcheck:
+          hostname: 192.168.0.75
+          port: 30051
+          path: /
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-3
+        hostname: 192.168.0.75
+        port: 30051
+        method: http
+        healthcheck:
+          hostname: 192.168.0.75
+          port: 30051
+          path: /
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+  speed:
+    name: Speed
+    mode: http
+    full-domain: speed.techtronics.top
+    ssl: true
+    enabled: true
+    rules:
+      - action: allow
+        match: cidr
+        value: 0.0.0.0/0
+    targets:
+      - site: k3s-node-1
+        hostname: 192.168.0.197
+        port: 30003
+        method: http
+        healthcheck:
+          hostname: 192.168.0.197
+          port: 30003
+          path: /
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-2
+        hostname: 192.168.0.197
+        port: 30003
+        method: http
+        healthcheck:
+          hostname: 192.168.0.197
+          port: 30003
+          path: /
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-3
+        hostname: 192.168.0.197
+        port: 30003
+        method: http
+        healthcheck:
+          hostname: 192.168.0.197
+          port: 30003
+          path: /
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
