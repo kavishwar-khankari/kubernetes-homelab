@@ -12,19 +12,25 @@ global:
     path: "/tmp/healthy"
   resources:
     requests:
-      cpu: "25m"
+      cpu: "50m"
       memory: "64Mi"
     limits:
-      cpu: "100m"
-      memory: "128Mi"
+      cpu: "2000m"
+      memory: "256Mi"
+  # Kernel WireGuard instead of the userspace netstack: the userspace data
+  # path caps tunnel throughput (~25 Mbps measured). Native mode renders the
+  # pods privileged with NET_ADMIN + SYS_MODULE — same tradeoff as the old
+  # wg-gateway DaemonSet. Pod networking (no hostNetwork) keeps cluster DNS
+  # resolution for target hostnames.
+  nativeMode:
+    enabled: true
 
 namespace:
   create: false
 
 # One Newt per cluster node; each is its own Pangolin site (multi-site HA).
 # Credentials come from Doppler-managed Secrets (auth.keys defaults:
-# PANGOLIN_ENDPOINT / NEWT_ID / NEWT_SECRET). Userspace mode: non-root,
-# unprivileged, no hostNetwork.
+# PANGOLIN_ENDPOINT / NEWT_ID / NEWT_SECRET).
 newtInstances:
   - name: "node-1"
     enabled: true
@@ -37,6 +43,7 @@ newtInstances:
       type: emptyDir
       mountPath: "/var/lib/newt"
     healthFile: "/var/lib/newt/healthy"
+    mtu: 1420
     nodeSelector:
       kubernetes.io/hostname: "k3s-node-1"
   - name: "node-2"
@@ -50,6 +57,7 @@ newtInstances:
       type: emptyDir
       mountPath: "/var/lib/newt"
     healthFile: "/var/lib/newt/healthy"
+    mtu: 1420
     nodeSelector:
       kubernetes.io/hostname: "k3s-node-2"
   - name: "node-3"
@@ -63,5 +71,6 @@ newtInstances:
       type: emptyDir
       mountPath: "/var/lib/newt"
     healthFile: "/var/lib/newt/healthy"
+    mtu: 1420
     nodeSelector:
       kubernetes.io/hostname: "k3s-node-3"
