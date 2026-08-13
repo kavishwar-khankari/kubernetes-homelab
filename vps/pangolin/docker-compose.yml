@@ -43,8 +43,12 @@ services:
     ports:
       # Bound to the gateway IP only (10.0.0.150); the primary IP's
       # services (family VPN, nginx DoH) are untouched.
+      # Dual-stack: the Pangolin IPv6 is published alongside IPv4 so
+      # IPv6 clients hit Traefik directly. The tunnel itself stays IPv4.
       - 10.0.0.150:80:80
+      - "2603:c021:4000:8b7b:0:7dee:9b0:eefc:80:80"
       - 10.0.0.150:443:443
+      - "2603:c021:4000:8b7b:0:7dee:9b0:eefc:443:443"
       - 10.0.0.150:51820:51820/udp
       # 21820/udp intentionally skipped: it is only required for
       # Pangolin client apps, and this deployment has none.
@@ -66,8 +70,19 @@ services:
       - ./config/traefik:/etc/traefik:ro # Volume to store the Traefik configuration
       - ./config/letsencrypt:/letsencrypt # Volume to store the Let's Encrypt certificates
       - ./config/traefik/logs:/var/log/traefik # Volume to store Traefik logs
+      - ./config/plugins:/plugins-storage # Persist the badger plugin cache across container recreations
 
 networks:
   default:
     driver: bridge
     name: pangolin_frontend
+    # IPv6 enabled so Docker creates ip6tables DNAT rules for the
+    # published IPv6 ports — this preserves the real IPv6 client source
+    # IP for Traefik. Without it, v6 traffic falls back to docker-proxy
+    # and every client appears as the bridge gateway (one fake v4 IP).
+    enable_ipv6: true
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16
+          gateway: 172.22.0.1
+        - subnet: fd00:9e9a:1::/64

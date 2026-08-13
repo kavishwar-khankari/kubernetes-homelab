@@ -10,8 +10,9 @@
 #   Identifiers are editable in the dashboard (Sites page) — keep them
 #   k3s-node-1 / k3s-node-2 / k3s-node-3.
 # - Public resources are intentionally open: no auth block (inline-policy
-#   SSO defaults to disabled) PLUS a catch-all allow rule that bypasses auth
-#   (docs: allow = bypass auth).
+#   SSO defaults to disabled) PLUS catch-all allow rules that bypass auth
+#   for BOTH address families (docs: allow = bypass auth). The rules engine
+#   is IP-family strict, so 0.0.0.0/0 alone would NOT match IPv6 clients.
 # - Backends are in-cluster Service DNS names reachable from the Newt pods.
 # - Healthchecks: `status` omitted (any 2xx passes); `mode: tcp` for
 #   backends with no unauthenticated HTTP endpoint (CouchDB).
@@ -31,6 +32,9 @@ public-resources:
       - action: allow
         match: cidr
         value: 0.0.0.0/0
+      - action: allow
+        match: cidr
+        value: ::/0
     targets:
       - site: k3s-node-1
         hostname: librespeed.librespeed
@@ -87,6 +91,9 @@ public-resources:
       - action: allow
         match: cidr
         value: 0.0.0.0/0
+      - action: allow
+        match: cidr
+        value: ::/0
     targets:
       - site: k3s-node-1
         hostname: jellyfin.jellyfin
@@ -143,6 +150,9 @@ public-resources:
       - action: allow
         match: cidr
         value: 0.0.0.0/0
+      - action: allow
+        match: cidr
+        value: ::/0
     targets:
       - site: k3s-node-1
         hostname: jellyfin.jellyfin
@@ -199,6 +209,9 @@ public-resources:
       - action: allow
         match: cidr
         value: 0.0.0.0/0
+      - action: allow
+        match: cidr
+        value: ::/0
     targets:
       - site: k3s-node-1
         hostname: immich-server.immich.svc.cluster.local
@@ -255,6 +268,9 @@ public-resources:
       - action: allow
         match: cidr
         value: 0.0.0.0/0
+      - action: allow
+        match: cidr
+        value: ::/0
     targets:
       - site: k3s-node-1
         hostname: vaultwarden.vaultwarden
@@ -311,6 +327,9 @@ public-resources:
       - action: allow
         match: cidr
         value: 0.0.0.0/0
+      - action: allow
+        match: cidr
+        value: ::/0
     targets:
       - site: k3s-node-1
         hostname: ntfy.ntfy
@@ -367,6 +386,9 @@ public-resources:
       - action: allow
         match: cidr
         value: 0.0.0.0/0
+      - action: allow
+        match: cidr
+        value: ::/0
     targets:
       - site: k3s-node-1
         hostname: 192.168.0.197
@@ -423,6 +445,9 @@ public-resources:
       - action: allow
         match: cidr
         value: 0.0.0.0/0
+      - action: allow
+        match: cidr
+        value: ::/0
     targets:
       - site: k3s-node-1
         hostname: 192.168.0.15
@@ -476,6 +501,9 @@ public-resources:
       - action: allow
         match: cidr
         value: 0.0.0.0/0
+      - action: allow
+        match: cidr
+        value: ::/0
     targets:
       - site: k3s-node-1
         hostname: arr-stack-service.arr-stack
@@ -532,6 +560,9 @@ public-resources:
       - action: allow
         match: cidr
         value: 0.0.0.0/0
+      - action: allow
+        match: cidr
+        value: ::/0
     targets:
       - site: k3s-node-1
         hostname: arr-stack-service.arr-stack
@@ -588,6 +619,9 @@ public-resources:
       - action: allow
         match: cidr
         value: 0.0.0.0/0
+      - action: allow
+        match: cidr
+        value: ::/0
     targets:
       - site: k3s-node-1
         hostname: tachidesk.tachidesk
@@ -644,6 +678,9 @@ public-resources:
       - action: allow
         match: cidr
         value: 0.0.0.0/0
+      - action: allow
+        match: cidr
+        value: ::/0
     targets:
       - site: k3s-node-1
         hostname: stirling-pdf.stirling-pdf
@@ -700,6 +737,9 @@ public-resources:
       - action: allow
         match: cidr
         value: 0.0.0.0/0
+      - action: allow
+        match: cidr
+        value: ::/0
     targets:
       - site: k3s-node-1
         hostname: 192.168.0.75
@@ -756,6 +796,9 @@ public-resources:
       - action: allow
         match: cidr
         value: 0.0.0.0/0
+      - action: allow
+        match: cidr
+        value: ::/0
     targets:
       - site: k3s-node-1
         hostname: 192.168.0.197

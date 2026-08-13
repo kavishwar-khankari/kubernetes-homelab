@@ -4,3 +4,7 @@ network:
     enp0s6:
       dhcp6: true
       accept-ra: true
+      # Second public IPv6 (Pangolin web). DHCPv6 only hands out the
+      # primary address; OCI-routed secondary addresses are static.
+      addresses:
+        - 2603:c021:4000:8b7b:0:7dee:9b0:eefc/128
