@@ -10,6 +10,13 @@ global:
   health:
     enabled: true
     path: "/tmp/healthy"
+  resources:
+    requests:
+      cpu: "25m"
+      memory: "64Mi"
+    limits:
+      cpu: "100m"
+      memory: "128Mi"
 
 namespace:
   create: false
