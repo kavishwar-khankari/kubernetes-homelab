@@ -801,12 +801,12 @@ public-resources:
         value: ::/0
     targets:
       - site: k3s-node-1
-        hostname: 192.168.0.197
-        port: 30003
+        hostname: openspeedtest.openspeedtest
+        port: 3000
         method: http
         healthcheck:
-          hostname: 192.168.0.197
-          port: 30003
+          hostname: openspeedtest.openspeedtest
+          port: 3000
           path: /
           enabled: true
           scheme: http
@@ -816,12 +816,12 @@ public-resources:
           healthy-threshold: 2
           unhealthy-threshold: 3
       - site: k3s-node-2
-        hostname: 192.168.0.197
-        port: 30003
+        hostname: openspeedtest.openspeedtest
+        port: 3000
         method: http
         healthcheck:
-          hostname: 192.168.0.197
-          port: 30003
+          hostname: openspeedtest.openspeedtest
+          port: 3000
           path: /
           enabled: true
           scheme: http
@@ -831,12 +831,12 @@ public-resources:
           healthy-threshold: 2
           unhealthy-threshold: 3
       - site: k3s-node-3
-        hostname: 192.168.0.197
-        port: 30003
+        hostname: openspeedtest.openspeedtest
+        port: 3000
         method: http
         healthcheck:
-          hostname: 192.168.0.197
-          port: 30003
+          hostname: openspeedtest.openspeedtest
+          port: 3000
           path: /
           enabled: true
           scheme: http

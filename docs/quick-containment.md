@@ -72,7 +72,6 @@ tachi.techtronics.top
 librespeed.techtronics.top
 stirling.techtronics.top
 files-2.techtronics.top
-speed.techtronics.top
 ```
 
 Anything not explicitly listed is private.

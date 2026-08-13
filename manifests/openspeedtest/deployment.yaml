@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openspeedtest
+  namespace: openspeedtest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: openspeedtest
+  template:
+    metadata:
+      labels:
+        app: openspeedtest
+    spec:
+      containers:
+        - name: openspeedtest
+          image: openspeedtest/latest@sha256:1745e913f596fe98882b286a67751efdae74774e9caa742a4934bb056e8748d2 # latest, 2025-01-09
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: TZ
+              value: Asia/Kolkata
+            - name: SET_SERVER_NAME
+              value: HomeLab
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 2
+              memory: 512Mi

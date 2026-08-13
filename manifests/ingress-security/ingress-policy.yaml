@@ -33,14 +33,13 @@ spec:
                'jellyseerr.techtronics.top', 'wizarr.techtronics.top',
                'tachi.techtronics.top', 'librespeed.techtronics.top',
                'stirling.techtronics.top', 'files-2.techtronics.top',
-               'speed.techtronics.top', 'teapot.techtronics.top'].exists(host, host == rule.host)
+               'teapot.techtronics.top'].exists(host, host == rule.host)
             : !['jellyfin.techtronics.top', 'immich.techtronics.top',
                 'vaultwarden.techtronics.top', 'ntfy.techtronics.top',
                 'nextcloud.techtronics.top', 'ob-lsync.techtronics.top',
                 'jellyseerr.techtronics.top', 'wizarr.techtronics.top',
                 'tachi.techtronics.top', 'librespeed.techtronics.top',
-                'stirling.techtronics.top', 'files-2.techtronics.top',
-                'speed.techtronics.top'].exists(host, host == rule.host)))
+                'stirling.techtronics.top', 'files-2.techtronics.top'].exists(host, host == rule.host)))
       message: >-
         Public ingress hosts must be explicitly allowlisted and private ingress
         hosts must not be in the public allowlist.
@@ -55,14 +54,13 @@ spec:
                  'jellyseerr.techtronics.top', 'wizarr.techtronics.top',
                  'tachi.techtronics.top', 'librespeed.techtronics.top',
                  'stirling.techtronics.top', 'files-2.techtronics.top',
-                 'speed.techtronics.top', 'teapot.techtronics.top'].exists(allowed, allowed == host)
+                 'teapot.techtronics.top'].exists(allowed, allowed == host)
               : !['jellyfin.techtronics.top', 'immich.techtronics.top',
                   'vaultwarden.techtronics.top', 'ntfy.techtronics.top',
                   'nextcloud.techtronics.top', 'ob-lsync.techtronics.top',
                   'jellyseerr.techtronics.top', 'wizarr.techtronics.top',
                   'tachi.techtronics.top', 'librespeed.techtronics.top',
-                  'stirling.techtronics.top', 'files-2.techtronics.top',
-                  'speed.techtronics.top'].exists(allowed, allowed == host))))
+                  'stirling.techtronics.top', 'files-2.techtronics.top'].exists(allowed, allowed == host))))
       message: >-
         TLS hosts must belong to the same approved public or private ingress
         plane as the Ingress rules.

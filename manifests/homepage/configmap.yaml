@@ -121,7 +121,7 @@ data:
             href: http://192.168.0.197:10012/
             icon: librespeed.png
         - open speedtest:
-            href: http://192.168.0.237:10014/
+            href: https://speed.techtronics.top
             icon: openspeedtest.png
         - speedtest tracker:
             href: http://192.168.0.197:8383/
