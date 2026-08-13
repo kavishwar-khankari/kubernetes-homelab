@@ -18,6 +18,7 @@ domains:
         prefer_wildcard_cert: true
 
 server:
+    integration_port: 3003
     cors:
         origins: ["https://pangolin.techtronics.top"]
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH"]
@@ -29,8 +30,10 @@ flags:
     disable_signup_without_invite: true
     disable_user_create_org: false
     allow_raw_resources: false
+    enable_integration_api: true
 
 traefik:
     # Global middleware applied to all resource routers; defined in
-    # config/traefik/dynamic_config.yml (security headers).
-    additional_middlewares: ["security-headers"]
+    # config/traefik/dynamic_config.yml (security headers). Must be
+    # qualified with @file so it resolves from the http provider.
+    additional_middlewares: ["security-headers@file"]
