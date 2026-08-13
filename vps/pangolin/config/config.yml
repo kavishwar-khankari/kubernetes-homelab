@@ -1,0 +1,36 @@
+# Pangolin config — see https://docs.pangolin.net/self-host/advanced/config-file
+# SERVER_SECRET is injected via /root/pangolin/secrets.env (never in git).
+
+gerbil:
+    start_port: 51820
+    base_endpoint: "pangolin.techtronics.top"
+
+app:
+    dashboard_url: "https://pangolin.techtronics.top"
+    log_level: "info"
+    telemetry:
+        anonymous_usage: false
+
+domains:
+    domain1:
+        base_domain: "techtronics.top"
+        cert_resolver: "letsencrypt"
+        prefer_wildcard_cert: true
+
+server:
+    cors:
+        origins: ["https://pangolin.techtronics.top"]
+        methods: ["GET", "POST", "PUT", "DELETE", "PATCH"]
+        allowed_headers: ["X-CSRF-Token", "Content-Type"]
+        credentials: false
+
+flags:
+    require_email_verification: false
+    disable_signup_without_invite: true
+    disable_user_create_org: false
+    allow_raw_resources: false
+
+traefik:
+    # Global middleware applied to all resource routers; defined in
+    # config/traefik/dynamic_config.yml (security headers).
+    additional_middlewares: ["security-headers"]

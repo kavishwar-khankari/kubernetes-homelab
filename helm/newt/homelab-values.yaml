@@ -1,0 +1,48 @@
+global:
+  fullnameOverride: "newt"
+  image:
+    registry: "ghcr.io"
+    repository: "fosrl/newt"
+    tag: "1.15.0"
+    # Latest stable (2026-07-19); chart 1.5.0 appVersion lags at 1.12.5.
+    digest: "sha256:d69d047c816ca7721eae90d5f3cd3be53b615b3d498678be21488d666538ee5c"
+    imagePullPolicy: IfNotPresent
+  health:
+    enabled: true
+    path: "/tmp/healthy"
+
+namespace:
+  create: false
+
+# One Newt per cluster node; each is its own Pangolin site (multi-site HA).
+# Credentials come from Doppler-managed Secrets (auth.keys defaults:
+# PANGOLIN_ENDPOINT / NEWT_ID / NEWT_SECRET). Userspace mode: non-root,
+# unprivileged, no hostNetwork.
+newtInstances:
+  - name: "node-1"
+    enabled: true
+    replicas: 1
+    auth:
+      existingSecretName: "newt-node-1-creds"
+      createSecret: false
+    healthFile: "/tmp/healthy"
+    nodeSelector:
+      kubernetes.io/hostname: "k3s-node-1"
+  - name: "node-2"
+    enabled: true
+    replicas: 1
+    auth:
+      existingSecretName: "newt-node-2-creds"
+      createSecret: false
+    healthFile: "/tmp/healthy"
+    nodeSelector:
+      kubernetes.io/hostname: "k3s-node-2"
+  - name: "node-3"
+    enabled: true
+    replicas: 1
+    auth:
+      existingSecretName: "newt-node-3-creds"
+      createSecret: false
+    healthFile: "/tmp/healthy"
+    nodeSelector:
+      kubernetes.io/hostname: "k3s-node-3"

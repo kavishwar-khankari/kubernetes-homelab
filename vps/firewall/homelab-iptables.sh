@@ -11,6 +11,7 @@ readonly APP_TUNNEL_IF="wg-jellyfin"
 readonly FAMILY_TUNNEL_IF="wg0"
 readonly FAMILY_WG_PORT="61115"
 readonly APP_WG_PORT="51822"
+readonly PANGOLIN_WG_PORT="51820"
 
 discover_wan_interface() {
   local -a fields
@@ -90,6 +91,8 @@ install_input_chain() {
     # Family VPN and application WireGuard are separate listeners.
     "$bin" -w -A "$chain" -i "$WAN_IF" -p udp --dport "$FAMILY_WG_PORT" -j ACCEPT
     "$bin" -w -A "$chain" -i "$WAN_IF" -p udp --dport "$APP_WG_PORT" -j ACCEPT
+    # Pangolin Newt site tunnels (Gerbil), bound to the gateway IP.
+    "$bin" -w -A "$chain" -i "$WAN_IF" -p udp --dport "$PANGOLIN_WG_PORT" -j ACCEPT
     "$bin" -w -A "$chain" -i "$WAN_IF" -p tcp -m multiport --dports 80,443,853 -j ACCEPT
     if [[ "$bin" == "ip6tables" ]]; then
       # DHCPv6 replies use server port 547 and client port 546.
@@ -127,6 +130,15 @@ install_forward_chain() {
       "$bin" -w -A "$chain" -i "$WAN_IF" -p tcp -m conntrack \
         --ctstate NEW --ctorigdstport "$public_port" -j DOCKER-FORWARD
     done
+    # Pangolin publishes TCP 80/443 and UDP 51820 on the gateway IP
+    # (10.0.0.150). Docker's own DOCKER filter chain scopes delivery to
+    # the pangolin containers; unmatched traffic falls through to DROP.
+    for pangolin_port in 80 443; do
+      "$bin" -w -A "$chain" -i "$WAN_IF" -p tcp -m conntrack \
+        --ctstate NEW --ctorigdstport "$pangolin_port" -j DOCKER-FORWARD
+    done
+    "$bin" -w -A "$chain" -i "$WAN_IF" -p udp -m conntrack \
+      --ctstate NEW --ctorigdstport "$PANGOLIN_WG_PORT" -j DOCKER-FORWARD
   fi
   for bridge_path in /sys/class/net/docker0 /sys/class/net/br-*; do
     [[ -e "$bridge_path" ]] || continue

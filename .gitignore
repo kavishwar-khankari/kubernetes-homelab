@@ -10,3 +10,9 @@
 
 # graphify — regenerated locally, not version-controlled
 graphify-out/
+
+# Pangolin runtime state (generated on the VPS, never committed)
+/vps/pangolin/config/db/
+/vps/pangolin/config/key
+/vps/pangolin/config/letsencrypt/
+/vps/pangolin/config/traefik/logs/

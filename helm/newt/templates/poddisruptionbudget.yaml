@@ -1,0 +1,50 @@
+{{- $root := . -}}
+{{- $gPdb := $root.Values.global.podDisruptionBudget }}
+{{- $gPdbEnabled := false -}}
+{{- if $gPdb -}}
+{{- $gPdbEnabled = $gPdb.enabled -}}
+{{- end -}}
+{{- if $gPdbEnabled }}
+{{- range $i, $instRaw := $root.Values.newtInstances }}
+{{- $inst := $instRaw | default dict -}}
+{{- $instName := $inst.name | default (printf "instance-%d" $i) -}}
+{{- $instEnabled := true -}}
+{{- if hasKey $inst "enabled" -}}
+{{- $instEnabled = $inst.enabled -}}
+{{- end -}}
+{{- if $instEnabled }}
+{{- $instPdb := $inst.podDisruptionBudget | default dict -}}
+{{- $pdbEnabled := true -}}
+{{- if hasKey $instPdb "enabled" -}}
+{{- $pdbEnabled = $instPdb.enabled -}}
+{{- end -}}
+{{- if $pdbEnabled }}
+{{- $minAvail := 1 -}}
+{{- if hasKey $gPdb "minAvailable" -}}
+{{- if $gPdb.minAvailable -}}
+{{- $minAvail = $gPdb.minAvailable -}}
+{{- end -}}
+{{- end -}}
+{{- if hasKey $instPdb "minAvailable" -}}
+{{- if $instPdb.minAvailable -}}
+{{- $minAvail = $instPdb.minAvailable -}}
+{{- end -}}
+{{- end -}}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "newt.instance.fullname" (dict "root" $root "inst" $inst) }}-pdb
+  labels:
+    {{- include "newt.labels" $root | nindent 4 }}
+    newt.instance: {{ $inst.name }}
+spec:
+  minAvailable: {{ $minAvail }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ $root.Release.Name }}
+      newt.instance: {{ $inst.name }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
