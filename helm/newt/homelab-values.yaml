@@ -32,7 +32,11 @@ newtInstances:
     auth:
       existingSecretName: "newt-node-1-creds"
       createSecret: false
-    healthFile: "/tmp/healthy"
+    configPersistence:
+      enabled: true
+      type: emptyDir
+      mountPath: "/var/lib/newt"
+    healthFile: "/var/lib/newt/healthy"
     nodeSelector:
       kubernetes.io/hostname: "k3s-node-1"
   - name: "node-2"
@@ -41,7 +45,11 @@ newtInstances:
     auth:
       existingSecretName: "newt-node-2-creds"
       createSecret: false
-    healthFile: "/tmp/healthy"
+    configPersistence:
+      enabled: true
+      type: emptyDir
+      mountPath: "/var/lib/newt"
+    healthFile: "/var/lib/newt/healthy"
     nodeSelector:
       kubernetes.io/hostname: "k3s-node-2"
   - name: "node-3"
@@ -50,6 +58,10 @@ newtInstances:
     auth:
       existingSecretName: "newt-node-3-creds"
       createSecret: false
-    healthFile: "/tmp/healthy"
+    configPersistence:
+      enabled: true
+      type: emptyDir
+      mountPath: "/var/lib/newt"
+    healthFile: "/var/lib/newt/healthy"
     nodeSelector:
       kubernetes.io/hostname: "k3s-node-3"
