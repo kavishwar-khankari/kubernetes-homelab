@@ -1,0 +1,80 @@
+# Pangolin blueprint — public resources (declarative, GitOps)
+#
+# Apply: dashboard → Settings → Blueprints → paste this file → Apply.
+# (Or: `pangolin apply blueprint --file /opt/pangolin/blueprint.yaml`)
+#
+# Conventions:
+# - Each resource key under public-resources becomes the resource's
+#   Identifier (niceId) in Pangolin. Keep keys stable.
+# - Targets reference sites by their Identifier (niceId). The site
+#   Identifiers are editable in the dashboard (Sites page) — keep them
+#   k3s-node-1 / k3s-node-2 / k3s-node-3.
+# - Public resources are intentionally open: no auth block (inline-policy
+#   SSO defaults to disabled) PLUS a catch-all allow rule that bypasses auth
+#   (docs: allow = bypass auth).
+# - Backends are in-cluster Service DNS names reachable from the Newt pods.
+# - No secrets, no private resources, nothing internal beyond what is
+#   already public in this repo.
+#
+# Docs: https://docs.pangolin.net/manage/blueprints
+
+public-resources:
+  librespeed:
+    name: LibreSpeed
+    mode: http
+    full-domain: librespeed.techtronics.top
+    ssl: true
+    enabled: true
+    rules:
+      - action: allow
+        match: cidr
+        value: 0.0.0.0/0
+    targets:
+      - site: k3s-node-1
+        hostname: librespeed.librespeed
+        port: 80
+        method: http
+        healthcheck:
+          hostname: librespeed.librespeed
+          port: 80
+          path: /
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+          status: 200
+      - site: k3s-node-2
+        hostname: librespeed.librespeed
+        port: 80
+        method: http
+        healthcheck:
+          hostname: librespeed.librespeed
+          port: 80
+          path: /
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+          status: 200
+      - site: k3s-node-3
+        hostname: librespeed.librespeed
+        port: 80
+        method: http
+        healthcheck:
+          hostname: librespeed.librespeed
+          port: 80
+          path: /
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+          status: 200

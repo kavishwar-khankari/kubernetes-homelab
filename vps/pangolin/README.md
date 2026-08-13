@@ -61,10 +61,19 @@ SERVER_SECRET=<openssl rand -hex 32>
 - `pangctl` ops (inside the container): `pangctl clear-certificates`,
   `pangctl rotate-server-secret --old-secret ... --new-secret ...` (needs a restart after).
 
+## Blueprints
+
+Public resources are declared in `blueprint.yaml` (resource keys = Pangolin
+Identifiers/niceIds; targets reference sites by their Identifier — keep the
+three site Identifiers as `k3s-node-1/2/3` in the dashboard). Apply via
+dashboard → Settings → Blueprints → paste, or:
+`docker exec -it pangolin pangolin apply blueprint --file /app/config/blueprint.yaml`
+No secrets ever in blueprints; public resources carry no auth block plus a
+catch-all `allow` rule (allow = bypass auth).
+
 ## Notes
 
-- 21820/udp is intentionally not published (no Pangolin client apps).
-- HTTP/3 QUIC is off (no 443/udp published).
+- 21820/udp is intentionally not published (no Pangolin client apps).- HTTP/3 QUIC is off (no 443/udp published).
 - `flags.allow_raw_resources: false` — raw TCP/UDP resources disabled.
 - Telemetry disabled; invite-only signup; no SMTP.
 - Let's Encrypt contact email in `traefik_config.yml` is a placeholder — change it
