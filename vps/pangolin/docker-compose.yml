@@ -6,6 +6,10 @@ services:
     restart: unless-stopped
     env_file:
       - /root/pangolin/secrets.env
+    ports:
+      # Integration API for CLI/blueprint automation — localhost only,
+      # never exposed to the internet.
+      - 127.0.0.1:3003:3003
     deploy:
       resources:
         limits:
