@@ -41,7 +41,6 @@ reddit-mcp.techtronics.top
 router.techtronics.top
 searxng.techtronics.top
 tdarr.techtronics.top
-threadfin.techtronics.top
 truenas-2.techtronics.top
 ubuntu-server-1.techtronics.top
 ubuntu-server-2.techtronics.top

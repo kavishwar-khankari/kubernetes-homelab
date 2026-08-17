@@ -31,7 +31,6 @@ GitOps-managed Kubernetes homelab running on RKE2. Media streaming, automation, 
 | **Jellyseerr** | Request & discovery UI | jellyseerr.techtronics.top |
 | **Tdarr** | AV1 transcoding (Intel QSV) | tdarr.techtronics.top |
 | **Frostbite** | Tiered storage engine (NAS/cloud) | frostbite.techtronics.top |
-| **Threadfin** | TV guide provider | threadfin.techtronics.top |
 
 ### Download Stack (VPN-protected)
 
@@ -147,7 +146,7 @@ Several services are co-located in single pods for shared networking:
 |---|---|
 | **arr-stack** | Sonarr, Radarr, Lidarr, Jellyseerr, Wizarr, Prowlarr, FlareSolverr |
 | **vpn-torr** | Gluetun, qBittorrent, JDownloader, RDTClient |
-| **jellyfin** | Jellyfin, Threadfin |
+| **jellyfin** | Jellyfin, Meilisearch |
 | **crafty** | Crafty Controller, Tailscale sidecar |
 
 ## Tech Stack

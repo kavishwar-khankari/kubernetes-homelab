@@ -31,30 +31,6 @@ spec:
                 port:
                   number: 8096
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: threadfin-private-ingress
-  namespace: jellyfin
-  annotations:
-    argocd.argoproj.io/sync-wave: "0"
-spec:
-  ingressClassName: nginx-private
-  tls:
-    - hosts:
-        - threadfin.techtronics.top
-  rules:
-    - host: threadfin.techtronics.top
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: jellyfin
-                port:
-                  number: 34400
----
 # Public (Reddit) endpoint: same Jellyfin instance, only shared with strangers.
 # Keep jellyfin.techtronics.top for personal/friends use.
 apiVersion: networking.k8s.io/v1
