@@ -56,6 +56,8 @@ Nodes 1 and 3 still had healthy CIFS and mergerfs mounts, but their local creden
 - [ ] Add node monitoring and alerts for failed `mnt-nas-media.mount` and `mergerfs-media.service` units.
 - [ ] Add an Arr startup check that refuses to start unless `/mnt/merged/media` is a mergerfs mount and `/mnt/nas/media` is CIFS-backed.
 - [ ] Avoid writable fallback directories beneath critical hostPath mountpoints, or replace these hostPath volumes with storage resources whose mount failures keep the pod unready.
+- [x] Enable Apple-style Character Encoding for SMB shares containing Linux-native filenames with SMB-reserved characters.
+- [x] Fully restart the TrueNAS SMB service after changing share encoding, then reconnect affected CIFS clients.
 
 ## Recurrence: 2026-07-25
 
@@ -69,3 +71,11 @@ For future occurrences, distinguish the two failure modes before changing mounts
 
 - Wrong filesystem type or missing root directories inside the pod indicates the original CIFS/mergerfs mount failure.
 - Correct CIFS/mergerfs filesystem types with visible-but-empty download directories indicates server-side traversal or ACL failure; compare container, TrueNAS host, and SMB-user views.
+
+## Recurrence: 2026-08-17
+
+After RDTC downloads moved to TrueNAS, Sonarr reported inaccessible paths such as `/media_2/rdtclient/tv-sonarr/[Onalrie] .../`. The TrueNAS filesystem contained the full directory names, while the Kubernetes CIFS view exposed Samba 8.3 aliases such as `_OEF0E~2`. The active client mount used SMB 3.1.1 but still displayed `nounix,mapposix`.
+
+The TrueNAS share was changed to the Multi-protocol purpose with **Use Apple-style Character Encoding** enabled, and the SMB service was fully restarted. Node 2 was then reconnected and the affected Arr workloads were refreshed. The aliases disappeared from the Arr view and Sonarr imported the remaining files, including the previously failing Onalrie, Hanaori, Grand Blue, Smoking Behind the Supermarket with You, and Though I Am an Inept Villainess episodes.
+
+The successful condition is the real long filenames being visible and imports succeeding; `nounix` may still appear in the Linux mount options. A client remount alone did not immediately clear the stale name view, while restarting SMB invalidated the server-side sessions and allowed the share encoding change to take effect.
