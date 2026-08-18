@@ -81,7 +81,7 @@ spec:
           mountPath: /cache
         - name: media2-media
           mountPath: /media_2
-          readOnly: true
+          readOnly: false
           mountPropagation: HostToContainer
         resources:
           limits:
