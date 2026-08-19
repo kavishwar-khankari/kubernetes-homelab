@@ -1,0 +1,78 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: jellyfin-db-repair
+  namespace: jellyfin
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  backoffLimit: 2
+  activeDeadlineSeconds: 1800
+  template:
+    metadata:
+      labels:
+        app: jellyfin-db-repair
+    spec:
+      restartPolicy: Never
+      nodeSelector:
+        kubernetes.io/hostname: k3s-node-3
+      containers:
+        - name: sqlite
+          image: python:3.13-alpine@sha256:540c7d91f98ff6880174c40e99067bf5941eb54d818a7a5e094d188b196a934d  # 3.13.15-alpine3.24
+          command:
+            - python
+            - -c
+            - |
+              import sqlite3
+              from pathlib import Path
+
+              database = Path("/config/data/data/jellyfin.db")
+              backup = database.with_name("jellyfin.db.before-kfp-repair-20260819")
+              item_ids = (
+                  "5380890C15724632CEC6CC0B5FBED9B9",
+                  "50770A3109D53A7142F78DE56F87FB48",
+                  "932809051486570E395FEE157770E578",
+              )
+              placeholders = ",".join("?" for _ in item_ids)
+              normalized_item_id = "replace(upper(ItemId), '-', '')"
+
+              if backup.exists():
+                  raise RuntimeError(f"Refusing to overwrite existing backup: {backup}")
+
+              with sqlite3.connect(str(database)) as source:
+                  source.execute("PRAGMA busy_timeout=30000")
+                  rows = source.execute(
+                      f'''SELECT ItemId, UserId, CustomDataKey
+                          FROM "UserData"
+                          WHERE {normalized_item_id} IN ({placeholders})''',
+                      item_ids,
+                  ).fetchall()
+                  if not rows:
+                      raise RuntimeError("No targeted UserData rows found; refusing to modify the database")
+
+                  with sqlite3.connect(str(backup)) as destination:
+                      source.backup(destination)
+
+                  source.execute("BEGIN IMMEDIATE")
+                  deleted = source.execute(
+                      f'''DELETE FROM "UserData"
+                          WHERE {normalized_item_id} IN ({placeholders})''',
+                      item_ids,
+                  ).rowcount
+                  source.commit()
+
+              with sqlite3.connect(str(database)) as checked:
+                  integrity = checked.execute("PRAGMA integrity_check").fetchone()[0]
+
+              print(f"targeted UserData rows before repair: {len(rows)}")
+              print(f"targeted UserData rows deleted: {deleted}")
+              print(f"database integrity check: {integrity}")
+              if integrity != "ok":
+                  raise RuntimeError(f"Database integrity check failed: {integrity}")
+          volumeMounts:
+            - name: config
+              mountPath: /config
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: jellyfin-config
