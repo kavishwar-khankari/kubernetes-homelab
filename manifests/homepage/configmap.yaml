@@ -487,6 +487,14 @@ data:
             href: https://inference.techtronics.top
             icon: openai.png
             description: Whisper Large V3 on Intel Arc
+        - openchamber:
+            href: https://openchamber.techtronics.top
+            icon: si-openai
+            description: OpenChamber on dev-vm
+        - agent chrome:
+            href: https://chrome.techtronics.top
+            icon: google-chrome.png
+            description: Headed Chrome for agents
 
     - Cloud:
         - paperless:

@@ -1,8 +1,10 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: code-server-ingress
+  name: chrome-ingress
   annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    nginx.ingress.kubernetes.io/proxy-ssl-verify: "off"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-buffering: "off"
@@ -11,15 +13,15 @@ spec:
   ingressClassName: nginx-private
   tls:
     - hosts:
-        - code-server.techtronics.top
+        - chrome.techtronics.top
   rules:
-    - host: code-server.techtronics.top
+    - host: chrome.techtronics.top
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: code-server-service
+                name: chrome-service
                 port:
-                  name: http
+                  name: https
