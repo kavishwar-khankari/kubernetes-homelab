@@ -15,7 +15,7 @@ spec:
       labels:
         app.kubernetes.io/name: homepage
       annotations:
-        checksum/config: "20260813b" # bump on every homepage ConfigMap change to force a rollout (subPath mounts don't update live)
+        checksum/config: "add openchamber and kasm-chrome" # bump on every homepage ConfigMap change to force a rollout (subPath mounts don't update live)
     spec:
       serviceAccountName: homepage
       affinity:
