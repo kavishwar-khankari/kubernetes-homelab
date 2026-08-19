@@ -20,8 +20,9 @@ global:
   # Kernel WireGuard instead of the userspace netstack: the userspace data
   # path caps tunnel throughput (~25 Mbps measured). Native mode renders the
   # pods privileged with NET_ADMIN + SYS_MODULE — same tradeoff as the old
-  # wg-gateway DaemonSet. Pod networking (no hostNetwork) keeps cluster DNS
-  # resolution for target hostnames.
+  # The previous cluster WireGuard gateway used the same tradeoff. Pod
+  # networking (no hostNetwork) keeps cluster DNS resolution for target
+  # hostnames.
   nativeMode:
     enabled: true
 

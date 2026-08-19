@@ -88,7 +88,7 @@ Anything not explicitly listed is private.
 5. Point private DNS records to `192.168.0.43`; keep approved public records pointed at the VPS.
 6. Confirm private names work from LAN/Tailscale and fail through the VPS from a mobile hotspot with Tailscale stopped.
 7. Apply `vps/firewall/homelab-iptables.sh` from two active Tailscale SSH sessions.
-8. Verify family `wg0` peers and application `wg-jellyfin` separately.
+8. Verify family `wg0` peers and the Pangolin/Gerbil public gateway separately.
 9. Reconfirm qBittorrent external API authentication at `192.168.0.75:9090` after any restart or migration.
 
 ## Residual Risk

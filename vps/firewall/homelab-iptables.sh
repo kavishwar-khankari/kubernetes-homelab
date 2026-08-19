@@ -1,16 +1,13 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-# This script hardens only the VPS perimeter and the application relay.
+# This script hardens only the VPS perimeter.
 # It deliberately preserves the family VPN on wg0, including UDP/61115 and
 # its existing bidirectional forwarding paths.
 
 readonly BACKUP_DIR="/root/firewall-backups"
-readonly APP_TUNNEL_IP="10.77.77.2"
-readonly APP_TUNNEL_IF="wg-jellyfin"
 readonly FAMILY_TUNNEL_IF="wg0"
 readonly FAMILY_WG_PORT="61115"
-readonly APP_WG_PORT="51822"
 readonly PANGOLIN_WG_PORT="51820"
 
 discover_wan_interface() {
@@ -83,14 +80,9 @@ install_input_chain() {
   if has_interface tun0; then
     "$bin" -w -A "$chain" -i tun0 -j ACCEPT
   fi
-  if has_interface "$APP_TUNNEL_IF"; then
-    "$bin" -w -A "$chain" -i "$APP_TUNNEL_IF" -p tcp -m multiport --dports 80,443 -j ACCEPT
-  fi
-
   if has_interface "$WAN_IF"; then
-    # Family VPN and application WireGuard are separate listeners.
+    # Family VPN and Pangolin/Gerbil are separate listeners.
     "$bin" -w -A "$chain" -i "$WAN_IF" -p udp --dport "$FAMILY_WG_PORT" -j ACCEPT
-    "$bin" -w -A "$chain" -i "$WAN_IF" -p udp --dport "$APP_WG_PORT" -j ACCEPT
     # Pangolin Newt site tunnels (Gerbil), bound to the gateway IP.
     "$bin" -w -A "$chain" -i "$WAN_IF" -p udp --dport "$PANGOLIN_WG_PORT" -j ACCEPT
     "$bin" -w -A "$chain" -i "$WAN_IF" -p tcp -m multiport --dports 80,443,853 -j ACCEPT
@@ -110,7 +102,6 @@ install_input_chain() {
 install_forward_chain() {
   local bin="$1"
   local chain="$2"
-  local app_tunnel_ip="$3"
   local bridge_path bridge
   local public_port
 
@@ -165,13 +156,6 @@ install_forward_chain() {
     "$bin" -w -A "$chain" -i "$WAN_IF" -o tun0 -j ACCEPT
   fi
 
-  # The application tunnel accepts only the public ingress relay path.
-  if [[ -n "$app_tunnel_ip" ]] && has_interface "$WAN_IF" && has_interface "$APP_TUNNEL_IF"; then
-    "$bin" -w -A "$chain" -i "$WAN_IF" -o "$APP_TUNNEL_IF" -d "$app_tunnel_ip" \
-      -p tcp -m multiport --dports 80,443 -m conntrack \
-      --ctstate NEW,ESTABLISHED -j ACCEPT
-  fi
-
   "$bin" -w -A "$chain" -j DROP
 }
 
@@ -180,10 +164,9 @@ install_filter() {
   local input_chain="$2"
   local forward_chain="$3"
   local icmp_protocol="$4"
-  local app_tunnel_ip="$5"
 
   install_input_chain "$bin" "$input_chain" "$icmp_protocol"
-  install_forward_chain "$bin" "$forward_chain" "$app_tunnel_ip"
+  install_forward_chain "$bin" "$forward_chain"
 
   while "$bin" -w -C INPUT -j "$input_chain" 2>/dev/null; do
     "$bin" -w -D INPUT -j "$input_chain"
@@ -201,8 +184,8 @@ install_filter() {
 
 preflight
 backup_rules
-install_filter iptables HOMELAB-INPUT HOMELAB-FORWARD icmp "$APP_TUNNEL_IP"
-install_filter ip6tables HOMELAB6-INPUT HOMELAB6-FORWARD icmpv6 ""
+install_filter iptables HOMELAB-INPUT HOMELAB-FORWARD icmp
+install_filter ip6tables HOMELAB6-INPUT HOMELAB6-FORWARD icmpv6
 netfilter-persistent save
 
-printf '%s\n' 'Firewall installed. wg0 family VPN rules were preserved; wg-jellyfin is limited to TCP 80/443.'
+printf '%s\n' 'Firewall installed. wg0 family VPN and Pangolin/Gerbil public gateway rules were preserved.'

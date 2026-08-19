@@ -9,11 +9,11 @@ It intentionally does not modify the family VPN configuration or peer rules:
 - Existing `wg0` peer routes and port-forward behavior remain unchanged.
 - `tun0`, Tailscale, and Docker forwarding are preserved.
 
-The application relay is separate:
+Pangolin/Gerbil is the public gateway on `10.0.0.150`:
 
-- `wg-jellyfin` UDP `51822` remains the application WireGuard listener.
-- Only TCP `80/443` may forward from the public interface to `10.77.77.2`.
-- Other traffic from the application relay is dropped.
+- TCP `80/443` serves the Pangolin sites on the gateway IP and its public IPv6.
+- UDP `51820` carries the Pangolin site tunnels.
+- The primary IP `10.0.0.149` remains separate for family VPN and local services.
 
 The VPS's intentional public Docker services on TCP `853`, `10012`, and `10014` are allowed through Docker's forwarding chain. Other Docker publishes, including Portainer's `8000/9443`, remain blocked.
 
@@ -56,5 +56,5 @@ Then test family VPN connectivity before testing the public gateway. Restore the
 ## Operational notes
 
 - **Docker restarts**: `docker` re-inserts its own chains when it starts. If it restarts, re-run this script so `HOMELAB-FORWARD` is first again and Docker-published ports other than `853/10012/10014` stay blocked from the WAN.
-- **App relay DNAT**: the PREROUTING `10.0.0.150:80/443 -> 10.77.77.2` DNAT lives in the persisted NAT rules and is not created by this script. After a NAT flush or a fresh VPS, restore that rule before testing the public gateway.
-- **IPv6**: the VPS has a public IPv6 address, but the application relay has no IPv6 path. Keep app DNS records A-only (no AAAA), or IPv6 clients would reach the local nginx default server instead of the cluster ingress.
+- **Pangolin gateway**: Docker publishes TCP `80/443` on `10.0.0.150` and the Pangolin IPv6 address directly to Gerbil. Do not restore the retired `wg-jellyfin` DNAT.
+- **IPv6**: Pangolin has a dual-stack public path on the gateway address; the primary IPv6 address remains owned by the primary-IP services.
