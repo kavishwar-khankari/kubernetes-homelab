@@ -3,9 +3,9 @@ global:
   image:
     registry: "ghcr.io"
     repository: "fosrl/newt"
-    tag: "1.15.0"
-    # Latest stable (2026-07-19); chart 1.5.0 appVersion lags at 1.12.5.
-    digest: "sha256:d69d047c816ca7721eae90d5f3cd3be53b615b3d498678be21488d666538ee5c"
+    tag: "1.16.0"
+    # Latest stable (2026-08-19); chart 1.5.0 appVersion lags at 1.12.5.
+    digest: "sha256:345fdeb369be6608d82c41d70637636c78b2c04a6112ff6ec20fc21c48afc899"
     imagePullPolicy: IfNotPresent
   health:
     enabled: true
