@@ -12,6 +12,8 @@ spec:
     metadata:
       labels:
         app: openspeedtest
+      annotations:
+        checksum/config: "enable openspeedtest upload fix - wait for full POST body before responding 200" # bump on every nginx-config.yaml change to force a rollout (subPath mounts don't update live)
     spec:
       containers:
         - name: openspeedtest
@@ -25,6 +27,11 @@ spec:
               value: Asia/Kolkata
             - name: SET_SERVER_NAME
               value: HomeLab
+          volumeMounts:
+            - name: nginx-conf
+              mountPath: /etc/nginx/conf.d/OpenSpeedTest-Server.conf
+              subPath: OpenSpeedTest-Server.conf
+              readOnly: true
           readinessProbe:
             httpGet:
               path: /
@@ -46,3 +53,10 @@ spec:
             limits:
               cpu: 2
               memory: 512Mi
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: openspeedtest-nginx-conf
+            items:
+              - key: OpenSpeedTest-Server.conf
+                path: OpenSpeedTest-Server.conf
