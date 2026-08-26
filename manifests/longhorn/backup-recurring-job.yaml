@@ -8,7 +8,7 @@ spec:
   task: backup
   groups:
     - default
-  retain: 10
+  retain: 7
   concurrency: 1
   parameters:
-    full-backup-interval: "7"
+    full-backup-interval: "30"
