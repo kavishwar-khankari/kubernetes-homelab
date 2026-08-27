@@ -41,7 +41,7 @@ server:
   enabled: true
   controllers:
     main:
-      replicas: 0
+      replicas: 1
       strategy: Recreate
       containers:
         main:
