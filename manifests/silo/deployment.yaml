@@ -1,0 +1,382 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: silo
+  namespace: silo
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: silo
+  template:
+    metadata:
+      labels:
+        app: silo
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        supplementalGroups:
+          - 44
+          - 993
+      initContainers:
+        - name: init-data-dirs
+          image: ghcr.io/silo-server/silo-server@sha256:c824d36338f9dea7e7e5acc43a3f973b0bed0e1e9e9de65a8fbc74f77753f0d5 # build-476, amd64
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-ec"]
+          args:
+            - >-
+              mkdir -p /data/pgdata /data/redis /data/meilisearch
+              /data/silo/compat/jellyfin-web /data/silo/plugins
+              /cache/download-artifacts
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: cache
+              mountPath: /cache
+
+        - name: install-jellyfin-web
+          image: ghcr.io/silo-server/silo-server@sha256:c824d36338f9dea7e7e5acc43a3f973b0bed0e1e9e9de65a8fbc74f77753f0d5 # build-476, amd64
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-ec"]
+          args:
+            - |
+              if [ -f /var/lib/silo/compat/jellyfin-web/current/index.html ]; then
+                exit 0
+              fi
+              exec silo compat-web install \
+                --dir /var/lib/silo/compat/jellyfin-web \
+                --source https://github.com/jellyfin/jellyfin-web.git \
+                --version 10.11.6
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 1
+              memory: 1Gi
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/silo
+              subPath: silo
+
+        - name: seed-config
+          image: ghcr.io/silo-server/silo-server@sha256:c824d36338f9dea7e7e5acc43a3f973b0bed0e1e9e9de65a8fbc74f77753f0d5 # build-476, amd64
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-ec"]
+          args:
+            - |
+              : "${GARAGE_SILO_ACCESS_KEY:?GARAGE_SILO_ACCESS_KEY is required}"
+              : "${GARAGE_SILO_SECRET_KEY:?GARAGE_SILO_SECRET_KEY is required}"
+              umask 077
+              cat > /seed/silo.yaml <<EOF
+              server:
+                listen: ":8080"
+                mode: integrated
+              s3:
+                public_endpoint: https://s3.techtronics.top
+                public_region: garage
+                public_path_style: true
+                public_bucket: silo-assets
+                public_access_key: ${GARAGE_SILO_ACCESS_KEY}
+                public_secret_key: ${GARAGE_SILO_SECRET_KEY}
+                public_url_auth: presigned
+                private_endpoint: http://192.168.0.75:3900
+                private_region: garage
+                private_path_style: true
+                private_bucket: silo-private
+                private_access_key: ${GARAGE_SILO_ACCESS_KEY}
+                private_secret_key: ${GARAGE_SILO_SECRET_KEY}
+              scanner:
+                workers: 2
+                max_concurrent_libraries: 1
+                max_concurrent_scoped: 1
+              playback:
+                transcode_dir: /tmp/silo-transcode
+                hw_accel: auto
+                transcode_enabled: true
+              jellyfin_compat:
+                enabled: true
+                listen: ":8096"
+                public_url: https://silo-jf.techtronics.top
+                web_enabled: true
+                web_version: 10.11.6
+                web_dir: /var/lib/silo/compat/jellyfin-web/current
+                web_install_dir: /var/lib/silo/compat/jellyfin-web
+              EOF
+              test -s /seed/silo.yaml
+          env:
+            - name: GARAGE_SILO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: silo-secrets
+                  key: GARAGE_SILO_ACCESS_KEY
+            - name: GARAGE_SILO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: silo-secrets
+                  key: GARAGE_SILO_SECRET_KEY
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+          volumeMounts:
+            - name: config-seed
+              mountPath: /seed
+
+      containers:
+        - name: postgres
+          image: docker.io/pgvector/pgvector@sha256:1d50c689b0a6511b9ea0a15615281c81a59fd04a08eb35057ec8646fb3a2118a # pg18, amd64
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: postgres
+              containerPort: 5432
+          env:
+            - name: TZ
+              value: Asia/Kolkata
+            - name: POSTGRES_USER
+              value: silo
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: silo-secrets
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              value: silo
+            - name: POSTGRES_HOST_AUTH_METHOD
+              value: scram-sha-256
+            - name: POSTGRES_INITDB_ARGS
+              value: --auth-host=scram-sha-256
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          startupProbe:
+            exec:
+              command: ["pg_isready", "-h", "127.0.0.1", "-U", "silo", "-d", "silo"]
+            periodSeconds: 10
+            failureThreshold: 30
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-h", "127.0.0.1", "-U", "silo", "-d", "silo"]
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 30
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-h", "127.0.0.1", "-U", "silo", "-d", "silo"]
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 6
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 4Gi
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+
+        - name: redis
+          image: redis@sha256:519f0189dfdee3bc0bad61fb265fe73d864b5c64020e6579ad48a45c49965635 # 7.4.2-alpine3.21, amd64
+          imagePullPolicy: IfNotPresent
+          command:
+            - redis-server
+            - --appendonly
+            - "yes"
+            - --appendfsync
+            - everysec
+            - --dir
+            - /data
+          ports:
+            - name: redis
+              containerPort: 6379
+          startupProbe:
+            exec:
+              command: ["redis-cli", "-h", "127.0.0.1", "ping"]
+            periodSeconds: 10
+            failureThreshold: 30
+          readinessProbe:
+            exec:
+              command: ["redis-cli", "-h", "127.0.0.1", "ping"]
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            exec:
+              command: ["redis-cli", "-h", "127.0.0.1", "ping"]
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 6
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+              subPath: redis
+
+        - name: meilisearch
+          image: docker.io/getmeili/meilisearch@sha256:779b7f3ec3279f9230b5e6399814ee93a873b077433a5ef635d644db3d491a05 # v1.34.3, amd64
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: meili-http
+              containerPort: 7700
+          env:
+            - name: MEILI_ENV
+              value: production
+            - name: MEILI_NO_ANALYTICS
+              value: "true"
+            - name: MEILI_MASTER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: silo-secrets
+                  key: MEILI_MASTER_KEY
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 7700
+            periodSeconds: 10
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 7700
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 7700
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 6
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 2Gi
+          volumeMounts:
+            - name: data
+              mountPath: /meili_data
+              subPath: meilisearch
+
+        - name: silo
+          image: ghcr.io/silo-server/silo-server@sha256:c824d36338f9dea7e7e5acc43a3f973b0bed0e1e9e9de65a8fbc74f77753f0d5 # build-476, amd64
+          imagePullPolicy: IfNotPresent
+          workingDir: /seed
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: jellyfin
+              containerPort: 8096
+          env:
+            - name: TZ
+              value: Asia/Kolkata
+            - name: MODE
+              value: integrated
+            - name: PORT
+              value: "8080"
+            - name: JF_PORT
+              value: "8096"
+            - name: SILO_PUBLIC_URL
+              value: https://silo.techtronics.top
+            - name: SILO_MIGRATE_TIMEOUT
+              value: 20m
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: silo-secrets
+                  key: DATABASE_URL
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: silo-secrets
+                  key: SECRET_KEY
+            - name: REDIS_URL
+              value: redis://127.0.0.1:6379
+            - name: SILO_PLUGIN_CACHE_DIR
+              value: /var/lib/silo/plugins
+          securityContext:
+            allowPrivilegeEscalation: false
+          startupProbe:
+            httpGet:
+              path: /api/v1/health
+              port: http
+              scheme: HTTP
+            periodSeconds: 10
+            failureThreshold: 150
+          readinessProbe:
+            httpGet:
+              path: /api/v1/ready
+              port: http
+              scheme: HTTP
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: http
+              scheme: HTTP
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 6
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: "4"
+              memory: 4Gi
+              gpu.intel.com/xe: "1"
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/silo
+              subPath: silo
+            - name: cache
+              mountPath: /tmp/silo-transcode
+            # Silo derives the default prepared-download path from the
+            # transcode directory: /tmp/silo-download-artifacts.
+            - name: cache
+              mountPath: /tmp/silo-download-artifacts
+              subPath: download-artifacts
+            - name: media
+              mountPath: /mnt/media
+              readOnly: true
+              mountPropagation: HostToContainer
+            - name: config-seed
+              mountPath: /seed
+
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: silo-data
+        - name: cache
+          persistentVolumeClaim:
+            claimName: silo-cache
+        - name: media
+          hostPath:
+            path: /mnt/merged/media
+            type: Directory
+        - name: config-seed
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Mi

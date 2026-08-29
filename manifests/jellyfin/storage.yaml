@@ -46,6 +46,9 @@ kind: PersistentVolumeClaim
 metadata:
   name: jellyfin-cache
   namespace: jellyfin
+  labels:
+    recurring-job.longhorn.io/source: enabled
+    recurring-job-group.longhorn.io/cache-no-backup: enabled
 spec:
   accessModes: ["ReadWriteOnce"]
   storageClassName: longhorn-cache

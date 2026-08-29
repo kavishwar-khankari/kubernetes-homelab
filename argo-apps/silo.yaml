@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: silo
+  namespace: default
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+    homelab.techtronics.top/sync-gate: garage-and-longhorn-validation
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: master-project
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: silo
+  source:
+    repoURL: https://github.com/kavishwar-khankari/kubernetes-homelab.git
+    targetRevision: main
+    path: manifests/silo
+  # Deliberately manual until Garage and Longhorn validation gates pass.
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true

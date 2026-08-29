@@ -66,10 +66,20 @@ SERVER_SECRET=<openssl rand -hex 32>
 Public resources are declared in `blueprint.yaml` (resource keys = Pangolin
 Identifiers/niceIds; targets reference sites by their Identifier — keep the
 three site Identifiers as `k3s-node-1/2/3` in the dashboard). Apply via
-dashboard → Settings → Blueprints → paste, or:
-`docker exec -it pangolin pangolin apply blueprint --file /app/config/blueprint.yaml`
+dashboard → Settings → Blueprints → paste, or with the standalone Pangolin CLI
+on the VPS after authenticating it:
+`pangolin apply blueprint --file /opt/pangolin/config/blueprint.yaml`
+The running Pangolin container does not include the `pangolin` CLI; `pangctl`
+inside the container is an unrelated administrative tool.
 No secrets ever in blueprints; public resources carry no auth block plus a
 catch-all `allow` rule (allow = bypass auth).
+
+For a change to one resource, apply a blueprint containing only that resource
+(for example, `s3-only.yaml`) rather than submitting the full file. This keeps
+unrelated public resources out of the change. The authenticated-session CLI
+command above uses the selected account and organization. Automation without a
+session must provide all three integration flags: `--api-key`, `--endpoint`,
+and `--org`.
 
 ## Notes
 

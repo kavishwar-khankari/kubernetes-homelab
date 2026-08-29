@@ -1,7 +1,7 @@
 # Pangolin blueprint — public resources (declarative, GitOps)
 #
 # Apply: dashboard → Settings → Blueprints → paste this file → Apply.
-# (Or: `pangolin apply blueprint --file /opt/pangolin/blueprint.yaml`)
+# (Or: `pangolin apply blueprint --file /opt/pangolin/config/blueprint.yaml`)
 #
 # Conventions:
 # - Each resource key under public-resources becomes the resource's
@@ -840,6 +840,179 @@ public-resources:
           path: /
           enabled: true
           scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+  silo:
+    name: Silo
+    mode: http
+    full-domain: silo.techtronics.top
+    ssl: true
+    # Enable after Garage and the private Silo validation gates pass.
+    enabled: false
+    rules:
+      - action: allow
+        match: cidr
+        value: 0.0.0.0/0
+      - action: allow
+        match: cidr
+        value: ::/0
+    targets:
+      - site: k3s-node-1
+        hostname: silo.silo.svc.cluster.local
+        port: 8080
+        method: http
+        healthcheck:
+          hostname: silo.silo.svc.cluster.local
+          port: 8080
+          path: /api/v1/health
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-2
+        hostname: silo.silo.svc.cluster.local
+        port: 8080
+        method: http
+        healthcheck:
+          hostname: silo.silo.svc.cluster.local
+          port: 8080
+          path: /api/v1/health
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-3
+        hostname: silo.silo.svc.cluster.local
+        port: 8080
+        method: http
+        healthcheck:
+          hostname: silo.silo.svc.cluster.local
+          port: 8080
+          path: /api/v1/health
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+  silo-jf:
+    name: Silo Jellyfin Compatibility
+    mode: http
+    full-domain: silo-jf.techtronics.top
+    ssl: true
+    # Enable after compat-web assets and private client validation pass.
+    enabled: false
+    rules:
+      - action: allow
+        match: cidr
+        value: 0.0.0.0/0
+      - action: allow
+        match: cidr
+        value: ::/0
+    targets:
+      - site: k3s-node-1
+        hostname: silo.silo.svc.cluster.local
+        port: 8096
+        method: http
+        healthcheck:
+          hostname: silo.silo.svc.cluster.local
+          port: 8096
+          enabled: true
+          mode: tcp
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-2
+        hostname: silo.silo.svc.cluster.local
+        port: 8096
+        method: http
+        healthcheck:
+          hostname: silo.silo.svc.cluster.local
+          port: 8096
+          enabled: true
+          mode: tcp
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-3
+        hostname: silo.silo.svc.cluster.local
+        port: 8096
+        method: http
+        healthcheck:
+          hostname: silo.silo.svc.cluster.local
+          port: 8096
+          enabled: true
+          mode: tcp
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+  s3:
+    name: Garage S3
+    mode: http
+    full-domain: s3.techtronics.top
+    ssl: true
+    enabled: true
+    rules:
+      - action: allow
+        match: cidr
+        value: 0.0.0.0/0
+      - action: allow
+        match: cidr
+        value: ::/0
+    targets:
+      - site: k3s-node-1
+        hostname: 192.168.0.75
+        port: 3900
+        method: http
+        healthcheck:
+          hostname: 192.168.0.75
+          port: 3900
+          enabled: true
+          mode: tcp
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-2
+        hostname: 192.168.0.75
+        port: 3900
+        method: http
+        healthcheck:
+          hostname: 192.168.0.75
+          port: 3900
+          enabled: true
+          mode: tcp
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-3
+        hostname: 192.168.0.75
+        port: 3900
+        method: http
+        healthcheck:
+          hostname: 192.168.0.75
+          port: 3900
+          enabled: true
+          mode: tcp
           interval: 30
           unhealthy-interval: 10
           timeout: 5
