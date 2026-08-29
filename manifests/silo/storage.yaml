@@ -35,4 +35,5 @@ spec:
   volumeMode: Filesystem
   resources:
     requests:
-      storage: 15Gi
+      # Node 3 currently advertises about 14.6Gi for this cache class.
+      storage: 10Gi
