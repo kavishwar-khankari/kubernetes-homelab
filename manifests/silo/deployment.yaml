@@ -27,9 +27,10 @@ spec:
           command: ["/bin/sh", "-ec"]
           args:
             - >-
-              mkdir -p /data/pgdata /data/redis /data/meilisearch
-              /data/silo/compat/jellyfin-web /data/silo/plugins
-              /cache/download-artifacts
+               mkdir -p /data/pgdata /data/redis /data/meilisearch
+               /data/silo/compat/jellyfin-web /data/silo/plugins
+               /cache/download-artifacts;
+               rm -rf /data/silo/compat/jellyfin-web/.install-*
           resources:
             requests:
               cpu: 10m
@@ -42,31 +43,6 @@ spec:
               mountPath: /data
             - name: cache
               mountPath: /cache
-
-        - name: install-jellyfin-web
-          image: ghcr.io/silo-server/silo-server@sha256:c824d36338f9dea7e7e5acc43a3f973b0bed0e1e9e9de65a8fbc74f77753f0d5 # build-476, amd64
-          imagePullPolicy: IfNotPresent
-          command: ["/bin/sh", "-ec"]
-          args:
-            - |
-              if [ -f /var/lib/silo/compat/jellyfin-web/current/index.html ]; then
-                exit 0
-              fi
-              exec silo compat-web install \
-                --dir /var/lib/silo/compat/jellyfin-web \
-                --source https://github.com/jellyfin/jellyfin-web.git \
-                --version 10.11.6
-          resources:
-            requests:
-              cpu: 200m
-              memory: 512Mi
-            limits:
-              cpu: "2"
-              memory: 6Gi
-          volumeMounts:
-            - name: data
-              mountPath: /var/lib/silo
-              subPath: silo
 
         - name: seed-config
           image: ghcr.io/silo-server/silo-server@sha256:c824d36338f9dea7e7e5acc43a3f973b0bed0e1e9e9de65a8fbc74f77753f0d5 # build-476, amd64
@@ -104,10 +80,10 @@ spec:
                 hw_accel: auto
                 transcode_enabled: true
               jellyfin_compat:
-                enabled: true
+                enabled: false
                 listen: ":8096"
                 public_url: https://silo-jf.techtronics.top
-                web_enabled: true
+                web_enabled: false
                 web_version: 10.11.6
                 web_dir: /var/lib/silo/compat/jellyfin-web/current
                 web_install_dir: /var/lib/silo/compat/jellyfin-web
