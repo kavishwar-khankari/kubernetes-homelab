@@ -29,7 +29,7 @@ spec:
           - 993
       initContainers:
         - name: init-data-dirs
-          image: ghcr.io/silo-server/silo-server@sha256:c824d36338f9dea7e7e5acc43a3f973b0bed0e1e9e9de65a8fbc74f77753f0d5 # build-476, amd64
+          image: ghcr.io/silo-server/silo-server@sha256:60b58981c0f9b831ac352a18420899fc7f976fc3eee61466027c918032db6ed7 # main after PR #822, amd64
           imagePullPolicy: IfNotPresent
           command: ["/bin/sh", "-ec"]
           args:
@@ -51,7 +51,7 @@ spec:
               mountPath: /cache
 
         - name: seed-config
-          image: ghcr.io/silo-server/silo-server@sha256:c824d36338f9dea7e7e5acc43a3f973b0bed0e1e9e9de65a8fbc74f77753f0d5 # build-476, amd64
+          image: ghcr.io/silo-server/silo-server@sha256:60b58981c0f9b831ac352a18420899fc7f976fc3eee61466027c918032db6ed7 # main after PR #822, amd64
           imagePullPolicy: IfNotPresent
           command: ["/bin/sh", "-ec"]
           args:
@@ -289,7 +289,7 @@ spec:
               subPath: meilisearch
 
         - name: silo
-          image: ghcr.io/silo-server/silo-server@sha256:c824d36338f9dea7e7e5acc43a3f973b0bed0e1e9e9de65a8fbc74f77753f0d5 # build-476, amd64
+          image: ghcr.io/silo-server/silo-server@sha256:60b58981c0f9b831ac352a18420899fc7f976fc3eee61466027c918032db6ed7 # main after PR #822, amd64
           imagePullPolicy: IfNotPresent
           workingDir: /seed
           ports:
