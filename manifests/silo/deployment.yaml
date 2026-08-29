@@ -62,7 +62,7 @@ spec:
               memory: 512Mi
             limits:
               cpu: "2"
-              memory: 4Gi
+              memory: 6Gi
           volumeMounts:
             - name: data
               mountPath: /var/lib/silo
