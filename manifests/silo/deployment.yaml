@@ -3,10 +3,14 @@ kind: Deployment
 metadata:
   name: silo
   namespace: silo
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   replicas: 1
   strategy:
     type: Recreate
+  revisionHistoryLimit: 2
+  progressDeadlineSeconds: 7200
   selector:
     matchLabels:
       app: silo
@@ -16,6 +20,9 @@ spec:
         app: silo
     spec:
       automountServiceAccountToken: false
+      nodeSelector:
+        intel.feature.node.kubernetes.io/gpu: "true"
+      terminationGracePeriodSeconds: 120
       securityContext:
         supplementalGroups:
           - 44
@@ -27,10 +34,9 @@ spec:
           command: ["/bin/sh", "-ec"]
           args:
             - >-
-               mkdir -p /data/pgdata /data/redis /data/meilisearch
-               /data/silo/compat/jellyfin-web /data/silo/plugins
-               /cache/download-artifacts;
-               rm -rf /data/silo/compat/jellyfin-web/.install-*
+              mkdir -p /data/pgdata /data/redis /data/meilisearch /data/silo/plugins
+              /data/silo/compat/jellyfin-web
+              /cache/download-artifacts
           resources:
             requests:
               cpu: 10m
@@ -87,6 +93,8 @@ spec:
                 web_version: 10.11.6
                 web_dir: /var/lib/silo/compat/jellyfin-web/current
                 web_install_dir: /var/lib/silo/compat/jellyfin-web
+              audiobookshelf_compat:
+                enabled: false
               EOF
               test -s /seed/silo.yaml
           env:
@@ -115,9 +123,22 @@ spec:
         - name: postgres
           image: docker.io/pgvector/pgvector@sha256:1d50c689b0a6511b9ea0a15615281c81a59fd04a08eb35057ec8646fb3a2118a # pg18, amd64
           imagePullPolicy: IfNotPresent
-          ports:
-            - name: postgres
-              containerPort: 5432
+          args:
+            - postgres
+            - -c
+            - listen_addresses=127.0.0.1
+            - -c
+            - shared_buffers=1GB
+            - -c
+            - effective_cache_size=3GB
+            - -c
+            - work_mem=16MB
+            - -c
+            - maintenance_work_mem=256MB
+            - -c
+            - max_connections=100
+            - -c
+            - wal_compression=on
           env:
             - name: TZ
               value: Asia/Kolkata
@@ -140,13 +161,14 @@ spec:
             exec:
               command: ["pg_isready", "-h", "127.0.0.1", "-U", "silo", "-d", "silo"]
             periodSeconds: 10
-            failureThreshold: 30
+            timeoutSeconds: 5
+            failureThreshold: 60
           readinessProbe:
             exec:
               command: ["pg_isready", "-h", "127.0.0.1", "-U", "silo", "-d", "silo"]
             periodSeconds: 10
             timeoutSeconds: 5
-            failureThreshold: 30
+            failureThreshold: 6
           livenessProbe:
             exec:
               command: ["pg_isready", "-h", "127.0.0.1", "-U", "silo", "-d", "silo"]
@@ -155,39 +177,42 @@ spec:
             failureThreshold: 6
           resources:
             requests:
-              cpu: 250m
-              memory: 512Mi
+              cpu: 500m
+              memory: 1Gi
             limits:
               cpu: "2"
               memory: 4Gi
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
+            - name: dshm
+              mountPath: /dev/shm
 
         - name: redis
           image: redis@sha256:519f0189dfdee3bc0bad61fb265fe73d864b5c64020e6579ad48a45c49965635 # 7.4.2-alpine3.21, amd64
           imagePullPolicy: IfNotPresent
           command:
             - redis-server
+            - --bind
+            - 127.0.0.1
             - --appendonly
             - "yes"
             - --appendfsync
             - everysec
             - --dir
             - /data
-          ports:
-            - name: redis
-              containerPort: 6379
           startupProbe:
             exec:
               command: ["redis-cli", "-h", "127.0.0.1", "ping"]
             periodSeconds: 10
+            timeoutSeconds: 5
             failureThreshold: 30
           readinessProbe:
             exec:
               command: ["redis-cli", "-h", "127.0.0.1", "ping"]
             periodSeconds: 10
             timeoutSeconds: 5
+            failureThreshold: 6
           livenessProbe:
             exec:
               command: ["redis-cli", "-h", "127.0.0.1", "ping"]
@@ -196,11 +221,11 @@ spec:
             failureThreshold: 6
           resources:
             requests:
-              cpu: 10m
-              memory: 32Mi
+              cpu: 100m
+              memory: 128Mi
             limits:
-              cpu: 200m
-              memory: 256Mi
+              cpu: 500m
+              memory: 512Mi
           volumeMounts:
             - name: data
               mountPath: /data
@@ -215,40 +240,49 @@ spec:
           env:
             - name: MEILI_ENV
               value: production
-            - name: MEILI_NO_ANALYTICS
-              value: "true"
             - name: MEILI_MASTER_KEY
               valueFrom:
                 secretKeyRef:
                   name: silo-secrets
                   key: MEILI_MASTER_KEY
+            - name: MEILI_DB_PATH
+              value: /meili_data/data.ms
+            - name: MEILI_HTTP_ADDR
+              value: 0.0.0.0:7700
+            - name: MEILI_NO_ANALYTICS
+              value: "true"
+            - name: MEILI_MAX_INDEXING_MEMORY
+              value: "268435456"
+            - name: MEILI_MAX_INDEXING_THREADS
+              value: "1"
           startupProbe:
             httpGet:
               path: /health
-              port: 7700
+              port: meili-http
             periodSeconds: 10
-            failureThreshold: 30
+            timeoutSeconds: 5
+            failureThreshold: 60
           readinessProbe:
             httpGet:
               path: /health
-              port: 7700
+              port: meili-http
             periodSeconds: 15
             timeoutSeconds: 5
             failureThreshold: 6
           livenessProbe:
             httpGet:
               path: /health
-              port: 7700
+              port: meili-http
             periodSeconds: 20
             timeoutSeconds: 5
             failureThreshold: 6
           resources:
             requests:
-              cpu: 100m
-              memory: 512Mi
+              cpu: 250m
+              memory: 384Mi
             limits:
-              cpu: "1"
-              memory: 2Gi
+              cpu: 500m
+              memory: 1Gi
           volumeMounts:
             - name: data
               mountPath: /meili_data
@@ -261,8 +295,6 @@ spec:
           ports:
             - name: http
               containerPort: 8080
-            - name: jellyfin
-              containerPort: 8096
           env:
             - name: TZ
               value: Asia/Kolkata
@@ -270,12 +302,12 @@ spec:
               value: integrated
             - name: PORT
               value: "8080"
-            - name: JF_PORT
-              value: "8096"
             - name: SILO_PUBLIC_URL
               value: https://silo.techtronics.top
             - name: SILO_MIGRATE_TIMEOUT
-              value: 20m
+              value: 60m
+            - name: POSTGRES_TUNE
+              value: "off"
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
@@ -292,13 +324,17 @@ spec:
               value: /var/lib/silo/plugins
           securityContext:
             allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           startupProbe:
             httpGet:
               path: /api/v1/health
               port: http
               scheme: HTTP
             periodSeconds: 10
-            failureThreshold: 150
+            timeoutSeconds: 5
+            failureThreshold: 360
           readinessProbe:
             httpGet:
               path: /api/v1/ready
@@ -329,8 +365,6 @@ spec:
               subPath: silo
             - name: cache
               mountPath: /tmp/silo-transcode
-            # Silo derives the default prepared-download path from the
-            # transcode directory: /tmp/silo-download-artifacts.
             - name: cache
               mountPath: /tmp/silo-download-artifacts
               subPath: download-artifacts
@@ -356,3 +390,7 @@ spec:
           emptyDir:
             medium: Memory
             sizeLimit: 1Mi
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 2Gi

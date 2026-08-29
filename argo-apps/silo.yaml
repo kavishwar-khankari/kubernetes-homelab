@@ -5,7 +5,7 @@ metadata:
   namespace: default
   annotations:
     argocd.argoproj.io/sync-wave: "0"
-    homelab.techtronics.top/sync-gate: garage-and-longhorn-validation
+    homelab.techtronics.top/sync-gate: doppler-and-silo-production-validation
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
@@ -17,7 +17,7 @@ spec:
     repoURL: https://github.com/kavishwar-khankari/kubernetes-homelab.git
     targetRevision: main
     path: manifests/silo
-  # Deliberately manual until Garage and Longhorn validation gates pass.
+  # Deliberately manual until Doppler prerequisites and Silo runtime validation pass.
   syncPolicy:
     syncOptions:
       - CreateNamespace=true
