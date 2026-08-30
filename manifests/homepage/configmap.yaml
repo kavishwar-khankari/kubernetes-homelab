@@ -169,6 +169,11 @@ data:
               enableMediaControl: false
               showEpisodeNumber: true
               fields: ["movies", "series", "episodes", "songs"]
+        - silo:
+            href: https://silo.techtronics.top/
+            icon: mdi-movie-open
+            description: Silo media server
+            siteMonitor: http://silo.silo.svc.cluster.local:8080/api/v1/health
         - teapot-public:
             href: https://teapot.techtronics.top/
             icon: jellyfin.png
@@ -508,6 +513,11 @@ data:
         - nextcloud:
             href: https://nextcloud.techtronics.top/apps/dashboard/
             icon: nextcloud.png
+        - garage ui:
+            href: http://192.168.0.75:8080/
+            icon: garage.png
+            description: Garage object storage admin (LAN only)
+            siteMonitor: http://192.168.0.75:8080/
         - immich:
             href: https://immich.techtronics.top/
             icon: immich.png
