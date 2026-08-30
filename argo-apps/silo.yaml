@@ -17,7 +17,9 @@ spec:
     repoURL: https://github.com/kavishwar-khankari/kubernetes-homelab.git
     targetRevision: main
     path: manifests/silo
-  # Deliberately manual until Doppler prerequisites and Silo runtime validation pass.
   syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
     syncOptions:
       - CreateNamespace=true
