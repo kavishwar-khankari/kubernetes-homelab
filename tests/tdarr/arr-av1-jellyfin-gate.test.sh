@@ -7,11 +7,12 @@ fixture=$(mktemp -d)
 trap 'rm -rf "$fixture"' EXIT HUP INT TERM
 
 root="$fixture/media_2/series/anime"
-mkdir -p "$root/Show [Test]"
+web_root="$fixture/media_2/series/web series"
+mkdir -p "$root/Show [Test]" "$web_root/Show [Test]"
 
 run_gate() {
   ARR_GATE_MEDIA_ROOT="$fixture/media_2" \
-  ARR_GATE_ROOTS="$root/" \
+  ARR_GATE_ROOTS="$root/:$web_root/" \
   "$SCRIPT" /downloads/source.mkv "$1"
 }
 
@@ -27,6 +28,10 @@ output=$(run_gate "$root/Show [Test]/Episode [2].mkv")
 output=$(run_gate "$root/Show [Test]/O'Brien.mkv")
 [ "$output" = '[MoveStatus] DeferMove' ]
 grep -F "/O'Brien.*" "$root/Show [Test]/.ignore" >/dev/null
+
+output=$(run_gate "$web_root/Show [Test]/Web-Episode.mkv")
+[ "$output" = '[MoveStatus] DeferMove' ]
+grep -F '/Web-Episode.*' "$web_root/Show [Test]/.ignore" >/dev/null
 
 (
   run_gate "$root/Show [Test]/Concurrent-A.mkv" > "$fixture/concurrent-a.out"

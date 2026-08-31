@@ -4,7 +4,7 @@ set -eu
 MAGIC='# tdarr-av1-jellyfin-gate/v1'
 LOCK_NAME='.tdarr-av1-jellyfin-gate.lock'
 MEDIA_ROOT=${ARR_GATE_MEDIA_ROOT:-/media_2}
-GATE_ROOTS=${ARR_GATE_ROOTS:-/media_2/series/anime/}
+GATE_ROOTS=${ARR_GATE_ROOTS:-/media_2/series/anime/:/media_2/series/web series/}
 LOCK_TIMEOUT_SECONDS=${ARR_GATE_LOCK_TIMEOUT_SECONDS:-60}
 
 newline=$(printf '\nx')

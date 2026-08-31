@@ -53,7 +53,7 @@ spec:
             - name: ARR_GATE_MEDIA_ROOT
               value: "/media_2"
             - name: ARR_GATE_ROOTS
-              value: "/media_2/series/anime/"
+              value: "/media_2/series/anime/:/media_2/series/web series/"
           volumeMounts:
             - name: radarr-config
               mountPath: /config
@@ -99,7 +99,7 @@ spec:
             - name: ARR_GATE_MEDIA_ROOT
               value: "/media_2"
             - name: ARR_GATE_ROOTS
-              value: "/media_2/series/anime/"
+              value: "/media_2/series/anime/:/media_2/series/web series/"
           volumeMounts:
             - name: sonarr-config
               mountPath: /config

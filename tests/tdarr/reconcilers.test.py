@@ -160,12 +160,16 @@ def main():
     tdarr.main()
     assert TdarrHandler.state["sync_calls"] == 1
     assert TdarrHandler.state["flows"][tdarr.GATED_ID]["_id"] == tdarr.GATED_ID
-    assert TdarrHandler.state["libraries"]["4sWtQXW4h"]["flowId"] == gated["_id"]
-    assert TdarrHandler.state["libraries"]["4sWtQXW4h"]["holdNewFiles"] is True
+    gated_library_ids = {"4sWtQXW4h", "jvBWApbSE"}
+    assert all(
+        TdarrHandler.state["libraries"][library_id]["flowId"] == gated["_id"]
+        and TdarrHandler.state["libraries"][library_id]["holdNewFiles"] is True
+        for library_id in gated_library_ids
+    )
     assert all(
         library["flowId"] == canonical["_id"] and library["holdNewFiles"] is False
         for library_id, library in TdarrHandler.state["libraries"].items()
-        if library_id != "4sWtQXW4h"
+        if library_id not in gated_library_ids
     )
     assert all(
         library["unownedSetting"] == "preserved"

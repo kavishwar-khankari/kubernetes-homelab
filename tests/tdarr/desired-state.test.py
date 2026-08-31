@@ -111,9 +111,10 @@ def main():
     }
     assert actual_gate_edges == expected_gate_edges
 
+    gated_library_ids = {"4sWtQXW4h", "jvBWApbSE"}
     for library_path in (DESIRED / "libraries").glob("*.json"):
         library = json.loads(library_path.read_text(encoding="utf-8"))
-        if library["_id"] == "4sWtQXW4h":
+        if library["_id"] in gated_library_ids:
             assert library["flowId"] == gated["_id"]
             assert library["holdNewFiles"] is True
         else:
