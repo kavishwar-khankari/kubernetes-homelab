@@ -850,8 +850,8 @@ public-resources:
     mode: http
     full-domain: silo.techtronics.top
     ssl: true
-    # Enable after Garage and the private Silo validation gates pass.
-    enabled: false
+    # Enabled after Garage and the private Silo validation gates passed.
+    enabled: true
     rules:
       - action: allow
         match: cidr
