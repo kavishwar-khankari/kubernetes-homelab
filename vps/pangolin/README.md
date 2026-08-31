@@ -71,8 +71,12 @@ on the VPS after authenticating it:
 `pangolin apply blueprint --file /opt/pangolin/config/blueprint.yaml`
 The running Pangolin container does not include the `pangolin` CLI; `pangctl`
 inside the container is an unrelated administrative tool.
-No secrets ever in blueprints; public resources carry no auth block plus a
-catch-all `allow` rule (allow = bypass auth).
+No secrets ever in blueprints. Existing public resources carry no auth block
+plus catch-all `allow` rules (allow = bypass auth); protected resources such as
+OpenChamber and other protected resources must use SSO and must not have
+catch-all rules. The protected-resource account identifier is supplied at
+apply time through `PANGOLIN_OWNER_USER` so it is not committed. Use the same
+variable for StreamyStats and other single-user resources.
 
 For a change to one resource, apply a blueprint containing only that resource
 (for example, `s3-only.yaml`) rather than submitting the full file. This keeps
