@@ -9,11 +9,12 @@
 # - Targets reference sites by their Identifier (niceId). The site
 #   Identifiers are editable in the dashboard (Sites page) — keep them
 #   k3s-node-1 / k3s-node-2 / k3s-node-3.
-# - Public resources are intentionally open: no auth block (inline-policy
-#   SSO defaults to disabled) PLUS catch-all allow rules that bypass auth
-#   for BOTH address families (docs: allow = bypass auth). The rules engine
-#   is IP-family strict, so 0.0.0.0/0 alone would NOT match IPv6 clients.
-# - Backends are in-cluster Service DNS names reachable from the Newt pods.
+# - Existing public resources are intentionally open: no auth block (inline-
+#   policy SSO defaults to disabled) plus catch-all allow rules that bypass
+#   auth for BOTH address families. The OpenChamber resource is the protected
+#   exception and must not receive catch-all allow rules.
+# - Backends normally use in-cluster Service DNS names reachable from the Newt
+#   pods; external reverse proxies may use private LAN IPs.
 # - Healthchecks: `status` omitted (any 2xx passes); `mode: tcp` for
 #   backends with no unauthenticated HTTP endpoint (CouchDB).
 # - No secrets, no private resources, nothing internal beyond what is
@@ -1013,6 +1014,119 @@ public-resources:
           port: 3900
           enabled: true
           mode: tcp
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+  openchamber:
+    name: OpenChamber
+    mode: http
+    full-domain: openchamber.techtronics.top
+    ssl: true
+    enabled: true
+    auth:
+      sso-enabled: true
+      # Resolved by the Pangolin CLI from PANGOLIN_OWNER_USER;
+      # keep the account identifier out of Git.
+      sso-users:
+        - "{{env.PANGOLIN_OWNER_USER}}"
+    targets:
+      - site: k3s-node-1
+        hostname: 192.168.0.30
+        port: 3000
+        method: http
+        healthcheck:
+          hostname: 192.168.0.30
+          port: 3000
+          enabled: true
+          mode: tcp
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-2
+        hostname: 192.168.0.30
+        port: 3000
+        method: http
+        healthcheck:
+          hostname: 192.168.0.30
+          port: 3000
+          enabled: true
+          mode: tcp
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-3
+        hostname: 192.168.0.30
+        port: 3000
+        method: http
+        healthcheck:
+          hostname: 192.168.0.30
+          port: 3000
+          enabled: true
+          mode: tcp
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+  streamystats:
+    name: StreamyStats
+    mode: http
+    full-domain: streamystats.techtronics.top
+    ssl: true
+    enabled: true
+    auth:
+      sso-enabled: true
+      # Resolved by the Pangolin CLI from PANGOLIN_OWNER_USER;
+      # keep the account identifier out of Git.
+      sso-users:
+        - "{{env.PANGOLIN_OWNER_USER}}"
+    targets:
+      - site: k3s-node-1
+        hostname: streamystats.streamystats
+        port: 3000
+        method: http
+        healthcheck:
+          hostname: streamystats.streamystats
+          port: 3000
+          path: /api/health
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-2
+        hostname: streamystats.streamystats
+        port: 3000
+        method: http
+        healthcheck:
+          hostname: streamystats.streamystats
+          port: 3000
+          path: /api/health
+          enabled: true
+          scheme: http
+          interval: 30
+          unhealthy-interval: 10
+          timeout: 5
+          healthy-threshold: 2
+          unhealthy-threshold: 3
+      - site: k3s-node-3
+        hostname: streamystats.streamystats
+        port: 3000
+        method: http
+        healthcheck:
+          hostname: streamystats.streamystats
+          port: 3000
+          path: /api/health
+          enabled: true
+          scheme: http
           interval: 30
           unhealthy-interval: 10
           timeout: 5
