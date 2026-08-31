@@ -160,7 +160,7 @@ def main():
     tdarr.main()
     assert TdarrHandler.state["sync_calls"] == 1
     assert TdarrHandler.state["flows"][tdarr.GATED_ID]["_id"] == tdarr.GATED_ID
-    gated_library_ids = {"4sWtQXW4h", "jvBWApbSE"}
+    gated_library_ids = {"4sWtQXW4h", "jvBWApbSE", "lkun_CfeF", "R6I55tD6c"}
     assert all(
         TdarrHandler.state["libraries"][library_id]["flowId"] == gated["_id"]
         and TdarrHandler.state["libraries"][library_id]["holdNewFiles"] is False

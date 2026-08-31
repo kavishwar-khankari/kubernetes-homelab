@@ -111,7 +111,7 @@ def main():
     }
     assert actual_gate_edges == expected_gate_edges
 
-    gated_library_ids = {"4sWtQXW4h", "jvBWApbSE"}
+    gated_library_ids = {"4sWtQXW4h", "jvBWApbSE", "lkun_CfeF", "R6I55tD6c"}
     for library_path in (DESIRED / "libraries").glob("*.json"):
         library = json.loads(library_path.read_text(encoding="utf-8"))
         if library["_id"] in gated_library_ids:
