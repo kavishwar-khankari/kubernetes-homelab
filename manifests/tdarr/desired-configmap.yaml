@@ -2,9 +2,9 @@ apiVersion: v1
 data:
   arr-gate-settings.json: |
     {
-      "enabled": false,
+      "enabled": true,
       "sonarr": {
-        "useScriptImport": false,
+        "useScriptImport": true,
         "scriptImportPath": "/scripts/arr-av1-jellyfin-gate.sh"
       },
       "radarr": {
@@ -1719,8 +1719,8 @@ data:
       "_id": "4sWtQXW4h",
       "name": "Anime",
       "folder": "/media/series/anime",
-      "flowId": "AV1_QSV_Arc_B570_HDR_aware_no_routing",
-      "holdNewFiles": false
+      "flowId": "AV1_QSV_Arc_B570_HDR_aware_no_routing_Jellyfin_Gate",
+      "holdNewFiles": true
     }
   library__R6I55tD6c.json: |
     {

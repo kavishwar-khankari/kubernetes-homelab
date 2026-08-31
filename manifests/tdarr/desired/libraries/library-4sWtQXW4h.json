@@ -2,6 +2,6 @@
   "_id": "4sWtQXW4h",
   "name": "Anime",
   "folder": "/media/series/anime",
-  "flowId": "AV1_QSV_Arc_B570_HDR_aware_no_routing",
-  "holdNewFiles": false
+  "flowId": "AV1_QSV_Arc_B570_HDR_aware_no_routing_Jellyfin_Gate",
+  "holdNewFiles": true
 }

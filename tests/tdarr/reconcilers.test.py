@@ -5,6 +5,7 @@ import importlib.util
 import json
 import os
 import sys
+import tempfile
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from threading import Thread
@@ -94,19 +95,15 @@ class TdarrHandler(BaseHTTPRequestHandler):
 
 
 class ArrHandler(BaseHTTPRequestHandler):
-    config = {
-        "useScriptImport": False,
-        "scriptImportPath": "",
-        "copyUsingHardlinks": True,
-        "unownedSetting": "preserved",
-    }
+    configs = {}
     keys = []
     puts = 0
 
     def do_GET(self):  # noqa: N802
         if self.path == "/api/v3/config/mediamanagement":
-            self.keys.append(self.headers.get("X-Api-Key"))
-            self.send_json(self.config)
+            api_key = self.headers.get("X-Api-Key")
+            self.keys.append(api_key)
+            self.send_json(type(self).configs[api_key])
             return
         self.send_error(404)
 
@@ -114,11 +111,12 @@ class ArrHandler(BaseHTTPRequestHandler):
         if self.path != "/api/v3/config/mediamanagement":
             self.send_error(404)
             return
-        self.keys.append(self.headers.get("X-Api-Key"))
+        api_key = self.headers.get("X-Api-Key")
+        self.keys.append(api_key)
         length = int(self.headers.get("Content-Length", "0"))
-        type(self).config = json.loads(self.rfile.read(length))
+        type(self).configs[api_key] = json.loads(self.rfile.read(length))
         type(self).puts += 1
-        self.send_json(type(self).config)
+        self.send_json(type(self).configs[api_key])
 
     def log_message(self, format, *args):
         del format, args
@@ -139,6 +137,7 @@ def server_for(handler):
 
 def main():
     canonical = json.loads((DESIRED / "flows" / "canonical-flow.json").read_text())
+    gated = json.loads((DESIRED / "flows" / "gated-flow.json").read_text())
     TdarrHandler.state = {
         "flows": {canonical["_id"]: canonical},
         "libraries": {},
@@ -147,9 +146,10 @@ def main():
     }
     for path in (DESIRED / "libraries").glob("*.json"):
         library = json.loads(path.read_text())
+        library["flowId"] = canonical["_id"]
+        library["holdNewFiles"] = False
         library["unownedSetting"] = "preserved"
         TdarrHandler.state["libraries"][library["_id"]] = library
-    TdarrHandler.state["libraries"]["4sWtQXW4h"]["holdNewFiles"] = True
     tdarr_server = server_for(TdarrHandler)
     os.environ["TDARR_URL"] = f"http://127.0.0.1:{tdarr_server.server_port}"
     os.environ["TDARR_DESIRED_DIR"] = str(DESIRED)
@@ -160,7 +160,13 @@ def main():
     tdarr.main()
     assert TdarrHandler.state["sync_calls"] == 1
     assert TdarrHandler.state["flows"][tdarr.GATED_ID]["_id"] == tdarr.GATED_ID
-    assert TdarrHandler.state["libraries"]["4sWtQXW4h"]["holdNewFiles"] is False
+    assert TdarrHandler.state["libraries"]["4sWtQXW4h"]["flowId"] == gated["_id"]
+    assert TdarrHandler.state["libraries"]["4sWtQXW4h"]["holdNewFiles"] is True
+    assert all(
+        library["flowId"] == canonical["_id"] and library["holdNewFiles"] is False
+        for library_id, library in TdarrHandler.state["libraries"].items()
+        if library_id != "4sWtQXW4h"
+    )
     assert all(
         library["unownedSetting"] == "preserved"
         for library in TdarrHandler.state["libraries"].values()
@@ -174,27 +180,48 @@ def main():
     desired_file = DESIRED / "arr-gate-settings.json"
     desired = json.loads(desired_file.read_text())
     desired["enabled"] = True
-    temporary_desired = DESIRED / ".arr-gate-settings-test.json"
-    temporary_desired.write_text(json.dumps(desired))
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as handle:
+        json.dump(desired, handle)
+        temporary_desired = Path(handle.name)
     arr_server = server_for(ArrHandler)
-    os.environ["ARR_GATE_DESIRED_FILE"] = str(temporary_desired)
-    os.environ["SONARR_URL"] = f"http://127.0.0.1:{arr_server.server_port}/api/v3"
-    os.environ["RADARR_URL"] = f"http://127.0.0.1:{arr_server.server_port}/api/v3"
-    os.environ["ARR_GATE_SONARR_API_KEY"] = "sonarr-test-key"
-    os.environ["ARR_GATE_RADARR_API_KEY"] = "radarr-test-key"
-    arr = load_module(
-        "arr_gate_reconcile_test_module",
-        ROOT / "manifests" / "tdarr" / "script-source" / "arr-gate-reconcile.py",
-    )
-    arr.main()
-    assert ArrHandler.config["useScriptImport"] is False
-    assert ArrHandler.config["scriptImportPath"] == "/scripts/arr-av1-jellyfin-gate.sh"
-    assert ArrHandler.config["copyUsingHardlinks"] is False
-    assert ArrHandler.config["unownedSetting"] == "preserved"
-    assert ArrHandler.puts == 2
-    assert ArrHandler.keys == ["sonarr-test-key"] * 3 + ["radarr-test-key"] * 3
-    arr_server.shutdown()
-    temporary_desired.unlink()
+    try:
+        os.environ["ARR_GATE_DESIRED_FILE"] = str(temporary_desired)
+        os.environ["SONARR_URL"] = f"http://127.0.0.1:{arr_server.server_port}/api/v3"
+        os.environ["RADARR_URL"] = f"http://127.0.0.1:{arr_server.server_port}/api/v3"
+        os.environ["ARR_GATE_SONARR_API_KEY"] = "sonarr-test-key"
+        os.environ["ARR_GATE_RADARR_API_KEY"] = "radarr-test-key"
+        ArrHandler.configs = {
+            "sonarr-test-key": {
+                "useScriptImport": False,
+                "scriptImportPath": "",
+                "copyUsingHardlinks": False,
+                "unownedSetting": "preserved",
+            },
+            "radarr-test-key": {
+                "useScriptImport": False,
+                "scriptImportPath": "",
+                "copyUsingHardlinks": True,
+                "unownedSetting": "preserved",
+            },
+        }
+        ArrHandler.keys = []
+        ArrHandler.puts = 0
+        arr = load_module(
+            "arr_gate_reconcile_test_module",
+            ROOT / "manifests" / "tdarr" / "script-source" / "arr-gate-reconcile.py",
+        )
+        arr.main()
+        assert ArrHandler.configs["sonarr-test-key"]["useScriptImport"] is True
+        assert ArrHandler.configs["sonarr-test-key"]["scriptImportPath"] == "/scripts/arr-av1-jellyfin-gate.sh"
+        assert ArrHandler.configs["sonarr-test-key"]["unownedSetting"] == "preserved"
+        assert ArrHandler.configs["radarr-test-key"]["useScriptImport"] is False
+        assert ArrHandler.configs["radarr-test-key"]["copyUsingHardlinks"] is False
+        assert ArrHandler.configs["radarr-test-key"]["unownedSetting"] == "preserved"
+        assert ArrHandler.puts == 2
+        assert ArrHandler.keys == ["sonarr-test-key"] * 3 + ["radarr-test-key"] * 3
+    finally:
+        arr_server.shutdown()
+        temporary_desired.unlink(missing_ok=True)
     print("reconciler fixture tests passed")
 
 

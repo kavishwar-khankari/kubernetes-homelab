@@ -113,13 +113,17 @@ def main():
 
     for library_path in (DESIRED / "libraries").glob("*.json"):
         library = json.loads(library_path.read_text(encoding="utf-8"))
-        assert library["flowId"] == canonical["_id"]
-        assert library["holdNewFiles"] is False
+        if library["_id"] == "4sWtQXW4h":
+            assert library["flowId"] == gated["_id"]
+            assert library["holdNewFiles"] is True
+        else:
+            assert library["flowId"] == canonical["_id"]
+            assert library["holdNewFiles"] is False
 
     settings = read_json(Path("arr-gate-settings.json"))
-    assert settings["enabled"] is False
+    assert settings["enabled"] is True
     assert settings["sonarr"] == {
-        "useScriptImport": False,
+        "useScriptImport": True,
         "scriptImportPath": "/scripts/arr-av1-jellyfin-gate.sh",
     }
     assert settings["radarr"] == {
