@@ -8,7 +8,8 @@ data:
         "scriptImportPath": "/scripts/arr-av1-jellyfin-gate.sh"
       },
       "radarr": {
-        "useScriptImport": false,
+        "useScriptImport": true,
+        "scriptImportPath": "/scripts/arr-av1-jellyfin-gate.sh",
         "copyUsingHardlinks": false
       }
     }

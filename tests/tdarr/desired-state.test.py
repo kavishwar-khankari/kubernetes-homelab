@@ -128,7 +128,8 @@ def main():
         "scriptImportPath": "/scripts/arr-av1-jellyfin-gate.sh",
     }
     assert settings["radarr"] == {
-        "useScriptImport": False,
+        "useScriptImport": True,
+        "scriptImportPath": "/scripts/arr-av1-jellyfin-gate.sh",
         "copyUsingHardlinks": False,
     }
     print("Tdarr desired-state tests passed")

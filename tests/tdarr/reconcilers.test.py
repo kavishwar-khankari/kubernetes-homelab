@@ -218,7 +218,8 @@ def main():
         assert ArrHandler.configs["sonarr-test-key"]["useScriptImport"] is True
         assert ArrHandler.configs["sonarr-test-key"]["scriptImportPath"] == "/scripts/arr-av1-jellyfin-gate.sh"
         assert ArrHandler.configs["sonarr-test-key"]["unownedSetting"] == "preserved"
-        assert ArrHandler.configs["radarr-test-key"]["useScriptImport"] is False
+        assert ArrHandler.configs["radarr-test-key"]["useScriptImport"] is True
+        assert ArrHandler.configs["radarr-test-key"]["scriptImportPath"] == "/scripts/arr-av1-jellyfin-gate.sh"
         assert ArrHandler.configs["radarr-test-key"]["copyUsingHardlinks"] is False
         assert ArrHandler.configs["radarr-test-key"]["unownedSetting"] == "preserved"
         assert ArrHandler.puts == 2

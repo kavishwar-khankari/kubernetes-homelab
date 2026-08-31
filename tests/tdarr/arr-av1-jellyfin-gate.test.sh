@@ -8,11 +8,13 @@ trap 'rm -rf "$fixture"' EXIT HUP INT TERM
 
 root="$fixture/media_2/series/anime"
 web_root="$fixture/media_2/series/web series"
-mkdir -p "$root/Show [Test]" "$web_root/Show [Test]"
+movie_root="$fixture/media_2/001.MOVIES"
+movie_4k_root="$fixture/media_2/4k movies"
+mkdir -p "$root/Show [Test]" "$web_root/Show [Test]" "$movie_root/Movie [Test]" "$movie_4k_root/Movie [Test]"
 
 run_gate() {
   ARR_GATE_MEDIA_ROOT="$fixture/media_2" \
-  ARR_GATE_ROOTS="$root/:$web_root/" \
+  ARR_GATE_ROOTS="$root/:$web_root/:$movie_root/:$movie_4k_root/" \
   "$SCRIPT" /downloads/source.mkv "$1"
 }
 
@@ -32,6 +34,14 @@ grep -F "O'Brien.*" "$root/Show [Test]/.ignore" >/dev/null
 output=$(run_gate "$web_root/Show [Test]/Web-Episode.mkv")
 [ "$output" = '[MoveStatus] DeferMove' ]
 grep -F 'Web-Episode.*' "$web_root/Show [Test]/.ignore" >/dev/null
+
+output=$(run_gate "$movie_root/Movie [Test]/Movie.mkv")
+[ "$output" = '[MoveStatus] DeferMove' ]
+grep -F 'Movie.*' "$movie_root/Movie [Test]/.ignore" >/dev/null
+
+output=$(run_gate "$movie_4k_root/Movie [Test]/Movie.mkv")
+[ "$output" = '[MoveStatus] DeferMove' ]
+grep -F 'Movie.*' "$movie_4k_root/Movie [Test]/.ignore" >/dev/null
 
 (
   run_gate "$root/Show [Test]/Concurrent-A.mkv" > "$fixture/concurrent-a.out"
