@@ -1,0 +1,11 @@
+{
+  "enabled": false,
+  "sonarr": {
+    "useScriptImport": false,
+    "scriptImportPath": "/scripts/arr-av1-jellyfin-gate.sh"
+  },
+  "radarr": {
+    "useScriptImport": false,
+    "copyUsingHardlinks": false
+  }
+}

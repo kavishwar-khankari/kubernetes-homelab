@@ -1,0 +1,73 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: tdarr-gate-reconcile
+  namespace: tdarr
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 900
+  template:
+    metadata:
+      labels:
+        app: tdarr-gate-reconcile
+    spec:
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+      containers:
+      - name: reconcile
+        image: python:3.13-slim-bookworm@sha256:dd86541a59b252667f4c12f8b2ee17216de37dd65ac773bf097bef996fa78860 # 3.13
+        imagePullPolicy: IfNotPresent
+        command:
+        - python3
+        - /scripts/tdarr-reconcile.py
+        env:
+        - name: TZ
+          value: Asia/Kolkata
+        - name: TDARR_URL
+          value: http://tdarr-server.tdarr.svc.cluster.local:8265
+        volumeMounts:
+        - name: gate-scripts
+          mountPath: /scripts
+          readOnly: true
+        - name: desired
+          mountPath: /desired
+          readOnly: true
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+      volumes:
+      - name: gate-scripts
+        configMap:
+          name: tdarr-gate-scripts
+          defaultMode: 0555
+      - name: desired
+        configMap:
+          name: tdarr-git-desired
+          defaultMode: 0444
+          items:
+          - key: flows__canonical-flow.json
+            path: flows/canonical-flow.json
+          - key: flows__gated-flow.json
+            path: flows/gated-flow.json
+          - key: library__4sWtQXW4h.json
+            path: libraries/library-4sWtQXW4h.json
+          - key: library__jvBWApbSE.json
+            path: libraries/library-jvBWApbSE.json
+          - key: library__lkun_CfeF.json
+            path: libraries/library-lkun_CfeF.json
+          - key: library__R6I55tD6c.json
+            path: libraries/library-R6I55tD6c.json

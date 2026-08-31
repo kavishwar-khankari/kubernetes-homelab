@@ -50,9 +50,16 @@ spec:
               value: "1000"
             - name: TZ
               value: "Asia/Kolkata"
+            - name: ARR_GATE_MEDIA_ROOT
+              value: "/media_2"
+            - name: ARR_GATE_ROOTS
+              value: "/media_2/series/anime/"
           volumeMounts:
             - name: radarr-config
               mountPath: /config
+            - name: arr-gate-script
+              mountPath: /scripts
+              readOnly: true
             - name: media-merged
               mountPath: /media_2
               mountPropagation: HostToContainer
@@ -89,9 +96,16 @@ spec:
               value: "1000"
             - name: TZ
               value: "Asia/Kolkata"
+            - name: ARR_GATE_MEDIA_ROOT
+              value: "/media_2"
+            - name: ARR_GATE_ROOTS
+              value: "/media_2/series/anime/"
           volumeMounts:
             - name: sonarr-config
               mountPath: /config
+            - name: arr-gate-script
+              mountPath: /scripts
+              readOnly: true
             - name: media-merged
               mountPath: /media_2
               mountPropagation: HostToContainer
@@ -220,6 +234,13 @@ spec:
         - name: sonarr-config
           persistentVolumeClaim:
             claimName: sonarr-config
+        - name: arr-gate-script
+          configMap:
+            name: arr-av1-jellyfin-gate-script
+            defaultMode: 0555
+            items:
+              - key: arr-av1-jellyfin-gate.sh
+                path: arr-av1-jellyfin-gate.sh
         #- name: lidarr-config
         #  persistentVolumeClaim:
         #    claimName: lidarr-config

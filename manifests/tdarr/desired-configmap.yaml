@@ -1,0 +1,1752 @@
+apiVersion: v1
+data:
+  arr-gate-settings.json: |
+    {
+      "enabled": false,
+      "sonarr": {
+        "useScriptImport": false,
+        "scriptImportPath": "/scripts/arr-av1-jellyfin-gate.sh"
+      },
+      "radarr": {
+        "useScriptImport": false,
+        "copyUsingHardlinks": false
+      }
+    }
+  flows__canonical-flow.json: |
+    {
+      "_id": "AV1_QSV_Arc_B570_HDR_aware_no_routing",
+      "flowEdges": [
+        {
+          "id": "e01",
+          "source": "inputFile",
+          "sourceHandle": "1",
+          "target": "checkSkiplist",
+          "targetHandle": null
+        },
+        {
+          "id": "e02",
+          "source": "checkSkiplist",
+          "sourceHandle": "1",
+          "target": "filterAV1",
+          "targetHandle": null
+        },
+        {
+          "id": "e03",
+          "source": "filterAV1",
+          "sourceHandle": "1",
+          "target": "filterProcessed",
+          "targetHandle": null
+        },
+        {
+          "id": "e04",
+          "source": "filterAV1",
+          "sourceHandle": "2",
+          "target": "skipAlready",
+          "targetHandle": null
+        },
+        {
+          "id": "e05",
+          "source": "filterProcessed",
+          "sourceHandle": "2",
+          "target": "skipAlready",
+          "targetHandle": null
+        },
+        {
+          "id": "e06",
+          "source": "filterProcessed",
+          "sourceHandle": "1",
+          "target": "copyToCache",
+          "targetHandle": null
+        },
+        {
+          "id": "e07",
+          "source": "copyToCache",
+          "sourceHandle": "1",
+          "target": "reorderStreams",
+          "targetHandle": null
+        },
+        {
+          "id": "e08a",
+          "source": "reorderStreams",
+          "sourceHandle": "1",
+          "target": "backupOriginal",
+          "targetHandle": null
+        },
+        {
+          "id": "e08b",
+          "source": "reorderStreams",
+          "sourceHandle": "2",
+          "target": "backupOriginal",
+          "targetHandle": null
+        },
+        {
+          "id": "e09a",
+          "source": "backupOriginal",
+          "sourceHandle": "1",
+          "target": "fQ8eYLS73",
+          "targetHandle": null
+        },
+        {
+          "id": "e09b",
+          "source": "backupOriginal",
+          "sourceHandle": "2",
+          "target": "fQ8eYLS73",
+          "targetHandle": null
+        },
+        {
+          "id": "e10",
+          "source": "fQ8eYLS73",
+          "sourceHandle": "1",
+          "target": "saveDates",
+          "targetHandle": null
+        },
+        {
+          "id": "e11a",
+          "source": "saveDates",
+          "sourceHandle": "1",
+          "target": "ZH-s25A4E",
+          "targetHandle": null
+        },
+        {
+          "id": "e11b",
+          "source": "saveDates",
+          "sourceHandle": "2",
+          "target": "ZH-s25A4E",
+          "targetHandle": null
+        },
+        {
+          "id": "e12_skip_dv5",
+          "source": "ZH-s25A4E",
+          "sourceHandle": "2",
+          "target": "NIHdyqiKd",
+          "targetHandle": null
+        },
+        {
+          "id": "e20a",
+          "source": "zwJEfW65Y",
+          "sourceHandle": "1",
+          "target": "s1_sizeCheck",
+          "targetHandle": null
+        },
+        {
+          "id": "e20b",
+          "source": "zwJEfW65Y",
+          "sourceHandle": "2",
+          "target": "s1_sizeCheck",
+          "targetHandle": null
+        },
+        {
+          "id": "e21_s1_good",
+          "source": "s1_sizeCheck",
+          "sourceHandle": "1",
+          "target": "addSkipSuccess",
+          "targetHandle": null
+        },
+        {
+          "id": "e22_s1_tooSmall_to_s0",
+          "source": "s1_sizeCheck",
+          "sourceHandle": "2",
+          "target": "s0_reset",
+          "targetHandle": null
+        },
+        {
+          "id": "e23_s1_tooBig_to_s2",
+          "source": "s1_sizeCheck",
+          "sourceHandle": "3",
+          "target": "s2_reset",
+          "targetHandle": null
+        },
+        {
+          "id": "e30a",
+          "source": "s0_reset",
+          "sourceHandle": "1",
+          "target": "x5c24Qaml",
+          "targetHandle": null
+        },
+        {
+          "id": "e30b",
+          "source": "s0_reset",
+          "sourceHandle": "2",
+          "target": "x5c24Qaml",
+          "targetHandle": null
+        },
+        {
+          "id": "e31a",
+          "source": "x5c24Qaml",
+          "sourceHandle": "1",
+          "target": "s0_sizeCheck",
+          "targetHandle": null
+        },
+        {
+          "id": "e31b",
+          "source": "x5c24Qaml",
+          "sourceHandle": "2",
+          "target": "s0_sizeCheck",
+          "targetHandle": null
+        },
+        {
+          "id": "e32_s0_good",
+          "source": "s0_sizeCheck",
+          "sourceHandle": "1",
+          "target": "addSkipSuccess",
+          "targetHandle": null
+        },
+        {
+          "id": "e33_s0_tooSmall_giveup",
+          "source": "s0_sizeCheck",
+          "sourceHandle": "2",
+          "target": "markProcessedNoSave",
+          "targetHandle": null
+        },
+        {
+          "id": "e34_s0_tooBig_giveup",
+          "source": "s0_sizeCheck",
+          "sourceHandle": "3",
+          "target": "markProcessedNoSave",
+          "targetHandle": null
+        },
+        {
+          "id": "e40a",
+          "source": "s2_reset",
+          "sourceHandle": "1",
+          "target": "O8rEB4xmo",
+          "targetHandle": null
+        },
+        {
+          "id": "e40b",
+          "source": "s2_reset",
+          "sourceHandle": "2",
+          "target": "O8rEB4xmo",
+          "targetHandle": null
+        },
+        {
+          "id": "e41a",
+          "source": "O8rEB4xmo",
+          "sourceHandle": "1",
+          "target": "s2_sizeCheck",
+          "targetHandle": null
+        },
+        {
+          "id": "e41b",
+          "source": "O8rEB4xmo",
+          "sourceHandle": "2",
+          "target": "s2_sizeCheck",
+          "targetHandle": null
+        },
+        {
+          "id": "e42_s2_good",
+          "source": "s2_sizeCheck",
+          "sourceHandle": "1",
+          "target": "addSkipSuccess",
+          "targetHandle": null
+        },
+        {
+          "id": "e43_s2_tooSmall_to_s0",
+          "source": "s2_sizeCheck",
+          "sourceHandle": "2",
+          "target": "s0_reset",
+          "targetHandle": null
+        },
+        {
+          "id": "e44_s2_tooBig_to_s3",
+          "source": "s2_sizeCheck",
+          "sourceHandle": "3",
+          "target": "s3_reset",
+          "targetHandle": null
+        },
+        {
+          "id": "e50a",
+          "source": "s3_reset",
+          "sourceHandle": "1",
+          "target": "8tTmOl5pQ",
+          "targetHandle": null
+        },
+        {
+          "id": "e50b",
+          "source": "s3_reset",
+          "sourceHandle": "2",
+          "target": "8tTmOl5pQ",
+          "targetHandle": null
+        },
+        {
+          "id": "e51a",
+          "source": "8tTmOl5pQ",
+          "sourceHandle": "1",
+          "target": "s3_sizeCheck",
+          "targetHandle": null
+        },
+        {
+          "id": "e51b",
+          "source": "8tTmOl5pQ",
+          "sourceHandle": "2",
+          "target": "s3_sizeCheck",
+          "targetHandle": null
+        },
+        {
+          "id": "e52_s3_good",
+          "source": "s3_sizeCheck",
+          "sourceHandle": "1",
+          "target": "addSkipSuccess",
+          "targetHandle": null
+        },
+        {
+          "id": "e53_s3_tooSmall_to_s0",
+          "source": "s3_sizeCheck",
+          "sourceHandle": "2",
+          "target": "s0_reset",
+          "targetHandle": null
+        },
+        {
+          "id": "e54_s3_tooBig_to_s4",
+          "source": "s3_sizeCheck",
+          "sourceHandle": "3",
+          "target": "s4_reset",
+          "targetHandle": null
+        },
+        {
+          "id": "e60a",
+          "source": "s4_reset",
+          "sourceHandle": "1",
+          "target": "OYGnqZze6",
+          "targetHandle": null
+        },
+        {
+          "id": "e60b",
+          "source": "s4_reset",
+          "sourceHandle": "2",
+          "target": "OYGnqZze6",
+          "targetHandle": null
+        },
+        {
+          "id": "e61a",
+          "source": "OYGnqZze6",
+          "sourceHandle": "1",
+          "target": "s4_sizeCheck",
+          "targetHandle": null
+        },
+        {
+          "id": "e61b",
+          "source": "OYGnqZze6",
+          "sourceHandle": "2",
+          "target": "s4_sizeCheck",
+          "targetHandle": null
+        },
+        {
+          "id": "e62_s4_good",
+          "source": "s4_sizeCheck",
+          "sourceHandle": "1",
+          "target": "addSkipSuccess",
+          "targetHandle": null
+        },
+        {
+          "id": "e63_s4_tooSmall_to_s0",
+          "source": "s4_sizeCheck",
+          "sourceHandle": "2",
+          "target": "s0_reset",
+          "targetHandle": null
+        },
+        {
+          "id": "e64_s4_tooBig_giveup",
+          "source": "s4_sizeCheck",
+          "sourceHandle": "3",
+          "target": "markProcessedNoSave",
+          "targetHandle": null
+        },
+        {
+          "id": "e70",
+          "source": "markProcessedNoSave",
+          "sourceHandle": "1",
+          "target": "resetToOriginalSkip",
+          "targetHandle": null
+        },
+        {
+          "id": "e80",
+          "source": "addSkipSuccess",
+          "sourceHandle": "1",
+          "target": "replaceOriginal",
+          "targetHandle": null
+        },
+        {
+          "id": "e81",
+          "source": "replaceOriginal",
+          "sourceHandle": "1",
+          "target": "restoreDates",
+          "targetHandle": null
+        },
+        {
+          "id": "bsQ-CT2Tp",
+          "source": "ZH-s25A4E",
+          "sourceHandle": "1",
+          "target": "zwJEfW65Y",
+          "targetHandle": null
+        },
+        {
+          "id": "xQ-gf7KBr",
+          "source": "checkSkiplist",
+          "sourceHandle": "2",
+          "target": "filterAV1",
+          "targetHandle": null
+        }
+      ],
+      "flowPlugins": [
+        {
+          "fpEnabled": true,
+          "id": "inputFile",
+          "inputsDB": {},
+          "name": "Input File",
+          "pluginName": "inputFile",
+          "position": {
+            "x": 0,
+            "y": -444
+          },
+          "sourceRepo": "Community",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "checkSkiplist",
+          "name": "Check Skiplist",
+          "pluginName": "processedCheck",
+          "position": {
+            "x": 0,
+            "y": -408
+          },
+          "sourceRepo": "Community",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "filterAV1",
+          "inputsDB": {
+            "codecsToNotProcess": "av1",
+            "pluginSourceId": "Community:Tdarr_Plugin_00td_filter_by_codec"
+          },
+          "name": "Filter: Skip if already AV1",
+          "pluginName": "runClassicFilterPlugin",
+          "position": {
+            "x": 0,
+            "y": -360
+          },
+          "sourceRepo": "Community",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "filterProcessed",
+          "inputsDB": {
+            "pluginSourceId": "Community:Tdarr_Plugin_00td_filter_break_stack_if_processed"
+          },
+          "name": "Filter: Break if already processed",
+          "pluginName": "runClassicFilterPlugin",
+          "position": {
+            "x": 0,
+            "y": -312
+          },
+          "sourceRepo": "Community",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "skipAlready",
+          "name": "Add To Skiplist (already AV1 or processed)",
+          "pluginName": "processedAdd",
+          "position": {
+            "x": 300,
+            "y": -280
+          },
+          "sourceRepo": "Community",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "copyToCache",
+          "name": "Copy to Working Directory (NAS → Cache)",
+          "pluginName": "copyToWorkDirectory",
+          "position": {
+            "x": 0,
+            "y": -264
+          },
+          "sourceRepo": "Community",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "reorderStreams",
+          "inputsDB": {
+            "pluginSourceId": "Community:Tdarr_Plugin_lmg1_Reorder_Streams"
+          },
+          "name": "Reorder Streams",
+          "pluginName": "runClassicTranscodePlugin",
+          "position": {
+            "x": 0,
+            "y": -204
+          },
+          "sourceRepo": "Community",
+          "version": "2.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "backupOriginal",
+          "inputsDB": {
+            "pluginSourceId": "Local:Tdarr_Plugin_Local_ResetToCachedOriginal"
+          },
+          "name": "Backup Original in Cache",
+          "pluginName": "runClassicTranscodePlugin",
+          "position": {
+            "x": 0,
+            "y": -168
+          },
+          "sourceRepo": "Community",
+          "version": "2.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "fQ8eYLS73",
+          "name": "HDR Detect and Tag",
+          "pluginName": "hdrDetectAndTag",
+          "position": {
+            "x": 0,
+            "y": -120
+          },
+          "sourceRepo": "Local",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "saveDates",
+          "inputsDB": {
+            "pluginSourceId": "Local:Tdarr_Plugin_GR34_GrutSaveOriginalDates"
+          },
+          "name": "Save Original Dates",
+          "pluginName": "runClassicTranscodePlugin",
+          "position": {
+            "x": 0,
+            "y": -84
+          },
+          "sourceRepo": "Community",
+          "version": "2.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "ZH-s25A4E",
+          "name": "Check Skip HDR",
+          "pluginName": "checkSkipHDR",
+          "position": {
+            "x": 0,
+            "y": -36
+          },
+          "sourceRepo": "Local",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "NIHdyqiKd",
+          "name": "Add To Skiplist (DV-5, cant be processed)",
+          "pluginName": "processedAdd",
+          "position": {
+            "x": 300,
+            "y": -36
+          },
+          "sourceRepo": "Community",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "zwJEfW65Y",
+          "inputsDB": {
+            "bFrames": "8",
+            "lookAheadDepth": "100",
+            "preset": "veryslow",
+            "quality": "22"
+          },
+          "name": "Stag 1: AV1 QSV Encode (HDR-Aware)",
+          "pluginName": "av1QsvEncodeHdrAware",
+          "position": {
+            "x": 0,
+            "y": 60
+          },
+          "sourceRepo": "Local",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "s1_sizeCheck",
+          "inputsDB": {
+            "greaterThan": "10",
+            "lessThan": "100"
+          },
+          "name": "Stage 1: File Size Check (10%-100%)",
+          "pluginName": "compareFileSizeRatio",
+          "position": {
+            "x": 0,
+            "y": 156
+          },
+          "sourceRepo": "Community",
+          "version": "2.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "s2_reset",
+          "inputsDB": {
+            "pluginSourceId": "Local:Tdarr_Plugin_Local_ResetToCachedOriginal"
+          },
+          "name": "Stage 2: Reset to Cached Original",
+          "pluginName": "runClassicTranscodePlugin",
+          "position": {
+            "x": -348,
+            "y": 60
+          },
+          "sourceRepo": "Community",
+          "version": "2.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "O8rEB4xmo",
+          "inputsDB": {
+            "bFrames": "7",
+            "lookAheadDepth": "80",
+            "preset": "slower",
+            "quality": "25"
+          },
+          "name": "Stag 2: AV1 QSV Encode (HDR-Aware)",
+          "pluginName": "av1QsvEncodeHdrAware",
+          "position": {
+            "x": -348,
+            "y": 108
+          },
+          "sourceRepo": "Local",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "s2_sizeCheck",
+          "inputsDB": {
+            "greaterThan": "20",
+            "lessThan": "100"
+          },
+          "name": "Stage 2: File Size Check (20%-100%)",
+          "pluginName": "compareFileSizeRatio",
+          "position": {
+            "x": -348,
+            "y": 204
+          },
+          "sourceRepo": "Community",
+          "version": "2.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "s3_reset",
+          "inputsDB": {
+            "pluginSourceId": "Local:Tdarr_Plugin_Local_ResetToCachedOriginal"
+          },
+          "name": "Stage 3: Reset to Cached Original",
+          "pluginName": "runClassicTranscodePlugin",
+          "position": {
+            "x": -696,
+            "y": 60
+          },
+          "sourceRepo": "Community",
+          "version": "2.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "8tTmOl5pQ",
+          "inputsDB": {
+            "bFrames": "5",
+            "lookAheadDepth": "40",
+            "preset": "slow",
+            "quality": "30"
+          },
+          "name": "Stag 3: AV1 QSV Encode (HDR-Aware)",
+          "pluginName": "av1QsvEncodeHdrAware",
+          "position": {
+            "x": -696,
+            "y": 108
+          },
+          "sourceRepo": "Local",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "s3_sizeCheck",
+          "inputsDB": {
+            "greaterThan": "20",
+            "lessThan": "100"
+          },
+          "name": "Stage 3: File Size Check (20%-100%)",
+          "pluginName": "compareFileSizeRatio",
+          "position": {
+            "x": -696,
+            "y": 204
+          },
+          "sourceRepo": "Community",
+          "version": "2.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "s4_reset",
+          "inputsDB": {
+            "pluginSourceId": "Local:Tdarr_Plugin_Local_ResetToCachedOriginal"
+          },
+          "name": "Stage 4: Reset to Cached Original",
+          "pluginName": "runClassicTranscodePlugin",
+          "position": {
+            "x": -1044,
+            "y": 60
+          },
+          "sourceRepo": "Community",
+          "version": "2.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "OYGnqZze6",
+          "inputsDB": {
+            "bFrames": "3",
+            "lookAheadDepth": "20",
+            "preset": "medium",
+            "quality": "34"
+          },
+          "name": "Stag 4: AV1 QSV Encode (HDR-Aware)",
+          "pluginName": "av1QsvEncodeHdrAware",
+          "position": {
+            "x": -1044,
+            "y": 108
+          },
+          "sourceRepo": "Local",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "s4_sizeCheck",
+          "inputsDB": {
+            "greaterThan": "20",
+            "lessThan": "100"
+          },
+          "name": "Stage 4: File Size Check (20%-100%)",
+          "pluginName": "compareFileSizeRatio",
+          "position": {
+            "x": -1044,
+            "y": 204
+          },
+          "sourceRepo": "Community",
+          "version": "2.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "s0_reset",
+          "inputsDB": {
+            "pluginSourceId": "Local:Tdarr_Plugin_Local_ResetToCachedOriginal"
+          },
+          "name": "Stage 0: Reset to Cached Original",
+          "pluginName": "runClassicTranscodePlugin",
+          "position": {
+            "x": 348,
+            "y": 60
+          },
+          "sourceRepo": "Community",
+          "version": "2.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "x5c24Qaml",
+          "inputsDB": {
+            "quality": "18"
+          },
+          "name": "Stag 0: AV1 QSV Encode (HDR-Aware)",
+          "pluginName": "av1QsvEncodeHdrAware",
+          "position": {
+            "x": 348,
+            "y": 108
+          },
+          "sourceRepo": "Local",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "s0_sizeCheck",
+          "inputsDB": {
+            "greaterThan": "10",
+            "lessThan": "90"
+          },
+          "name": "Stage 0: File Size Check (10%-90%)",
+          "pluginName": "compareFileSizeRatio",
+          "position": {
+            "x": 348,
+            "y": 204
+          },
+          "sourceRepo": "Community",
+          "version": "2.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "markProcessedNoSave",
+          "name": "Mark as Processed (no stage worked)",
+          "pluginName": "processedAdd",
+          "position": {
+            "x": -700,
+            "y": 360
+          },
+          "sourceRepo": "Community",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "resetToOriginalSkip",
+          "name": "Set Original File (skip, keep original)",
+          "pluginName": "setOriginalFile",
+          "position": {
+            "x": -700,
+            "y": 420
+          },
+          "sourceRepo": "Community",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "addSkipSuccess",
+          "name": "Add To Skiplist (success)",
+          "pluginName": "processedAdd",
+          "position": {
+            "x": 0,
+            "y": 320
+          },
+          "sourceRepo": "Community",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "replaceOriginal",
+          "name": "Replace Original File (Cache → NAS)",
+          "pluginName": "replaceOriginalFile",
+          "position": {
+            "x": 0,
+            "y": 380
+          },
+          "sourceRepo": "Community",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "restoreDates",
+          "inputsDB": {
+            "deleteDateFile": "true",
+            "pluginSourceId": "Local:Tdarr_Plugin_GR34_GrutRestoreOriginalDates"
+          },
+          "name": "Restore Original Dates",
+          "pluginName": "runClassicTranscodePlugin",
+          "position": {
+            "x": 0,
+            "y": 440
+          },
+          "sourceRepo": "Community",
+          "version": "2.0.0"
+        }
+      ],
+      "isUiLocked": false,
+      "name": "AV1 QSV Flow - Arc B570 (HDR-Aware, No Bitrate Routing)",
+      "priority": 5
+    }
+  flows__gated-flow.json: |
+    {
+      "_id": "AV1_QSV_Arc_B570_HDR_aware_no_routing_Jellyfin_Gate",
+      "flowEdges": [
+        {
+          "id": "e01",
+          "source": "inputFile",
+          "sourceHandle": "1",
+          "target": "checkSkiplist",
+          "targetHandle": null
+        },
+        {
+          "id": "e02",
+          "source": "checkSkiplist",
+          "sourceHandle": "1",
+          "target": "filterAV1",
+          "targetHandle": null
+        },
+        {
+          "id": "e03",
+          "source": "filterAV1",
+          "sourceHandle": "1",
+          "target": "filterProcessed",
+          "targetHandle": null
+        },
+        {
+          "id": "e06",
+          "source": "filterProcessed",
+          "sourceHandle": "1",
+          "target": "copyToCache",
+          "targetHandle": null
+        },
+        {
+          "id": "e07",
+          "source": "copyToCache",
+          "sourceHandle": "1",
+          "target": "reorderStreams",
+          "targetHandle": null
+        },
+        {
+          "id": "e08a",
+          "source": "reorderStreams",
+          "sourceHandle": "1",
+          "target": "backupOriginal",
+          "targetHandle": null
+        },
+        {
+          "id": "e08b",
+          "source": "reorderStreams",
+          "sourceHandle": "2",
+          "target": "backupOriginal",
+          "targetHandle": null
+        },
+        {
+          "id": "e09a",
+          "source": "backupOriginal",
+          "sourceHandle": "1",
+          "target": "fQ8eYLS73",
+          "targetHandle": null
+        },
+        {
+          "id": "e09b",
+          "source": "backupOriginal",
+          "sourceHandle": "2",
+          "target": "fQ8eYLS73",
+          "targetHandle": null
+        },
+        {
+          "id": "e10",
+          "source": "fQ8eYLS73",
+          "sourceHandle": "1",
+          "target": "saveDates",
+          "targetHandle": null
+        },
+        {
+          "id": "e11a",
+          "source": "saveDates",
+          "sourceHandle": "1",
+          "target": "ZH-s25A4E",
+          "targetHandle": null
+        },
+        {
+          "id": "e11b",
+          "source": "saveDates",
+          "sourceHandle": "2",
+          "target": "ZH-s25A4E",
+          "targetHandle": null
+        },
+        {
+          "id": "e12_skip_dv5",
+          "source": "ZH-s25A4E",
+          "sourceHandle": "2",
+          "target": "NIHdyqiKd",
+          "targetHandle": null
+        },
+        {
+          "id": "e20a",
+          "source": "zwJEfW65Y",
+          "sourceHandle": "1",
+          "target": "s1_sizeCheck",
+          "targetHandle": null
+        },
+        {
+          "id": "e20b",
+          "source": "zwJEfW65Y",
+          "sourceHandle": "2",
+          "target": "s1_sizeCheck",
+          "targetHandle": null
+        },
+        {
+          "id": "e21_s1_good",
+          "source": "s1_sizeCheck",
+          "sourceHandle": "1",
+          "target": "addSkipSuccess",
+          "targetHandle": null
+        },
+        {
+          "id": "e22_s1_tooSmall_to_s0",
+          "source": "s1_sizeCheck",
+          "sourceHandle": "2",
+          "target": "s0_reset",
+          "targetHandle": null
+        },
+        {
+          "id": "e23_s1_tooBig_to_s2",
+          "source": "s1_sizeCheck",
+          "sourceHandle": "3",
+          "target": "s2_reset",
+          "targetHandle": null
+        },
+        {
+          "id": "e30a",
+          "source": "s0_reset",
+          "sourceHandle": "1",
+          "target": "x5c24Qaml",
+          "targetHandle": null
+        },
+        {
+          "id": "e30b",
+          "source": "s0_reset",
+          "sourceHandle": "2",
+          "target": "x5c24Qaml",
+          "targetHandle": null
+        },
+        {
+          "id": "e31a",
+          "source": "x5c24Qaml",
+          "sourceHandle": "1",
+          "target": "s0_sizeCheck",
+          "targetHandle": null
+        },
+        {
+          "id": "e31b",
+          "source": "x5c24Qaml",
+          "sourceHandle": "2",
+          "target": "s0_sizeCheck",
+          "targetHandle": null
+        },
+        {
+          "id": "e32_s0_good",
+          "source": "s0_sizeCheck",
+          "sourceHandle": "1",
+          "target": "addSkipSuccess",
+          "targetHandle": null
+        },
+        {
+          "id": "e33_s0_tooSmall_giveup",
+          "source": "s0_sizeCheck",
+          "sourceHandle": "2",
+          "target": "markProcessedNoSave",
+          "targetHandle": null
+        },
+        {
+          "id": "e34_s0_tooBig_giveup",
+          "source": "s0_sizeCheck",
+          "sourceHandle": "3",
+          "target": "markProcessedNoSave",
+          "targetHandle": null
+        },
+        {
+          "id": "e40a",
+          "source": "s2_reset",
+          "sourceHandle": "1",
+          "target": "O8rEB4xmo",
+          "targetHandle": null
+        },
+        {
+          "id": "e40b",
+          "source": "s2_reset",
+          "sourceHandle": "2",
+          "target": "O8rEB4xmo",
+          "targetHandle": null
+        },
+        {
+          "id": "e41a",
+          "source": "O8rEB4xmo",
+          "sourceHandle": "1",
+          "target": "s2_sizeCheck",
+          "targetHandle": null
+        },
+        {
+          "id": "e41b",
+          "source": "O8rEB4xmo",
+          "sourceHandle": "2",
+          "target": "s2_sizeCheck",
+          "targetHandle": null
+        },
+        {
+          "id": "e42_s2_good",
+          "source": "s2_sizeCheck",
+          "sourceHandle": "1",
+          "target": "addSkipSuccess",
+          "targetHandle": null
+        },
+        {
+          "id": "e43_s2_tooSmall_to_s0",
+          "source": "s2_sizeCheck",
+          "sourceHandle": "2",
+          "target": "s0_reset",
+          "targetHandle": null
+        },
+        {
+          "id": "e44_s2_tooBig_to_s3",
+          "source": "s2_sizeCheck",
+          "sourceHandle": "3",
+          "target": "s3_reset",
+          "targetHandle": null
+        },
+        {
+          "id": "e50a",
+          "source": "s3_reset",
+          "sourceHandle": "1",
+          "target": "8tTmOl5pQ",
+          "targetHandle": null
+        },
+        {
+          "id": "e50b",
+          "source": "s3_reset",
+          "sourceHandle": "2",
+          "target": "8tTmOl5pQ",
+          "targetHandle": null
+        },
+        {
+          "id": "e51a",
+          "source": "8tTmOl5pQ",
+          "sourceHandle": "1",
+          "target": "s3_sizeCheck",
+          "targetHandle": null
+        },
+        {
+          "id": "e51b",
+          "source": "8tTmOl5pQ",
+          "sourceHandle": "2",
+          "target": "s3_sizeCheck",
+          "targetHandle": null
+        },
+        {
+          "id": "e52_s3_good",
+          "source": "s3_sizeCheck",
+          "sourceHandle": "1",
+          "target": "addSkipSuccess",
+          "targetHandle": null
+        },
+        {
+          "id": "e53_s3_tooSmall_to_s0",
+          "source": "s3_sizeCheck",
+          "sourceHandle": "2",
+          "target": "s0_reset",
+          "targetHandle": null
+        },
+        {
+          "id": "e54_s3_tooBig_to_s4",
+          "source": "s3_sizeCheck",
+          "sourceHandle": "3",
+          "target": "s4_reset",
+          "targetHandle": null
+        },
+        {
+          "id": "e60a",
+          "source": "s4_reset",
+          "sourceHandle": "1",
+          "target": "OYGnqZze6",
+          "targetHandle": null
+        },
+        {
+          "id": "e60b",
+          "source": "s4_reset",
+          "sourceHandle": "2",
+          "target": "OYGnqZze6",
+          "targetHandle": null
+        },
+        {
+          "id": "e61a",
+          "source": "OYGnqZze6",
+          "sourceHandle": "1",
+          "target": "s4_sizeCheck",
+          "targetHandle": null
+        },
+        {
+          "id": "e61b",
+          "source": "OYGnqZze6",
+          "sourceHandle": "2",
+          "target": "s4_sizeCheck",
+          "targetHandle": null
+        },
+        {
+          "id": "e62_s4_good",
+          "source": "s4_sizeCheck",
+          "sourceHandle": "1",
+          "target": "addSkipSuccess",
+          "targetHandle": null
+        },
+        {
+          "id": "e63_s4_tooSmall_to_s0",
+          "source": "s4_sizeCheck",
+          "sourceHandle": "2",
+          "target": "s0_reset",
+          "targetHandle": null
+        },
+        {
+          "id": "e64_s4_tooBig_giveup",
+          "source": "s4_sizeCheck",
+          "sourceHandle": "3",
+          "target": "markProcessedNoSave",
+          "targetHandle": null
+        },
+        {
+          "id": "e70",
+          "source": "markProcessedNoSave",
+          "sourceHandle": "1",
+          "target": "resetToOriginalSkip",
+          "targetHandle": null
+        },
+        {
+          "id": "e80",
+          "source": "addSkipSuccess",
+          "sourceHandle": "1",
+          "target": "replaceOriginal",
+          "targetHandle": null
+        },
+        {
+          "id": "e81",
+          "source": "replaceOriginal",
+          "sourceHandle": "1",
+          "target": "restoreDates",
+          "targetHandle": null
+        },
+        {
+          "id": "bsQ-CT2Tp",
+          "source": "ZH-s25A4E",
+          "sourceHandle": "1",
+          "target": "zwJEfW65Y",
+          "targetHandle": null
+        },
+        {
+          "id": "xQ-gf7KBr",
+          "source": "checkSkiplist",
+          "sourceHandle": "2",
+          "target": "filterAV1",
+          "targetHandle": null
+        },
+        {
+          "id": "e04_gate_already_av1",
+          "source": "filterAV1",
+          "sourceHandle": "2",
+          "target": "av1JellyfinGate",
+          "targetHandle": null
+        },
+        {
+          "id": "e05_gate_already_processed",
+          "source": "filterProcessed",
+          "sourceHandle": "2",
+          "target": "av1JellyfinGate",
+          "targetHandle": null
+        },
+        {
+          "id": "e_gate_release_already",
+          "source": "av1JellyfinGate",
+          "sourceHandle": "1",
+          "target": "skipAlready",
+          "targetHandle": null
+        },
+        {
+          "id": "e81a_gate_release",
+          "source": "restoreDates",
+          "sourceHandle": "1",
+          "target": "av1JellyfinGate",
+          "targetHandle": null
+        },
+        {
+          "id": "e81b_gate_release_no_dates",
+          "source": "restoreDates",
+          "sourceHandle": "2",
+          "target": "av1JellyfinGate",
+          "targetHandle": null
+        }
+      ],
+      "flowPlugins": [
+        {
+          "fpEnabled": true,
+          "id": "inputFile",
+          "inputsDB": {},
+          "name": "Input File",
+          "pluginName": "inputFile",
+          "position": {
+            "x": 0,
+            "y": -444
+          },
+          "sourceRepo": "Community",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "checkSkiplist",
+          "name": "Check Skiplist",
+          "pluginName": "processedCheck",
+          "position": {
+            "x": 0,
+            "y": -408
+          },
+          "sourceRepo": "Community",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "filterAV1",
+          "inputsDB": {
+            "codecsToNotProcess": "av1",
+            "pluginSourceId": "Community:Tdarr_Plugin_00td_filter_by_codec"
+          },
+          "name": "Filter: Skip if already AV1",
+          "pluginName": "runClassicFilterPlugin",
+          "position": {
+            "x": 0,
+            "y": -360
+          },
+          "sourceRepo": "Community",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "filterProcessed",
+          "inputsDB": {
+            "pluginSourceId": "Community:Tdarr_Plugin_00td_filter_break_stack_if_processed"
+          },
+          "name": "Filter: Break if already processed",
+          "pluginName": "runClassicFilterPlugin",
+          "position": {
+            "x": 0,
+            "y": -312
+          },
+          "sourceRepo": "Community",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "skipAlready",
+          "name": "Add To Skiplist (already AV1 or processed)",
+          "pluginName": "processedAdd",
+          "position": {
+            "x": 300,
+            "y": -280
+          },
+          "sourceRepo": "Community",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "copyToCache",
+          "name": "Copy to Working Directory (NAS → Cache)",
+          "pluginName": "copyToWorkDirectory",
+          "position": {
+            "x": 0,
+            "y": -264
+          },
+          "sourceRepo": "Community",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "reorderStreams",
+          "inputsDB": {
+            "pluginSourceId": "Community:Tdarr_Plugin_lmg1_Reorder_Streams"
+          },
+          "name": "Reorder Streams",
+          "pluginName": "runClassicTranscodePlugin",
+          "position": {
+            "x": 0,
+            "y": -204
+          },
+          "sourceRepo": "Community",
+          "version": "2.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "backupOriginal",
+          "inputsDB": {
+            "pluginSourceId": "Local:Tdarr_Plugin_Local_ResetToCachedOriginal"
+          },
+          "name": "Backup Original in Cache",
+          "pluginName": "runClassicTranscodePlugin",
+          "position": {
+            "x": 0,
+            "y": -168
+          },
+          "sourceRepo": "Community",
+          "version": "2.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "fQ8eYLS73",
+          "name": "HDR Detect and Tag",
+          "pluginName": "hdrDetectAndTag",
+          "position": {
+            "x": 0,
+            "y": -120
+          },
+          "sourceRepo": "Local",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "saveDates",
+          "inputsDB": {
+            "pluginSourceId": "Local:Tdarr_Plugin_GR34_GrutSaveOriginalDates"
+          },
+          "name": "Save Original Dates",
+          "pluginName": "runClassicTranscodePlugin",
+          "position": {
+            "x": 0,
+            "y": -84
+          },
+          "sourceRepo": "Community",
+          "version": "2.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "ZH-s25A4E",
+          "name": "Check Skip HDR",
+          "pluginName": "checkSkipHDR",
+          "position": {
+            "x": 0,
+            "y": -36
+          },
+          "sourceRepo": "Local",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "NIHdyqiKd",
+          "name": "Add To Skiplist (DV-5, cant be processed)",
+          "pluginName": "processedAdd",
+          "position": {
+            "x": 300,
+            "y": -36
+          },
+          "sourceRepo": "Community",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "zwJEfW65Y",
+          "inputsDB": {
+            "bFrames": "8",
+            "lookAheadDepth": "100",
+            "preset": "veryslow",
+            "quality": "22"
+          },
+          "name": "Stag 1: AV1 QSV Encode (HDR-Aware)",
+          "pluginName": "av1QsvEncodeHdrAware",
+          "position": {
+            "x": 0,
+            "y": 60
+          },
+          "sourceRepo": "Local",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "s1_sizeCheck",
+          "inputsDB": {
+            "greaterThan": "10",
+            "lessThan": "100"
+          },
+          "name": "Stage 1: File Size Check (10%-100%)",
+          "pluginName": "compareFileSizeRatio",
+          "position": {
+            "x": 0,
+            "y": 156
+          },
+          "sourceRepo": "Community",
+          "version": "2.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "s2_reset",
+          "inputsDB": {
+            "pluginSourceId": "Local:Tdarr_Plugin_Local_ResetToCachedOriginal"
+          },
+          "name": "Stage 2: Reset to Cached Original",
+          "pluginName": "runClassicTranscodePlugin",
+          "position": {
+            "x": -348,
+            "y": 60
+          },
+          "sourceRepo": "Community",
+          "version": "2.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "O8rEB4xmo",
+          "inputsDB": {
+            "bFrames": "7",
+            "lookAheadDepth": "80",
+            "preset": "slower",
+            "quality": "25"
+          },
+          "name": "Stag 2: AV1 QSV Encode (HDR-Aware)",
+          "pluginName": "av1QsvEncodeHdrAware",
+          "position": {
+            "x": -348,
+            "y": 108
+          },
+          "sourceRepo": "Local",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "s2_sizeCheck",
+          "inputsDB": {
+            "greaterThan": "20",
+            "lessThan": "100"
+          },
+          "name": "Stage 2: File Size Check (20%-100%)",
+          "pluginName": "compareFileSizeRatio",
+          "position": {
+            "x": -348,
+            "y": 204
+          },
+          "sourceRepo": "Community",
+          "version": "2.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "s3_reset",
+          "inputsDB": {
+            "pluginSourceId": "Local:Tdarr_Plugin_Local_ResetToCachedOriginal"
+          },
+          "name": "Stage 3: Reset to Cached Original",
+          "pluginName": "runClassicTranscodePlugin",
+          "position": {
+            "x": -696,
+            "y": 60
+          },
+          "sourceRepo": "Community",
+          "version": "2.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "8tTmOl5pQ",
+          "inputsDB": {
+            "bFrames": "5",
+            "lookAheadDepth": "40",
+            "preset": "slow",
+            "quality": "30"
+          },
+          "name": "Stag 3: AV1 QSV Encode (HDR-Aware)",
+          "pluginName": "av1QsvEncodeHdrAware",
+          "position": {
+            "x": -696,
+            "y": 108
+          },
+          "sourceRepo": "Local",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "s3_sizeCheck",
+          "inputsDB": {
+            "greaterThan": "20",
+            "lessThan": "100"
+          },
+          "name": "Stage 3: File Size Check (20%-100%)",
+          "pluginName": "compareFileSizeRatio",
+          "position": {
+            "x": -696,
+            "y": 204
+          },
+          "sourceRepo": "Community",
+          "version": "2.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "s4_reset",
+          "inputsDB": {
+            "pluginSourceId": "Local:Tdarr_Plugin_Local_ResetToCachedOriginal"
+          },
+          "name": "Stage 4: Reset to Cached Original",
+          "pluginName": "runClassicTranscodePlugin",
+          "position": {
+            "x": -1044,
+            "y": 60
+          },
+          "sourceRepo": "Community",
+          "version": "2.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "OYGnqZze6",
+          "inputsDB": {
+            "bFrames": "3",
+            "lookAheadDepth": "20",
+            "preset": "medium",
+            "quality": "34"
+          },
+          "name": "Stag 4: AV1 QSV Encode (HDR-Aware)",
+          "pluginName": "av1QsvEncodeHdrAware",
+          "position": {
+            "x": -1044,
+            "y": 108
+          },
+          "sourceRepo": "Local",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "s4_sizeCheck",
+          "inputsDB": {
+            "greaterThan": "20",
+            "lessThan": "100"
+          },
+          "name": "Stage 4: File Size Check (20%-100%)",
+          "pluginName": "compareFileSizeRatio",
+          "position": {
+            "x": -1044,
+            "y": 204
+          },
+          "sourceRepo": "Community",
+          "version": "2.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "s0_reset",
+          "inputsDB": {
+            "pluginSourceId": "Local:Tdarr_Plugin_Local_ResetToCachedOriginal"
+          },
+          "name": "Stage 0: Reset to Cached Original",
+          "pluginName": "runClassicTranscodePlugin",
+          "position": {
+            "x": 348,
+            "y": 60
+          },
+          "sourceRepo": "Community",
+          "version": "2.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "x5c24Qaml",
+          "inputsDB": {
+            "quality": "18"
+          },
+          "name": "Stag 0: AV1 QSV Encode (HDR-Aware)",
+          "pluginName": "av1QsvEncodeHdrAware",
+          "position": {
+            "x": 348,
+            "y": 108
+          },
+          "sourceRepo": "Local",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "s0_sizeCheck",
+          "inputsDB": {
+            "greaterThan": "10",
+            "lessThan": "90"
+          },
+          "name": "Stage 0: File Size Check (10%-90%)",
+          "pluginName": "compareFileSizeRatio",
+          "position": {
+            "x": 348,
+            "y": 204
+          },
+          "sourceRepo": "Community",
+          "version": "2.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "markProcessedNoSave",
+          "name": "Mark as Processed (no stage worked)",
+          "pluginName": "processedAdd",
+          "position": {
+            "x": -700,
+            "y": 360
+          },
+          "sourceRepo": "Community",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "resetToOriginalSkip",
+          "name": "Set Original File (skip, keep original)",
+          "pluginName": "setOriginalFile",
+          "position": {
+            "x": -700,
+            "y": 420
+          },
+          "sourceRepo": "Community",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "addSkipSuccess",
+          "name": "Add To Skiplist (success)",
+          "pluginName": "processedAdd",
+          "position": {
+            "x": 0,
+            "y": 320
+          },
+          "sourceRepo": "Community",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "replaceOriginal",
+          "name": "Replace Original File (Cache → NAS)",
+          "pluginName": "replaceOriginalFile",
+          "position": {
+            "x": 0,
+            "y": 380
+          },
+          "sourceRepo": "Community",
+          "version": "1.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "restoreDates",
+          "inputsDB": {
+            "deleteDateFile": "true",
+            "pluginSourceId": "Local:Tdarr_Plugin_GR34_GrutRestoreOriginalDates"
+          },
+          "name": "Restore Original Dates",
+          "pluginName": "runClassicTranscodePlugin",
+          "position": {
+            "x": 0,
+            "y": 440
+          },
+          "sourceRepo": "Community",
+          "version": "2.0.0"
+        },
+        {
+          "fpEnabled": true,
+          "id": "av1JellyfinGate",
+          "inputsDB": {},
+          "name": "AV1 Jellyfin Gate",
+          "pluginName": "av1JellyfinGate",
+          "position": {
+            "x": 0,
+            "y": 500
+          },
+          "sourceRepo": "Local",
+          "version": "1.0.0"
+        }
+      ],
+      "isUiLocked": false,
+      "name": "AV1 QSV Flow - Arc B570 (HDR-Aware, No Bitrate Routing, Jellyfin Gate)",
+      "priority": 5
+    }
+  library__4sWtQXW4h.json: |
+    {
+      "_id": "4sWtQXW4h",
+      "name": "Anime",
+      "folder": "/media/series/anime",
+      "flowId": "AV1_QSV_Arc_B570_HDR_aware_no_routing",
+      "holdNewFiles": false
+    }
+  library__R6I55tD6c.json: |
+    {
+      "_id": "R6I55tD6c",
+      "name": "Movies-2",
+      "folder": "/media/4k movies",
+      "flowId": "AV1_QSV_Arc_B570_HDR_aware_no_routing",
+      "holdNewFiles": false
+    }
+  library__jvBWApbSE.json: |
+    {
+      "_id": "jvBWApbSE",
+      "name": "Web Series",
+      "folder": "/media/series/web series",
+      "flowId": "AV1_QSV_Arc_B570_HDR_aware_no_routing",
+      "holdNewFiles": false
+    }
+  library__lkun_CfeF.json: |
+    {
+      "_id": "lkun_CfeF",
+      "name": "Movies-1",
+      "folder": "/media/001.MOVIES",
+      "flowId": "AV1_QSV_Arc_B570_HDR_aware_no_routing",
+      "holdNewFiles": false
+    }
+kind: ConfigMap
+metadata:
+  name: tdarr-git-desired
+  namespace: tdarr

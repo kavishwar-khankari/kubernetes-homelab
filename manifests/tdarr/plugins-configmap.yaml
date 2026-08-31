@@ -1,0 +1,2478 @@
+apiVersion: v1
+data:
+  flow__av1JellyfinGate__index.js: |
+    'use strict';
+
+    const fs = require('fs');
+    const path = require('path').posix;
+    const { spawn } = require('child_process');
+
+    const MAGIC = '# tdarr-av1-jellyfin-gate/v1';
+    const LOCK_NAME = '.tdarr-av1-jellyfin-gate.lock';
+    const MEDIA_ROOT = process.env.TDARR_GATE_MEDIA_ROOT || '/media';
+    const FFPROBE_PATH = process.env.TDARR_GATE_FFPROBE || '/usr/local/bin/ffprobe';
+    const LOCK_TIMEOUT_MS = 60 * 1000;
+    const LOCK_RETRY_MS = 1000;
+    const PROBE_TIMEOUT_MS = Number(process.env.TDARR_GATE_PROBE_TIMEOUT_MS || 60 * 1000);
+    const MAX_PROBE_OUTPUT = 10 * 1024 * 1024;
+    const sleepBuffer = new SharedArrayBuffer(4);
+    const sleepView = new Int32Array(sleepBuffer);
+
+    const details = () => ({
+      name: 'AV1 Jellyfin Gate',
+      description:
+        'Verifies the final library file is AV1, removes only the owned Jellyfin gate rule, '
+        + 'and emits a filesystem event for the normal Jellyfin watcher.',
+      style: {
+        borderColor: '#6efefc',
+      },
+      tags: 'video,av1,jellyfin,gate',
+      isStartPlugin: false,
+      pType: '',
+      requiresVersion: '2.11.01',
+      sidebarPosition: -1,
+      icon: 'faUnlock',
+      inputs: [],
+      outputs: [
+        {
+          number: 1,
+          tooltip: 'Released: final file is verified AV1 and the owned gate is cleared.',
+        },
+        {
+          number: 2,
+          tooltip: 'Held: proof, path, marker, lock, or watcher-event handling failed.',
+        },
+      ],
+    });
+
+    async function plugin(args) {
+      const inputFileObj = (args && args.inputFileObj) || {};
+
+      try {
+        const finalFile = resolveFinalFile(args);
+        if (!finalFile) {
+          return held(args, 'No regular final library file under /media was found.');
+        }
+
+        const probe = await probeFile(finalFile);
+        const videoStreams = (probe.streams || []).filter(isRealVideoStream);
+        if (!videoStreams.length) {
+          return held(args, 'Independent ffprobe found no real video stream.');
+        }
+
+        if (videoStreams.some((stream) => String(stream.codec_name || '').toLowerCase() !== 'av1')) {
+          return held(args, 'Independent ffprobe found a real video stream that is not AV1.');
+        }
+
+        const parent = path.dirname(finalFile);
+        const marker = path.join(parent, '.ignore');
+        const lock = acquireLock(parent);
+        let previousContent = null;
+        let markerChanged = false;
+        let result = null;
+
+        try {
+          const markerState = readMarker(marker);
+          if (!markerState.exists) {
+            log(args, 'Verified AV1 historical file has no gate marker; leaving filesystem unchanged.');
+            result = released(args);
+          } else {
+            previousContent = markerState.content;
+            const expectedRules = new Set(ruleCandidates(finalFile, args));
+            const matchingRules = new Set(
+              markerState.rules.filter((rule) => expectedRules.has(rule))
+            );
+
+            if (!matchingRules.size) {
+              result = held(args, 'Owned marker has no rule matching the final file stem.');
+            } else {
+              const remainingLines = markerState.lines.filter(
+                (line) => !matchingRules.has(line)
+              );
+              const remainingRules = remainingLines.filter(isGateRule);
+
+              if (!remainingRules.length) {
+                fs.unlinkSync(marker);
+              } else {
+                writeAtomically(marker, remainingLines.join('\n'));
+              }
+              markerChanged = true;
+
+              try {
+                touchAndRestore(finalFile);
+              } catch (error) {
+                log(args, `Watcher event failed; restoring gate marker: ${error.message}`);
+                restoreMarker(marker, previousContent);
+                markerChanged = false;
+                result = held(args, 'Filesystem event or timestamp restoration failed.');
+              }
+
+              if (!result) {
+                log(args, `Released verified AV1 file: ${finalFile}`);
+                result = released(args);
+              }
+            }
+          }
+        } catch (error) {
+          if (markerChanged && previousContent !== null) {
+            try {
+              restoreMarker(marker, previousContent);
+            } catch (restoreError) {
+              log(args, `Gate restoration failed: ${restoreError.message}`);
+            }
+          }
+          result = held(args, error.message);
+        } finally {
+          try {
+            releaseLock(lock);
+          } catch (error) {
+            if (markerChanged && previousContent !== null) {
+              try {
+                restoreMarker(marker, previousContent);
+              } catch (restoreError) {
+                log(args, `Lock-release restoration failed: ${restoreError.message}`);
+              }
+            }
+            log(args, `Gate lock cleanup failed: ${error.message}`);
+            result = held(args, 'Gate lock cleanup failed.');
+          }
+        }
+
+        return result || held(args, 'Gate did not produce a release result.');
+      } catch (error) {
+        log(args, `Gate held: ${error.message}`);
+        return held(args, error.message);
+      }
+    }
+
+    function resolveFinalFile(args) {
+      const inputId = args && args.inputFileObj && args.inputFileObj._id;
+      const originalId = args && args.originalLibraryFile && args.originalLibraryFile._id;
+
+      for (const candidate of [inputId, originalId]) {
+        const normalized = normalizeMediaPath(candidate);
+        if (!normalized) continue;
+
+        try {
+          assertNoSymlinkComponents(normalized);
+          const stat = fs.lstatSync(normalized);
+          if (stat.isFile()) return normalized;
+        } catch (error) {
+          // A cache path, missing replacement, or unsafe candidate is not usable.
+        }
+      }
+
+      return null;
+    }
+
+    function normalizeMediaPath(candidate) {
+      if (typeof candidate !== 'string' || !candidate || candidate.includes('\0')) {
+        return null;
+      }
+
+      if (!candidate.startsWith('/') || candidate.split('/').includes('..')) {
+        return null;
+      }
+
+      const normalized = path.normalize(candidate);
+      const root = path.normalize(MEDIA_ROOT).replace(/\/$/, '');
+      if (normalized === root || !normalized.startsWith(`${root}/`)) {
+        return null;
+      }
+
+      if (normalized.split('/').includes('tdarr-workDir')
+          || normalized.split('/').includes('temp')) {
+        return null;
+      }
+
+      return normalized;
+    }
+
+    function assertNoSymlinkComponents(filePath) {
+      const root = path.normalize(MEDIA_ROOT).replace(/\/$/, '');
+      const relative = path.relative(root, filePath);
+      let current = root;
+
+      for (const component of relative.split('/')) {
+        if (!component) continue;
+        current = path.join(current, component);
+        const stat = fs.lstatSync(current);
+        if (stat.isSymbolicLink()) {
+          throw new Error(`Symlink path component rejected: ${current}`);
+        }
+      }
+    }
+
+    function probeFile(filePath) {
+      return new Promise((resolve, reject) => {
+        const child = spawn(
+          FFPROBE_PATH,
+          ['-v', 'error', '-print_format', 'json', '-show_streams', '-show_format', filePath],
+          { stdio: ['ignore', 'pipe', 'pipe'] }
+        );
+        let stdout = '';
+        let stderr = '';
+        let settled = false;
+        let timeout;
+
+        const finish = (error, value) => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timeout);
+          if (error) reject(error);
+          else resolve(value);
+        };
+
+        const collect = (chunk, target) => {
+          const text = chunk.toString();
+          if (target === 'stdout') stdout += text;
+          else stderr += text;
+          if (stdout.length + stderr.length > MAX_PROBE_OUTPUT) {
+            child.kill('SIGKILL');
+            finish(new Error('ffprobe output exceeded the safety limit.'));
+          }
+        };
+
+        child.stdout.on('data', (chunk) => collect(chunk, 'stdout'));
+        child.stderr.on('data', (chunk) => collect(chunk, 'stderr'));
+        child.on('error', (error) => finish(error));
+        child.on('close', (code) => {
+          if (code !== 0) {
+            finish(new Error(`ffprobe failed with exit code ${code}: ${stderr.trim()}`));
+            return;
+          }
+
+          try {
+            finish(null, JSON.parse(stdout));
+          } catch (error) {
+            finish(new Error(`ffprobe returned invalid JSON: ${error.message}`));
+          }
+        });
+
+        timeout = setTimeout(() => {
+          child.kill('SIGKILL');
+          finish(new Error('ffprobe timed out.'));
+        }, PROBE_TIMEOUT_MS);
+      });
+    }
+
+    function isRealVideoStream(stream) {
+      return stream && stream.codec_type === 'video'
+        && !(stream.disposition && Number(stream.disposition.attached_pic) === 1);
+    }
+
+    function ruleCandidates(finalFile, args) {
+      const names = [
+        path.basename(finalFile),
+        args && args.inputFileObj && path.basename(String(args.inputFileObj._id || '')),
+        args && args.originalLibraryFile && path.basename(String(args.originalLibraryFile._id || '')),
+      ];
+      const rules = [];
+
+      for (const name of names) {
+        if (!name) continue;
+        try {
+          const rule = gateRule(name);
+          if (!rules.includes(rule)) rules.push(rule);
+        } catch (error) {
+          // An unsafe cache basename must not prevent a valid final basename candidate.
+        }
+      }
+
+      return rules;
+    }
+
+    function gateRule(filename) {
+      const basename = path.basename(filename);
+      const extension = path.extname(basename);
+      const stem = extension ? basename.slice(0, -extension.length) : basename;
+
+      if (!stem || stem.includes('\0') || stem.includes('/') || stem.includes('\n')
+          || stem.includes('\r') || /\s$/.test(stem)) {
+        throw new Error('Unsafe media filename stem.');
+      }
+
+      let escaped = '';
+      for (const character of stem) {
+        if ('\\*?[]!#'.includes(character)) escaped += `\\${character}`;
+        else escaped += character;
+      }
+
+      return `/${escaped}.*`;
+    }
+
+    function readMarker(marker) {
+      let stat;
+      try {
+        stat = fs.lstatSync(marker);
+      } catch (error) {
+        if (error.code === 'ENOENT') return { exists: false };
+        throw error;
+      }
+
+      if (stat.isSymbolicLink() || !stat.isFile()) {
+        throw new Error('Gate marker is not a regular file.');
+      }
+
+      const content = fs.readFileSync(marker, 'utf8').replace(/\r\n/g, '\n');
+      const lines = content.split('\n');
+      if (lines[0] !== MAGIC) throw new Error('Gate marker is not owned by this gate.');
+
+      const rules = lines.slice(1).filter(isGateRule);
+      const invalid = lines.slice(1).some(
+        (line) => line !== '' && !line.startsWith('#') && !isGateRule(line)
+      );
+      if (invalid || !rules.length) throw new Error('Gate marker has invalid or missing rules.');
+
+      return { exists: true, content, lines, rules };
+    }
+
+    function isGateRule(line) {
+      if (typeof line !== 'string' || line.length <= 3
+          || !line.startsWith('/') || !line.endsWith('.*')) {
+        return false;
+      }
+
+      const encodedStem = line.slice(1, -2);
+      if (!encodedStem || /\s$/.test(encodedStem)) return false;
+
+      let escaped = false;
+      for (const character of encodedStem) {
+        if (escaped) {
+          if (!'\\*?[]!#'.includes(character)) return false;
+          escaped = false;
+        } else if (character === '\\') {
+          escaped = true;
+        } else if ('/*?[]!#'.includes(character)) {
+          return false;
+        }
+      }
+
+      return !escaped;
+    }
+
+    function acquireLock(parent) {
+      const lock = path.join(parent, LOCK_NAME);
+      const deadline = Date.now() + LOCK_TIMEOUT_MS;
+
+      while (true) {
+        try {
+          fs.mkdirSync(lock);
+          return lock;
+        } catch (error) {
+          if (error.code !== 'EEXIST') throw error;
+
+          let stat;
+          try {
+            stat = fs.lstatSync(lock);
+          } catch (statError) {
+            if (statError.code !== 'ENOENT') throw statError;
+            continue;
+          }
+          if (stat.isSymbolicLink() || !stat.isDirectory()) {
+            throw new Error('Gate lock path is not a regular directory.');
+          }
+          if (Date.now() >= deadline) throw new Error('Timed out waiting for gate lock.');
+          Atomics.wait(sleepView, 0, 0, LOCK_RETRY_MS);
+        }
+      }
+    }
+
+    function releaseLock(lock) {
+      fs.rmdirSync(lock);
+    }
+
+    function writeAtomically(filePath, content) {
+      const directory = path.dirname(filePath);
+      const temporary = path.join(
+        directory,
+        `.${path.basename(filePath)}.tdarr-gate.${process.pid}.${Date.now()}.tmp`
+      );
+      let descriptor;
+
+      try {
+        descriptor = fs.openSync(temporary, 'wx', 0o644);
+        fs.writeFileSync(descriptor, content, 'utf8');
+        fs.closeSync(descriptor);
+        descriptor = undefined;
+        fs.chmodSync(temporary, 0o644);
+        fs.renameSync(temporary, filePath);
+      } catch (error) {
+        if (descriptor !== undefined) fs.closeSync(descriptor);
+        try {
+          fs.unlinkSync(temporary);
+        } catch (cleanupError) {
+          if (cleanupError.code !== 'ENOENT') {
+            // Preserve the original write error; the stale temp is observable for cleanup.
+          }
+        }
+        throw error;
+      }
+    }
+
+    function restoreMarker(marker, content) {
+      writeAtomically(marker, content);
+    }
+
+    function touchAndRestore(filePath) {
+      const stat = fs.statSync(filePath);
+      fs.utimesSync(filePath, new Date(), new Date());
+      fs.utimesSync(filePath, stat.atimeMs, stat.mtimeMs);
+    }
+
+    function log(args, message) {
+      if (args && typeof args.jobLog === 'function') args.jobLog(`AV1 Jellyfin Gate: ${message}`);
+    }
+
+    function released(args) {
+      const inputFileObj = (args && args.inputFileObj) || {};
+      return {
+        outputFileObj: inputFileObj,
+        outputNumber: 1,
+        variables: args && args.variables,
+      };
+    }
+
+    function held(args, reason) {
+      log(args, `Held: ${reason}`);
+      const inputFileObj = (args && args.inputFileObj) || {};
+      return {
+        outputFileObj: inputFileObj,
+        outputNumber: 2,
+        variables: args && args.variables,
+      };
+    }
+
+    module.exports.details = details;
+    module.exports.plugin = plugin;
+
+    // Exported only for the fixture harness; Tdarr uses details/plugin above.
+    module.exports._test = {
+      gateRule,
+      isRealVideoStream,
+      normalizeMediaPath,
+    };
+  flow__av1QsvEncodeHdrAware__index.js: |
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.plugin = exports.details = void 0;
+
+    var cliUtils_1 = require("../../../../FlowHelpers/1.0.0/cliUtils");
+    var fileUtils_1 = require("../../../../FlowHelpers/1.0.0/fileUtils");
+
+    var details = function () { return ({
+      name: 'AV1 QSV Encode (HDR-Aware)',
+      description: 'Encodes video to AV1 using QSV hardware acceleration. '
+        + 'Reads hdrFlags flow variable from HDR Detect and Tag plugin '
+        + 'and injects color signaling into the ffmpeg command. '
+        + 'Automatically falls back to software decoding for codecs/profiles '
+        + 'that QSV cannot hardware decode (VC-1, H.264 10-bit, etc). '
+        + 'Mastering display and content light level metadata are passed '
+        + 'automatically by av1_qsv via frame side data (no CLI flags needed). '
+        + 'By default promotes 8-bit sources to 10-bit AV1 output to eliminate '
+        + 'quantization noise and banding on flat surfaces (near-zero cost '
+        + 'bit-shift via vpp_qsv on GPU).',
+      style: {
+        borderColor: '#6efefc',
+      },
+      tags: 'video,ffmpeg,qsv,av1,hdr',
+      isStartPlugin: false,
+      pType: '',
+      requiresVersion: '2.11.01',
+      sidebarPosition: -1,
+      icon: '',
+      inputs: [
+        {
+          label: 'Quality (global_quality)',
+          name: 'quality',
+          type: 'string',
+          defaultValue: '22',
+          inputUI: { type: 'text' },
+          tooltip: 'QSV global_quality value. Lower = higher quality. (18/22/28/32/36)',
+        },
+        {
+          label: 'Preset',
+          name: 'preset',
+          type: 'string',
+          defaultValue: 'veryslow',
+          inputUI: {
+            type: 'dropdown',
+            options: ['veryslow', 'slower', 'slow', 'medium', 'fast', 'faster', 'veryfast'],
+          },
+          tooltip: 'QSV encoder preset.',
+        },
+        {
+          label: 'Look Ahead Depth',
+          name: 'lookAheadDepth',
+          type: 'string',
+          defaultValue: '100',
+          inputUI: { type: 'text' },
+          tooltip: 'look_ahead_depth value. Higher = better quality, slower. (20/40/60/100)',
+        },
+        {
+          label: 'B-Frames',
+          name: 'bFrames',
+          type: 'string',
+          defaultValue: '8',
+          inputUI: { type: 'text' },
+          tooltip: 'Number of B-frames (bf). (3/5/7/8)',
+        },
+        {
+          label: 'Force 10-bit Output',
+          name: 'force10Bit',
+          type: 'string',
+          defaultValue: 'true',
+          inputUI: {
+            type: 'dropdown',
+            options: ['true', 'false'],
+          },
+          tooltip: 'Promote 8-bit sources to 10-bit AV1 output. Near-zero cost '
+            + '(GPU bit-shift via vpp_qsv) and dramatically reduces banding and '
+            + 'quantization noise on flat surfaces. 10-bit sources pass through '
+            + 'unchanged. Recommended: true.',
+        },
+      ],
+      outputs: [
+        {
+          number: 1,
+          tooltip: 'Encode successful',
+        },
+        {
+          number: 2,
+          tooltip: 'Encode failed',
+        },
+      ],
+    }); };
+    exports.details = details;
+
+    /**
+     * Detect source bit depth from ffprobe video stream.
+     * Checks bits_per_raw_sample, pix_fmt, and profile.
+     */
+    function detectBitDepth(videoStream) {
+      if (!videoStream) return 8;
+      var bitDepth = Number(videoStream.bits_per_raw_sample) || 8;
+      var pixFmt = (videoStream.pix_fmt || '').toLowerCase();
+      var profile = (videoStream.profile || '').toLowerCase();
+      if (bitDepth === 8 && (pixFmt.includes('10le') || pixFmt.includes('10be')
+          || pixFmt.includes('p010') || profile.includes('10'))) {
+        bitDepth = 10;
+      }
+      if (bitDepth === 8 && (pixFmt.includes('12le') || pixFmt.includes('12be'))) {
+        bitDepth = 12;
+      }
+      return bitDepth;
+    }
+
+    /**
+     * Check if QSV can hardware decode the given codec/profile.
+     * Arc B570 (Battlemage) QSV decode support:
+     *   - H.264/AVC:   8-bit only (High, Main, Baseline — NOT High 10)
+     *   - HEVC/H.265:  8/10/12-bit
+     *   - VP9:         8/10-bit
+     *   - AV1:         8/10-bit
+     *   - MPEG-2:      8-bit
+     *   - MJPEG:       8-bit
+     * Everything else (VC-1, MPEG-4 ASP, VP8, WMV3, etc.) = no QSV decode.
+     */
+    function canQsvDecode(videoStream) {
+      if (!videoStream) return false;
+
+      var codec = (videoStream.codec_name || '').toLowerCase();
+      var bitDepth = detectBitDepth(videoStream);
+
+      switch (codec) {
+        case 'h264':
+          return bitDepth <= 8;
+        case 'hevc':
+          return bitDepth <= 12;
+        case 'vp9':
+          return bitDepth <= 10;
+        case 'av1':
+          return bitDepth <= 10;
+        case 'mpeg2video':
+          return bitDepth <= 8;
+        case 'mjpeg':
+          return bitDepth <= 8;
+        default:
+          return false;
+      }
+    }
+
+    var plugin = function (args) {
+      return new Promise(function (resolve, reject) {
+        var quality = String(args.inputs.quality || '22');
+        var preset = String(args.inputs.preset || 'veryslow');
+        var lookAheadDepth = String(args.inputs.lookAheadDepth || '100');
+        var bFrames = String(args.inputs.bFrames || '8');
+
+        // Parse force10Bit safely (handles string 'true'/'false', bool, undefined)
+        var force10BitRaw = args.inputs.force10Bit;
+        var force10Bit;
+        if (force10BitRaw === undefined || force10BitRaw === null || force10BitRaw === '') {
+          force10Bit = true; // default ON
+        } else {
+          force10Bit = String(force10BitRaw).toLowerCase() === 'true';
+        }
+
+        // Read HDR flags from flow variables
+        var hdrFlags = (args.variables && args.variables.hdrFlags) || '';
+        var hdrType = (args.variables && args.variables.hdrType) || 'unknown';
+
+        args.jobLog('AV1 QSV Encode: Q' + quality + ', ' + preset
+          + ', LA' + lookAheadDepth + ', bf' + bFrames);
+        args.jobLog('HDR type: ' + hdrType);
+
+        if (hdrFlags) {
+          args.jobLog('Color signaling flags: ' + hdrFlags);
+        } else {
+          args.jobLog('No HDR flags (SDR content).');
+        }
+
+        // Find the real video stream (skip cover art/mjpeg attachments)
+        var streams = (args.inputFileObj.ffProbeData && args.inputFileObj.ffProbeData.streams) || [];
+        var videoStream = streams.find(function (s) {
+          return s.codec_type === 'video'
+            && s.codec_name !== 'mjpeg'
+            && !(s.disposition && s.disposition.attached_pic === 1);
+        });
+
+        // Determine decode path and bit depth
+        var useHwDecode = canQsvDecode(videoStream);
+        var sourceBitDepth = detectBitDepth(videoStream);
+        var codecInfo = videoStream
+          ? (videoStream.codec_name || 'unknown') + ' / ' + (videoStream.profile || 'unknown')
+            + ' / ' + (videoStream.pix_fmt || 'unknown')
+          : 'no video stream found';
+
+        args.jobLog('Source codec: ' + codecInfo);
+        args.jobLog('Source bit depth: ' + sourceBitDepth + '-bit');
+        args.jobLog('QSV HW decode: ' + (useHwDecode ? 'YES' : 'NO (software fallback)'));
+
+        // Decide whether to promote to 10-bit
+        var promoteTo10Bit = force10Bit && sourceBitDepth < 10;
+        if (!force10Bit) {
+          args.jobLog('10-bit promotion: DISABLED (force10Bit=false)');
+        } else if (promoteTo10Bit) {
+          args.jobLog('10-bit promotion: ENABLED ('
+            + sourceBitDepth + '-bit source → 10-bit AV1 output)');
+        } else {
+          args.jobLog('10-bit promotion: skipped (source already '
+            + sourceBitDepth + '-bit)');
+        }
+
+        // Build ffmpeg command parts
+        var inputArgs = [];
+
+        if (useHwDecode) {
+          inputArgs.push('-hwaccel', 'qsv', '-hwaccel_output_format', 'qsv');
+        }
+        // SW decode path: no hwaccel flags. av1_qsv handles upload automatically.
+
+        // Build video filter chain
+        var videoFilters = [];
+        if (promoteTo10Bit) {
+          if (useHwDecode) {
+            // HW decode: frames are qsv surfaces on GPU. Convert on-GPU via VPP.
+            videoFilters.push('vpp_qsv=format=p010le');
+          } else {
+            // SW decode: frames in system memory. av1_qsv will upload p010 to GPU.
+            videoFilters.push('format=p010le');
+          }
+        }
+
+        var outputArgs = [
+          '-map', '0:v:0',
+          '-map', '0:a',
+          '-map', '0:s?',
+          '-map', '0:t?',
+          '-map_metadata', '0',
+          '-map_chapters', '0',
+          '-c:s', 'copy',
+          '-c:a', 'copy',
+        ];
+
+        if (videoFilters.length > 0) {
+          outputArgs.push('-vf', videoFilters.join(','));
+          args.jobLog('Video filters: ' + videoFilters.join(','));
+        }
+
+        outputArgs = outputArgs.concat([
+          '-c:v', 'av1_qsv',
+          '-preset', preset,
+          '-global_quality', quality,
+          '-look_ahead_depth', lookAheadDepth,
+          '-extbrc', '1',
+          '-adaptive_i', '1',
+          '-adaptive_b', '1',
+          '-b_strategy', '1',
+          '-bf', bFrames,
+          '-g', '300',
+          '-forced_idr', '1',
+        ]);
+
+        // Inject color signaling flags
+        if (hdrFlags) {
+          var parts = hdrFlags.trim().split(/\s+/);
+          outputArgs = outputArgs.concat(parts);
+          args.jobLog('Color signaling args injected: ' + JSON.stringify(parts));
+        }
+
+        // Safety: ensure max_muxing_queue_size for HDR content with many streams
+        if (hdrType !== 'sdr' && hdrType !== 'unknown') {
+          outputArgs = outputArgs.concat(['-max_muxing_queue_size', '4096']);
+        }
+
+        // Build output file path
+        var container = (0, fileUtils_1.getContainer)(args.inputFileObj._id);
+        var cacheFilePath = (0, fileUtils_1.getPluginWorkDir)(args)
+          + '/' + (0, fileUtils_1.getFileName)(args.inputFileObj._id) + '.' + container;
+
+        // Assemble full command
+        var spawnArgs = inputArgs.concat([
+          '-i', args.inputFileObj._id,
+        ]).concat(outputArgs).concat([
+          cacheFilePath,
+        ]);
+
+        args.jobLog('Running: ' + args.ffmpegPath + ' ' + spawnArgs.join(' '));
+
+        var cli = new cliUtils_1.CLI({
+          cli: args.ffmpegPath,
+          spawnArgs: spawnArgs,
+          spawnOpts: {},
+          jobLog: args.jobLog,
+          outputFilePath: cacheFilePath,
+          inputFileObj: args.inputFileObj,
+          logFullCliOutput: args.logFullCliOutput,
+          updateWorker: args.updateWorker,
+          args: args,
+        });
+
+        cli.runCli().then(function (res) {
+          if (res.cliExitCode !== 0) {
+            args.jobLog('FFmpeg encode failed with exit code ' + res.cliExitCode);
+            resolve({
+              outputFileObj: args.inputFileObj,
+              outputNumber: 2,
+              variables: args.variables,
+            });
+            return;
+          }
+
+          args.logOutcome('tSuc');
+          resolve({
+            outputFileObj: { _id: cacheFilePath },
+            outputNumber: 1,
+            variables: args.variables,
+          });
+        }).catch(function (err) {
+          args.jobLog('FFmpeg encode error: ' + err.message);
+          resolve({
+            outputFileObj: args.inputFileObj,
+            outputNumber: 2,
+            variables: args.variables,
+          });
+        });
+      });
+    };
+    exports.plugin = plugin;
+  flow__av1SvtEncodeHdrAware__index.js: |
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.plugin = exports.details = void 0;
+
+    var cliUtils_1 = require("../../../../FlowHelpers/1.0.0/cliUtils");
+    var fileUtils_1 = require("../../../../FlowHelpers/1.0.0/fileUtils");
+
+    var details = function () { return ({
+      name: 'AV1 SVT Encode (HDR-Aware)',
+      description: 'SVT-AV1 software encode via libsvtav1. HDR-aware using hdrFlags '
+        + 'flow variable from hdrDetectAndTag. Designed for quality-critical '
+        + 'content where QSV quality is insufficient. '
+        + 'Reads flow variables: '
+        + '- hdrFlags: color signaling flags (-color_primaries, -color_trc, etc.) '
+        + '- hdrType: "HDR10", "HLG", "DV", "SDR" (for logging)',
+      style: {
+        borderColor: '#6abb7f',
+      },
+      tags: 'video,ffmpeg,svt,av1,hdr,software',
+      isStartPlugin: false,
+      pType: '',
+      requiresVersion: '2.11.01',
+      sidebarPosition: -1,
+      icon: '',
+      inputs: [
+        {
+          label: 'CRF',
+          name: 'crf',
+          type: 'string',
+          defaultValue: '22',
+          inputUI: { type: 'text' },
+          tooltip: 'Constant Rate Factor (0-63). Lower = higher quality. 18-24 for high quality, 25-30 balanced.',
+        },
+        {
+          label: 'Preset',
+          name: 'preset',
+          type: 'string',
+          defaultValue: '4',
+          inputUI: { type: 'text' },
+          tooltip: 'SVT-AV1 preset (0-13). Lower = slower/better. 4 = high quality, 6 = balanced.',
+        },
+        {
+          label: 'Logical Processors (threads)',
+          name: 'lp',
+          type: 'string',
+          defaultValue: '4',
+          inputUI: { type: 'text' },
+          tooltip: 'Number of threads for SVT-AV1. Maps to --lp parameter.',
+        },
+        {
+          label: 'Film Grain Synthesis',
+          name: 'filmGrain',
+          type: 'string',
+          defaultValue: '0',
+          inputUI: { type: 'text' },
+          tooltip: 'Film grain synthesis level (0-50). 0 = disabled. 8-12 useful for grainy anime/film.',
+        },
+        {
+          label: 'Film Grain Denoise',
+          name: 'filmGrainDenoise',
+          type: 'string',
+          defaultValue: '0',
+          inputUI: { type: 'text' },
+          tooltip: '0 or 1. If 1, denoises source before applying grain synthesis. Only relevant if filmGrain > 0.',
+        },
+        {
+          label: 'Keyframe Interval',
+          name: 'keyint',
+          type: 'string',
+          defaultValue: '240',
+          inputUI: { type: 'text' },
+          tooltip: 'Keyframe interval in frames. 240 = ~10s at 24fps. -1 for auto.',
+        },
+      ],
+      outputs: [
+        {
+          number: 1,
+          tooltip: 'Encode successful',
+        },
+        {
+          number: 2,
+          tooltip: 'Encode failed',
+        },
+      ],
+    }); };
+    exports.details = details;
+
+    var plugin = function (args) {
+      return new Promise(function (resolve, reject) {
+        var crf = String(args.inputs.crf || '22');
+        var preset = String(args.inputs.preset || '4');
+        var lp = String(args.inputs.lp || '4');
+        var filmGrain = String(args.inputs.filmGrain || '0');
+        var filmGrainDenoise = String(args.inputs.filmGrainDenoise || '0');
+        var keyint = String(args.inputs.keyint || '240');
+
+        // Read HDR flags from flow variables
+        var hdrFlags = (args.variables && args.variables.hdrFlags) || '';
+        var hdrType = (args.variables && args.variables.hdrType) || 'unknown';
+
+        args.jobLog('SVT-AV1 Encode: CRF ' + crf + ', preset ' + preset
+          + ', threads ' + lp + ', film-grain ' + filmGrain);
+        args.jobLog('HDR type: ' + hdrType);
+
+        if (hdrFlags) {
+          args.jobLog('Color signaling flags: ' + hdrFlags);
+        } else {
+          args.jobLog('No HDR flags (SDR content).');
+        }
+
+        // Build SVT-AV1 params string (colon-separated for -svtav1-params)
+        var svtParams = 'lp=' + lp + ':pin=1'
+          + ':film-grain=' + filmGrain
+          + ':film-grain-denoise=' + filmGrainDenoise;
+
+        // Build ffmpeg command parts
+        // No hardware accel — this is a pure software encode
+        var inputArgs = [
+          '-ignore_unknown',
+        ];
+
+        var outputArgs = [
+          '-map', '0:v:0',
+          '-map', '0:a',
+          '-map', '0:s?',
+          '-map', '0:t?',
+          '-map_metadata', '0',
+          '-map_chapters', '0',
+          '-c:s', 'copy',
+          '-c:a', 'copy',
+          '-c:v', 'libsvtav1',
+          '-crf', crf,
+          '-preset', preset,
+          '-g', keyint,
+          '-pix_fmt', 'p010le',
+          '-threads', lp,
+          '-svtav1-params', svtParams,
+        ];
+
+        // Inject color signaling flags
+        if (hdrFlags) {
+          var parts = hdrFlags.trim().split(/\s+/);
+          outputArgs = outputArgs.concat(parts);
+          args.jobLog('Color signaling args injected: ' + JSON.stringify(parts));
+        }
+
+        // Safety: max_muxing_queue_size for complex files
+        outputArgs = outputArgs.concat(['-max_muxing_queue_size', '9999']);
+
+        // Build output file path
+        var container = (0, fileUtils_1.getContainer)(args.inputFileObj._id);
+        var cacheFilePath = (0, fileUtils_1.getPluginWorkDir)(args)
+          + '/' + (0, fileUtils_1.getFileName)(args.inputFileObj._id) + '.' + container;
+
+        // Assemble full command
+        var spawnArgs = inputArgs.concat([
+          '-i', args.inputFileObj._id,
+        ]).concat(outputArgs).concat([
+          cacheFilePath,
+        ]);
+
+        args.jobLog('Running: ' + args.ffmpegPath + ' ' + spawnArgs.join(' '));
+
+        var cli = new cliUtils_1.CLI({
+          cli: args.ffmpegPath,
+          spawnArgs: spawnArgs,
+          spawnOpts: {},
+          jobLog: args.jobLog,
+          outputFilePath: cacheFilePath,
+          inputFileObj: args.inputFileObj,
+          logFullCliOutput: args.logFullCliOutput,
+          updateWorker: args.updateWorker,
+          args: args,
+        });
+
+        cli.runCli().then(function (res) {
+          if (res.cliExitCode !== 0) {
+            args.jobLog('FFmpeg SVT-AV1 encode failed with exit code ' + res.cliExitCode);
+            resolve({
+              outputFileObj: args.inputFileObj,
+              outputNumber: 2,
+              variables: args.variables,
+            });
+            return;
+          }
+
+          args.logOutcome('tSuc');
+          resolve({
+            outputFileObj: { _id: cacheFilePath },
+            outputNumber: 1,
+            variables: args.variables,
+          });
+        }).catch(function (err) {
+          args.jobLog('FFmpeg SVT-AV1 encode error: ' + err.message);
+          resolve({
+            outputFileObj: args.inputFileObj,
+            outputNumber: 2,
+            variables: args.variables,
+          });
+        });
+      });
+    };
+    exports.plugin = plugin;
+  flow__checkSkipHDR__index.js: |
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.plugin = exports.details = void 0;
+
+    var details = function () { return ({
+      name: 'Check Skip HDR',
+      description: 'Checks skipHDR flow variable set by HDR Detect and Tag. '
+        + 'Routes DV Profile 5 and other unencodable HDR files to output 2 (skip).',
+      style: {
+        borderColor: '#FF4444',
+      },
+      tags: 'video,hdr',
+      isStartPlugin: false,
+      pType: '',
+      requiresVersion: '2.11.01',
+      sidebarPosition: -1,
+      icon: 'faQuestion',
+      inputs: [],
+      outputs: [
+        {
+          number: 1,
+          tooltip: 'Safe to encode — HDR will be preserved or content is SDR',
+        },
+        {
+          number: 2,
+          tooltip: 'Skip — unsafe HDR (DV Profile 5, no HDR10 fallback)',
+        },
+      ],
+    }); };
+    exports.details = details;
+
+    var plugin = function (args) {
+      var skipHDR = (args.variables && args.variables.skipHDR) || 'false';
+      var hdrType = (args.variables && args.variables.hdrType) || 'unknown';
+
+      if (skipHDR === 'true') {
+        args.jobLog('⚠ Skipping — HDR type "' + hdrType + '" cannot be safely re-encoded. '
+          + 'Dolby Vision Profile 5 has no HDR10 fallback. '
+          + 'Re-encoding would produce washed-out output. '
+          + 'Keep original or obtain a DV Profile 7/8 version.');
+        return {
+          outputFileObj: args.inputFileObj,
+          outputNumber: 2,
+          variables: args.variables,
+        };
+      }
+
+      args.jobLog('HDR check passed (type: ' + hdrType + ') — safe to encode.');
+      return {
+        outputFileObj: args.inputFileObj,
+        outputNumber: 1,
+        variables: args.variables,
+      };
+    };
+    exports.plugin = plugin;
+  flow__hdrDetectAndTag__index.js: |
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.plugin = exports.details = void 0;
+
+    var details = function () { return ({
+      name: 'HDR Detect and Tag',
+      description: 'Detects HDR type (SDR/HDR10/HLG/HDR10+/DV) and extracts metadata. '
+        + 'Sets flow variables hdrType, hdrFlags, skipHDR for downstream plugins. '
+        + 'hdrFlags contains only color signaling args — mastering display and '
+        + 'content light level metadata is passed automatically by av1_qsv via '
+        + 'frame side data.',
+      style: {
+        borderColor: '#FF8C00',
+      },
+      tags: 'video,hdr',
+      isStartPlugin: false,
+      pType: '',
+      requiresVersion: '2.11.01',
+      sidebarPosition: -1,
+      icon: 'faEye',
+      inputs: [
+        {
+          label: 'FFprobe Path',
+          name: 'ffprobePath',
+          type: 'string',
+          defaultValue: '/usr/lib/jellyfin-ffmpeg/ffprobe',
+          inputUI: { type: 'text' },
+          tooltip: 'Full path to ffprobe binary on the worker node.',
+        },
+      ],
+      outputs: [
+        {
+          number: 1,
+          tooltip: 'HDR detection complete (check hdrType variable)',
+        },
+      ],
+    }); };
+    exports.details = details;
+
+    var plugin = function (args) {
+      return new Promise(function (resolve) {
+        var execSync = require('child_process').execSync;
+        var FFPROBE = String(args.inputs.ffprobePath || '/usr/lib/jellyfin-ffmpeg/ffprobe');
+        var filePath = args.inputFileObj._id;
+
+        // ─── 1. Get color properties from Tdarr's existing scan ───
+        var videoStream = (args.inputFileObj.ffProbeData.streams || []).find(
+          function (s) { return s.codec_type === 'video'; }
+        );
+
+        if (!videoStream) {
+          args.jobLog('No video stream found. Defaulting to SDR.');
+          resolve({
+            outputFileObj: args.inputFileObj,
+            outputNumber: 1,
+            variables: setVars(args.variables, 'sdr', '', false),
+          });
+          return;
+        }
+
+        var colorTransfer = (videoStream.color_transfer || '').toLowerCase();
+        var colorPrimaries = (videoStream.color_primaries || '').toLowerCase();
+        var colorSpace = (videoStream.color_space || '').toLowerCase();
+        var colorRange = (videoStream.color_range || 'tv').toLowerCase();
+
+        args.jobLog('From Tdarr scan: color_transfer=' + videoStream.color_transfer
+          + ', color_primaries=' + videoStream.color_primaries
+          + ', color_space=' + videoStream.color_space);
+
+        // ─── 2. Quick SDR check ───
+        var isPQ = colorTransfer === 'smpte2084';
+        var isHLG = colorTransfer === 'arib-std-b67';
+        var isBT2020 = colorPrimaries === 'bt2020';
+
+        if (!isPQ && !isHLG && !isBT2020) {
+          args.jobLog('SDR content — no HDR handling needed.');
+          resolve({
+            outputFileObj: args.inputFileObj,
+            outputNumber: 1,
+            variables: setVars(args.variables, 'sdr', '', false),
+          });
+          return;
+        }
+
+        args.jobLog('HDR indicators found — running ffprobe for side data...');
+
+        // ─── 3. Frame side data (mastering display + CLL) ───
+        var sideDataList = [];
+        try {
+          var frameCmd = FFPROBE
+            + ' -v quiet -print_format json'
+            + ' -select_streams v:0'
+            + ' -read_intervals "%+#1"'
+            + ' -show_frames'
+            + ' -show_entries frame=side_data_list'
+            + ' ' + JSON.stringify(filePath);
+
+          var frameRaw = execSync(frameCmd, {
+            maxBuffer: 10 * 1024 * 1024,
+            timeout: 60000,
+          }).toString();
+
+          var frameData = JSON.parse(frameRaw);
+          var frames = frameData.frames || [];
+          sideDataList = (frames[0] || {}).side_data_list || [];
+
+          args.jobLog('Found ' + sideDataList.length + ' side_data entries in first frame.');
+          sideDataList.forEach(function (sd) {
+            args.jobLog('  side_data: ' + (sd.side_data_type || 'unknown'));
+          });
+        } catch (err) {
+          args.jobLog('ffprobe frame scan error: ' + err.message);
+        }
+
+        // ─── 4. DOVI detection via stream side data ───
+        var doviProfile = null;
+        try {
+          var streamCmd = FFPROBE
+            + ' -v quiet -print_format json'
+            + ' -select_streams v:0'
+            + ' -show_streams'
+            + ' -show_entries stream_side_data'
+            + ' ' + JSON.stringify(filePath);
+
+          var streamRaw = execSync(streamCmd, {
+            maxBuffer: 10 * 1024 * 1024,
+            timeout: 60000,
+          }).toString();
+
+          var streamData = JSON.parse(streamRaw);
+          var streams = streamData.streams || [];
+          var vStream = streams[0] || {};
+          var streamSideData = vStream.side_data_list || [];
+
+          streamSideData.forEach(function (sd) {
+            var sdType = (sd.side_data_type || '').toLowerCase();
+            if (sdType.includes('dovi') || sdType.includes('dolby vision')) {
+              if (sd.dv_profile !== undefined) {
+                doviProfile = parseInt(sd.dv_profile, 10);
+                args.jobLog('DOVI config: profile=' + doviProfile
+                  + ', bl_compat=' + sd.dv_bl_signal_compatibility_id
+                  + ', level=' + sd.dv_level);
+              } else {
+                args.jobLog('DOVI side_data found but no profile: ' + JSON.stringify(sd));
+              }
+            }
+            // Merge into sideDataList if not already there
+            if (!sideDataList.find(function (e) { return e.side_data_type === sd.side_data_type; })) {
+              sideDataList.push(sd);
+            }
+          });
+        } catch (err) {
+          args.jobLog('ffprobe stream side_data error: ' + err.message);
+        }
+
+        // ─── 5. Fallback DOVI from codec tags ───
+        if (doviProfile === null) {
+          var tagStr = (videoStream.codec_tag_string || '').toLowerCase();
+          var profile = (videoStream.profile || '').toLowerCase();
+          if (tagStr.includes('dvhe') || tagStr.includes('dvh1') || tagStr.includes('dvav')) {
+            doviProfile = -1;
+            args.jobLog('DV detected from codec_tag_string: ' + tagStr + ' (profile unknown)');
+          } else if (profile.includes('dolby vision')) {
+            doviProfile = -1;
+            args.jobLog('DV detected from profile: ' + profile + ' (profile unknown)');
+          }
+        }
+
+        // ─── 6. Log mastering display + CLL (for debugging only) ───
+        // NOTE: av1_qsv reads this metadata automatically from frame side data.
+        // We log it here for visibility but do NOT add it to hdrFlags.
+        sideDataList.forEach(function (sd) {
+          var sdType = sd.side_data_type || '';
+
+          if (/mastering display/i.test(sdType)) {
+            args.jobLog('Mastering display: green=' + sd.green_x + ',' + sd.green_y
+              + ' blue=' + sd.blue_x + ',' + sd.blue_y
+              + ' red=' + sd.red_x + ',' + sd.red_y
+              + ' wp=' + sd.white_point_x + ',' + sd.white_point_y
+              + ' lum=' + sd.min_luminance + '-' + sd.max_luminance);
+            args.jobLog('  (Passed to av1_qsv automatically via frame side data)');
+          }
+
+          if (/content light/i.test(sdType)) {
+            var cll = sd.max_content || sd.max_content_light_level || '0';
+            var fall = sd.max_average || sd.max_frame_average_light_level || '0';
+            args.jobLog('Content light level: MaxCLL=' + cll + ', MaxFALL=' + fall);
+            args.jobLog('  (Passed to av1_qsv automatically via frame side data)');
+          }
+        });
+
+        // ─── 7. Classify HDR type ───
+        var hdrType = 'sdr';
+        var skipHDR = false;
+
+        if (doviProfile === 5) {
+          hdrType = 'dv_profile5';
+          skipHDR = true;
+          args.jobLog('⚠ Dolby Vision Profile 5 — NO HDR10 fallback. Skipping.');
+        } else if (doviProfile === 7) {
+          hdrType = 'dv_profile7';
+          args.jobLog('Dolby Vision Profile 7 (HDR10 compatible) — will preserve HDR10 base.');
+        } else if (doviProfile === 8) {
+          hdrType = 'dv_profile8';
+          args.jobLog('Dolby Vision Profile 8 (HDR10 compatible) — will preserve HDR10 base.');
+        } else if (doviProfile === -1) {
+          hdrType = 'dv_profile5';
+          skipHDR = true;
+          args.jobLog('⚠ Dolby Vision detected but profile unknown — skipping for safety.');
+        } else if (doviProfile !== null && doviProfile !== 7 && doviProfile !== 8) {
+          hdrType = 'dv_profile5';
+          skipHDR = true;
+          args.jobLog('⚠ Dolby Vision Profile ' + doviProfile + ' — unsupported, skipping.');
+        } else if (isHLG) {
+          hdrType = 'hlg';
+          args.jobLog('HLG content detected.');
+        } else if (isPQ || isBT2020) {
+          var hasHdr10Plus = sideDataList.some(function (sd) {
+            var t = (sd.side_data_type || '').toLowerCase();
+            return t.includes('hdr10+') || t.includes('dynamic')
+              || t.includes('itut_t35') || t.includes('itu_t_t35');
+          });
+          if (hasHdr10Plus) {
+            hdrType = 'hdr10plus';
+            args.jobLog('HDR10+ detected — dynamic metadata lost, HDR10 base preserved.');
+          } else {
+            hdrType = 'hdr10';
+            args.jobLog('HDR10 content detected.');
+          }
+        }
+
+        // ─── 8. Build ffmpeg color signaling flags ───
+        // Only color_primaries, color_trc, colorspace, color_range.
+        // Mastering display + CLL are handled by av1_qsv frame side data passthrough.
+        var hdrFlags = '';
+
+        if (hdrType !== 'sdr' && !skipHDR) {
+          if (hdrType === 'hlg') {
+            hdrFlags = '-color_primaries bt2020 -color_trc arib-std-b67 -colorspace bt2020nc -color_range tv';
+          } else {
+            var cs = colorSpace === 'bt2020c' ? 'bt2020c' : 'bt2020nc';
+            var cr = colorRange === 'pc' ? 'pc' : 'tv';
+            hdrFlags = '-color_primaries bt2020 -color_trc smpte2084 -colorspace ' + cs + ' -color_range ' + cr;
+          }
+        }
+
+        args.jobLog('→ hdrType=' + hdrType);
+        args.jobLog('→ skipHDR=' + skipHDR);
+        args.jobLog('→ hdrFlags=' + hdrFlags);
+
+        resolve({
+          outputFileObj: args.inputFileObj,
+          outputNumber: 1,
+          variables: setVars(args.variables, hdrType, hdrFlags, skipHDR),
+        });
+      });
+    };
+    exports.plugin = plugin;
+
+    // ─── Helpers ───
+
+    function setVars(variables, hdrType, hdrFlags, skipHDR) {
+      var v = variables || {};
+      v.hdrType = hdrType;
+      v.hdrFlags = hdrFlags;
+      v.skipHDR = skipHDR ? 'true' : 'false';
+      return v;
+    }
+  local__Tdarr_Plugin_GR34_GrutRestoreOriginalDates.js: |
+    /* eslint no-plusplus: ["error", { "allowForLoopAfterthoughts": true }] */
+    function details() {
+      return {
+        id: "Tdarr_Plugin_GR34_GrutRestoreOriginalDates",
+        Stage: "Post-processing",
+        Name: "Re-date the file according to the original file",
+        Type: "Date",
+        Operation: "Restore",
+        Description: 'This plugin can restore dates (atime/mtime) of the original media from a JSON file. Should be used as LAST plugin in the stack. To save the original date, use Tdarr_Plugin_GR34_GrutSaveOriginalDates.\n\n',
+        Version: '0.1',
+        Link: '',
+        Tags: 'post-processing,original,date,restore',
+        Inputs: [
+          {
+            name: 'deleteDateFile',
+            tooltip: `Delete the file where dates are saved after restore. (default : false)
+                  \\nOptional.
+                  \\nExample:\\n
+                  true
+                  \\nExample:\\n
+                  false
+                  \\nDefault:\\n
+                  false
+                  `,
+          },
+          {
+            name: 'debug',
+            tooltip: `print some debug output in node log (ie docker logs...).
+                  \\nOptional.
+                  \\nExample:\\n
+                  true
+                  \\nExample:\\n
+                  false
+                  \\nDefault:\\n
+                  false
+                  `,
+          },
+        ],
+      };
+    }
+
+
+    function print_debug(debug, message) {
+      prefix = new Date().toISOString() + " - " + "Tdarr_Plugin_GR34_GrutRestoreOriginalDates - "
+      if (debug)
+        console.log(prefix + message)
+    }
+
+    function plugin(file, librarySettings, inputs) {
+      const response = {
+        file,
+        removeFromDB: false,
+        updateDB: true,
+      };
+
+      fs = require('fs');
+      path = require('path');
+
+      let debug = false
+      if (inputs && inputs.debug && inputs.debug.toLowerCase() === 'true')
+        debug = true
+
+      let deleteDateFile = false
+      if (inputs && inputs.deleteDateFile && inputs.deleteDateFile.toLowerCase() === 'true')
+        deleteDateFile = true
+
+      let date_file
+      let data
+      let infostats
+      print_debug(debug, '###### Restoring original dates for ' + file.file)
+
+      parsed_file=path.parse(file.file);
+      date_file=`${parsed_file.dir}${path.posix.sep}${parsed_file.name}.dates`
+      //date_file = file.file + ".dates"
+      print_debug(debug, "Read dates from " + date_file)
+      try {
+        if(fs.existsSync(date_file)) {
+          print_debug(debug, "The file exists.");
+        } else {
+          print_debug(debug, 'The file does not exist. Skipping..');
+          return  response
+        }
+      } catch (err) {
+        print_debug(debug, `Error while checking file existence the dates: ${err}`)
+      }
+
+      try {
+        print_debug(debug, `test read file`);
+        data = fs.readFileSync(date_file, 'utf8');
+
+        // parse JSON string to JSON object
+        infostats = JSON.parse(data);
+
+        print_debug(debug, "Original atime = " + infostats.atime)
+        print_debug(debug, "Original mtime = " + infostats.mtime)
+
+
+      } catch (err) {
+        print_debug(debug, `Error reading file ${date_file} from disk: ${err}`);
+        return reponse
+      }
+
+      try {
+        print_debug(debug, "Setting atime and mtime for " + file.file)
+        print_debug(debug, "      atime=" + new Date(infostats.atime))
+        print_debug(debug, "      mtime=" + new Date(infostats.mtime))
+        fs.utimesSync(file.file, new Date(infostats.atime), new Date(infostats.mtime));
+      } catch (err) {
+        print_debug(debug, `Error while setting the dates: ${err}`);
+        return response
+      }
+
+      if(deleteDateFile){
+        try {
+          print_debug(debug, `Deleting file ${date_file}`)
+          fs.unlinkSync(date_file)
+          //file removed
+        } catch(err) {
+          print_debug(debug, `Error while deleting the file : ${err}`);
+        }
+      }
+
+      print_debug(debug, '###### End Processing ' + file.file)
+      print_debug(debug, '')
+      print_debug(debug, '')
+
+      return response;
+    }
+    module.exports.details = details;
+    module.exports.plugin = plugin;
+  local__Tdarr_Plugin_GR34_GrutSaveOriginalDates.js: "//const path = require('path/posix');\n\n/*
+    eslint no-plusplus: [\"error\", { \"allowForLoopAfterthoughts\": true }] */\nfunction
+    details() {\n  return {\n    id: 'Tdarr_Plugin_GR34_GrutSaveOriginalDates',\n
+    \   Stage: 'Pre-processing',\n    Name: 'Grut-Save original dates',\n    Type:
+    'AudDateDio',\n    Operation: 'Save',\n    Description: 'This plugin save dates
+    (atime/mtime) of the original media to a JSON file. Should be used as FIRST plugin
+    in the stack. To restore the original date after transcoding, use Tdarr_Plugin_GR34_GrutRestoreOriginalDates.\\n\\n',\n
+    \   Version: '0.1',\n    Link: '',\n    Tags: 'pre-processing,save,original,date',\n
+    \   Inputs: [\n      {\n        name: 'debug',\n        tooltip: `print some debug
+    output in node log (ie docker logs...).\n              \\\\nOptional.\n              \\\\nExample:\\\\n\n
+    \             true\n              \\\\nExample:\\\\n\n              false\n              \\\\nDefault:\\\\n\n
+    \             false\n              `,\n      },\n    ],\n  };\n}\n\nfunction print_debug(debug,
+    message) {\n  prefix=new Date().toISOString()+ \" - \" + \"Tdarr_Plugin_GR34_GrutSaveOriginalDates
+    - \"\n  if(debug)\n    console.log(prefix+message)\n}\n\nfunction plugin(file,
+    librarySettings, inputs) {\n  const response = {\n    processFile: false,\n    container:
+    `.${file.container}`,\n    handBrakeMode: false,\n    FFmpegMode: false,\n    reQueueAfter:
+    false,\n    infoLog: '',\n  };\n\n  fs = require('fs');\n  path = require('path');\n\n
+    \ let debug=false\n  if (inputs && inputs.debug && inputs.debug.toLowerCase()
+    === 'true')\n    debug=true \n\n  //Parsethe file property to get the path and
+    the filenamae\n  parsed_file=path.parse(file.file);\n  \n  // If the file being
+    processed is a cache file, don't save the dates.\n  // We do it only for the actual
+    file being transcoded)\n  if(parsed_file.name.includes(\"-TdarrCacheFile-\")){\n
+    \   print_debug(debug,'######This is a temp file. Don\\'t save dates '+file.file)\n
+    \ }\n  else\n  {\n    print_debug(debug,'###### Saving original dates for '+file.file)\n
+    \   print_debug(debug,\"Original atime = \"+file.statSync.atime)\n    print_debug(debug,\"Original
+    mtime = \"+file.statSync.mtime)\n    \n    \n    date_file=`${parsed_file.dir}${path.posix.sep}${parsed_file.name}.dates`\n\n
+    \   print_debug(debug,\"Save dates in \"+date_file)\n    \n    try {\n\n      //
+    convert JSON object to a string\n      const data = JSON.stringify(file.statSync,
+    null, 4);\n\n      // write file to disk\n      fs.writeFileSync(date_file, data,
+    'utf8');\n\n      print_debug(debug,`File is written successfully!`);\n\n    }
+    catch (err) {\n      print_debug(debug,`Error writing file: ${err}`);\n    }\n
+    \   print_debug(debug,'###### End Processing '+file.file)\n    \n  }\n  print_debug(debug,'')\n
+    \ print_debug(debug,'')\n  response.processFile = false;\n  return response;\n}\nmodule.exports.details
+    = details;\nmodule.exports.plugin = plugin;\n"
+  local__Tdarr_Plugin_Local_AV1QSVEncodeHDRAware.js: |
+    /* eslint-disable */
+
+    /**
+     * Tdarr_Plugin_Local_AV1QSVEncodeHDRAware
+     *
+     * AV1 QSV encode plugin that reads flow variables set by
+     * Tdarr_Plugin_Local_HDRDetectAndTag and injects appropriate
+     * HDR metadata flags into the ffmpeg command.
+     *
+     * Inputs (from Tdarr UI):
+     *   - quality:        global_quality value (e.g. 22)
+     *   - preset:         QSV preset (e.g. veryslow)
+     *   - lookAheadDepth: look_ahead_depth value (e.g. 100)
+     *   - bFrames:        bf value (e.g. 8)
+     *
+     * Reads flow variables:
+     *   - hdrFlags: string of ffmpeg flags (set by HDRDetectAndTag)
+     *
+     * Use via runClassicTranscodePlugin flow node.
+     *
+     * v1.0.0
+     */
+
+    const details = () => ({
+      id: 'Tdarr_Plugin_Local_AV1QSVEncodeHDRAware',
+      Stage: 'Main processing',
+      Name: 'AV1 QSV Encode (HDR-Aware)',
+      Type: 'Video',
+      Operation: 'Transcode',
+      Description:
+        'Encodes video to AV1 using QSV with automatic HDR metadata injection from flow variables.',
+      Version: '1.0.0',
+      Tags: 'action,ffmpeg,qsv,av1,hdr',
+      Inputs: [
+        {
+          name: 'quality',
+          type: 'string',
+          defaultValue: '22',
+          inputUI: { type: 'text' },
+          tooltip: 'global_quality value (e.g. 18, 22, 28, 32, 36)',
+        },
+        {
+          name: 'preset',
+          type: 'string',
+          defaultValue: 'veryslow',
+          inputUI: { type: 'text' },
+          tooltip: 'QSV preset (veryslow, slower, slow, medium)',
+        },
+        {
+          name: 'lookAheadDepth',
+          type: 'string',
+          defaultValue: '100',
+          inputUI: { type: 'text' },
+          tooltip: 'look_ahead_depth value',
+        },
+        {
+          name: 'bFrames',
+          type: 'string',
+          defaultValue: '8',
+          inputUI: { type: 'text' },
+          tooltip: 'bf (B-frame) count',
+        },
+      ],
+    });
+
+    const plugin = (file, librarySettings, inputs, otherArguments) => {
+      const lib = require('../methods/lib')();
+      inputs = lib.loadDefaultValues(inputs, details);
+
+      const quality = inputs.quality || '22';
+      const preset = inputs.preset || 'veryslow';
+      const lookAheadDepth = inputs.lookAheadDepth || '100';
+      const bFrames = inputs.bFrames || '8';
+
+      // Read HDR flags from flow variables (set by HDRDetectAndTag)
+      const hdrFlags =
+        (otherArguments && otherArguments.variables && otherArguments.variables.hdrFlags) || '';
+
+      // Build the ffmpeg command
+      const baseCmd = [
+        '-hwaccel qsv',
+        '-hwaccel_output_format qsv',
+        '<io>',
+        '-map 0:v:0',
+        '-map 0:a',
+        '-map 0:s?',
+        '-map 0:t?',
+        '-map_metadata 0',
+        '-map_chapters 0',
+        '-c:s copy',
+        '-c:a copy',
+        '-c:v av1_qsv',
+        `-preset ${preset}`,
+        `-global_quality ${quality}`,
+        `-look_ahead_depth ${lookAheadDepth}`,
+        '-extbrc 1',
+        '-adaptive_i 1',
+        '-adaptive_b 1',
+        '-b_strategy 1',
+        `-bf ${bFrames}`,
+        '-g 300',
+        '-forced_idr 1',
+      ];
+
+      // Inject HDR flags after the encoder params, before output
+      if (hdrFlags) {
+        baseCmd.push(hdrFlags);
+      }
+
+      const fullCmd = baseCmd.join(' ');
+
+      const response = {
+        processFile: true,
+        preset: fullCmd,
+        container: '.mkv',
+        handBrakeMode: false,
+        FFmpegMode: true,
+        reQueueAfter: false,
+        infoLog: `AV1 QSV Encode: Q${quality}, ${preset}, LA${lookAheadDepth}, bf${bFrames}\n`,
+      };
+
+      const hdrType =
+        (otherArguments && otherArguments.variables && otherArguments.variables.hdrType) || 'unknown';
+      response.infoLog += `HDR type: ${hdrType}\n`;
+
+      if (hdrFlags) {
+        response.infoLog += `HDR flags injected: ${hdrFlags}\n`;
+      } else {
+        response.infoLog += 'No HDR flags (SDR content).\n';
+      }
+
+      return response;
+    };
+
+    module.exports.details = details;
+    module.exports.plugin = plugin;
+  local__Tdarr_Plugin_Local_BitrateRouter.js: |
+    /* eslint-disable */
+
+    /**
+     * Tdarr_Plugin_Local_BitrateRouter
+     *
+     * Codec-aware bitrate router with minimum bitrate skip floor.
+     * Replaces file-size-based routing with bitrate-based routing.
+     *
+     * Supports two modes (set via 'mode' input):
+     *
+     *   "floor" — Minimum bitrate check only.
+     *       output 1: bitrate is ABOVE floor → continue processing
+     *       output 2: bitrate is BELOW floor → skip (too compressed)
+     *       Sets flow variables: detectedCodec, videoBitrateKbps, skipBitrate, skipReason
+     *
+     *   "route" — Threshold-based tier routing only (no floor check).
+     *       output 1: bitrate BELOW threshold → lower quality tier
+     *       output 2: bitrate AT/ABOVE threshold → higher quality tier (or next router)
+     *
+     * Chain pattern (3 nodes replaces 2 checkFileSize nodes):
+     *
+     *   [Floor Check (mode=floor)]
+     *       output 1 → [Router A (mode=route, low/mid split)]
+     *                       output 1 → Stage 1 (low bitrate)
+     *                       output 2 → [Router B (mode=route, mid/high split)]
+     *                                       output 1 → Stage 2 (mid bitrate)
+     *                                       output 2 → Stage 3 (high bitrate)
+     *       output 2 → skiplist ("download a higher bitrate version")
+     *
+     * All thresholds are per-codec (h264/hevc/other) and configurable from UI.
+     * Bitrate fallback: container bitrate if per-stream bitrate is unavailable.
+     *
+     * Use via runClassicFilterPlugin flow node.
+     *
+     * v1.0.0
+     */
+
+    const details = () => ({
+      id: 'Tdarr_Plugin_Local_BitrateRouter',
+      Stage: 'Pre-processing',
+      Name: 'Bitrate Router (Codec-Aware)',
+      Type: 'Video',
+      Operation: 'Filter',
+      Description:
+        'Routes files by video bitrate with codec-aware thresholds. ' +
+        'Use mode=floor for minimum bitrate skip, mode=route for tier routing. ' +
+        'Chain instances for multi-tier routing.',
+      Version: '1.0.0',
+      Tags: 'filter,pre-processing,bitrate',
+      Inputs: [
+        {
+          name: 'mode',
+          type: 'string',
+          defaultValue: 'floor',
+          inputUI: {
+            type: 'dropdown',
+            options: ['floor', 'route'],
+          },
+          tooltip:
+            '"floor" = skip files below minimum bitrate. ' +
+            '"route" = split files by bitrate threshold into two tiers.',
+        },
+        {
+          name: 'h264MinKbps',
+          type: 'string',
+          defaultValue: '4000',
+          inputUI: { type: 'text' },
+          tooltip:
+            '[floor mode] Minimum video bitrate (kbps) for H.264 sources. ' +
+            'Files below this are skipped — too compressed to benefit from AV1.',
+        },
+        {
+          name: 'hevcMinKbps',
+          type: 'string',
+          defaultValue: '3000',
+          inputUI: { type: 'text' },
+          tooltip:
+            '[floor mode] Minimum video bitrate (kbps) for HEVC sources. ' +
+            'Files below this are skipped — too compressed to benefit from AV1.',
+        },
+        {
+          name: 'otherMinKbps',
+          type: 'string',
+          defaultValue: '3000',
+          inputUI: { type: 'text' },
+          tooltip:
+            '[floor mode] Minimum video bitrate (kbps) for other codecs (VC-1, MPEG-2, VP9, etc).',
+        },
+        {
+          name: 'h264ThresholdKbps',
+          type: 'string',
+          defaultValue: '15000',
+          inputUI: { type: 'text' },
+          tooltip:
+            '[route mode] H.264 bitrate threshold (kbps). ' +
+            'Below → output 1 (lower tier). At/above → output 2 (higher tier).',
+        },
+        {
+          name: 'hevcThresholdKbps',
+          type: 'string',
+          defaultValue: '10000',
+          inputUI: { type: 'text' },
+          tooltip:
+            '[route mode] HEVC bitrate threshold (kbps). ' +
+            'Below → output 1 (lower tier). At/above → output 2 (higher tier).',
+        },
+        {
+          name: 'otherThresholdKbps',
+          type: 'string',
+          defaultValue: '12000',
+          inputUI: { type: 'text' },
+          tooltip:
+            '[route mode] Other codec bitrate threshold (kbps). ' +
+            'Below → output 1 (lower tier). At/above → output 2 (higher tier).',
+        },
+      ],
+    });
+
+    const plugin = (file, librarySettings, inputs, otherArguments) => {
+      const lib = require('../methods/lib')();
+      inputs = lib.loadDefaultValues(inputs, details);
+
+      const mode = inputs.mode || 'floor';
+
+      const response = {
+        processFile: true,
+        infoLog: '',
+      };
+
+      // ─── 1. Identify codec ───
+      const videoStream = (file.ffProbeData.streams || []).find(
+        (s) => s.codec_type === 'video'
+      );
+
+      if (!videoStream) {
+        response.processFile = false;
+        response.infoLog += 'No video stream found — skipping.\n';
+        setVars(otherArguments, 'unknown', 0, true, 'No video stream found');
+        return response;
+      }
+
+      const codecName = (videoStream.codec_name || '').toLowerCase();
+      let codecGroup = 'other';
+      if (codecName === 'h264' || codecName === 'avc') {
+        codecGroup = 'h264';
+      } else if (codecName === 'hevc' || codecName === 'h265') {
+        codecGroup = 'hevc';
+      }
+
+      response.infoLog += `Codec: ${codecName} (group: ${codecGroup})\n`;
+
+      // ─── 2. Get bitrate ───
+      let bitrateKbps = 0;
+      let bitrateSource = '';
+
+      if (videoStream.bit_rate) {
+        bitrateKbps = parseInt(videoStream.bit_rate, 10) / 1000;
+        bitrateSource = 'stream';
+      } else if (file.ffProbeData.format && file.ffProbeData.format.bit_rate) {
+        // Fallback: container bitrate (overcounts — includes audio/subs)
+        bitrateKbps = parseInt(file.ffProbeData.format.bit_rate, 10) / 1000;
+        bitrateSource = 'container (approx)';
+      }
+
+      const bitrateRounded = Math.round(bitrateKbps);
+      response.infoLog += `Video bitrate: ${bitrateRounded} kbps (source: ${bitrateSource || 'unknown'})\n`;
+
+      // If we can't determine bitrate, proceed (route to lower tier as safe default)
+      if (bitrateKbps <= 0) {
+        response.processFile = true;
+        response.infoLog += 'Could not determine bitrate — routing to lower tier (safe default).\n';
+        setVars(otherArguments, codecGroup, 0, false, '');
+        return response;
+      }
+
+      // ─── 3. Mode: floor ───
+      if (mode === 'floor') {
+        const floors = {
+          h264: parseInt(inputs.h264MinKbps, 10) || 4000,
+          hevc: parseInt(inputs.hevcMinKbps, 10) || 3000,
+          other: parseInt(inputs.otherMinKbps, 10) || 3000,
+        };
+
+        const minFloor = floors[codecGroup];
+
+        if (bitrateKbps < minFloor) {
+          response.processFile = false;
+          const reason =
+            `Video bitrate ${bitrateRounded} kbps (${codecName}) is below ` +
+            `minimum floor of ${minFloor} kbps for ${codecGroup}. ` +
+            `This file is already too compressed to benefit from AV1 re-encoding. ` +
+            `Download a higher bitrate version of this file.`;
+          response.infoLog += `⚠ SKIP: ${reason}\n`;
+          setVars(otherArguments, codecGroup, bitrateRounded, true, reason);
+          return response;
+        }
+
+        response.processFile = true;
+        response.infoLog += `${bitrateRounded} kbps >= ${minFloor} kbps floor (${codecGroup}) → above floor, proceed.\n`;
+        setVars(otherArguments, codecGroup, bitrateRounded, false, '');
+        return response;
+      }
+
+      // ─── 4. Mode: route ───
+      const splits = {
+        h264: parseInt(inputs.h264ThresholdKbps, 10) || 15000,
+        hevc: parseInt(inputs.hevcThresholdKbps, 10) || 10000,
+        other: parseInt(inputs.otherThresholdKbps, 10) || 12000,
+      };
+
+      const splitPoint = splits[codecGroup];
+
+      if (bitrateKbps < splitPoint) {
+        response.processFile = true;
+        response.infoLog += `${bitrateRounded} kbps < ${splitPoint} kbps (${codecGroup}) → output 1 (lower tier)\n`;
+      } else {
+        response.processFile = false;
+        response.infoLog += `${bitrateRounded} kbps >= ${splitPoint} kbps (${codecGroup}) → output 2 (higher tier)\n`;
+      }
+
+      // Preserve existing vars from floor check, only update if not already set
+      if (otherArguments && otherArguments.variables) {
+        if (!otherArguments.variables.detectedCodec) {
+          otherArguments.variables.detectedCodec = codecGroup;
+        }
+        if (!otherArguments.variables.videoBitrateKbps) {
+          otherArguments.variables.videoBitrateKbps = String(bitrateRounded);
+        }
+      }
+
+      return response;
+    };
+
+    function setVars(otherArguments, codec, bitrateKbps, skipped, reason) {
+      if (otherArguments && otherArguments.variables) {
+        otherArguments.variables.detectedCodec = codec;
+        otherArguments.variables.videoBitrateKbps = String(bitrateKbps);
+        otherArguments.variables.skipBitrate = skipped ? 'true' : 'false';
+        otherArguments.variables.skipReason = reason;
+      }
+    }
+
+    module.exports.details = details;
+    module.exports.plugin = plugin;
+  local__Tdarr_Plugin_Local_CheckSkipHDR.js: |
+    /* eslint-disable */
+
+    /**
+     * Tdarr_Plugin_Local_CheckSkipHDR
+     *
+     * Checks the `skipHDR` flow variable set by HDRDetectAndTag.
+     * Routes Dolby Vision Profile 5 (and other unencodable HDR) files
+     * away from the encode pipeline.
+     *
+     * Outputs:
+     *   output 1 (processFile: true)  → safe to encode, continue
+     *   output 2 (processFile: false) → skip this file (DV P5 / unsafe HDR)
+     *
+     * Use via runClassicFilterPlugin flow node.
+     * Place AFTER HDRDetectAndTag, BEFORE bitrate routing.
+     *
+     * v1.0.0
+     */
+
+    const details = () => ({
+      id: 'Tdarr_Plugin_Local_CheckSkipHDR',
+      Stage: 'Pre-processing',
+      Name: 'Check Skip HDR',
+      Type: 'Video',
+      Operation: 'Filter',
+      Description:
+        'Checks skipHDR flow variable. Routes DV Profile 5 and other ' +
+        'unencodable HDR files to skip. Set by HDRDetectAndTag plugin.',
+      Version: '1.0.0',
+      Tags: 'filter,pre-processing,hdr',
+      Inputs: [],
+    });
+
+    const plugin = (file, librarySettings, inputs, otherArguments) => {
+      const response = {
+        processFile: true,
+        infoLog: '',
+      };
+
+      const skipHDR =
+        (otherArguments &&
+          otherArguments.variables &&
+          otherArguments.variables.skipHDR) || 'false';
+
+      const hdrType =
+        (otherArguments &&
+          otherArguments.variables &&
+          otherArguments.variables.hdrType) || 'unknown';
+
+      if (skipHDR === 'true') {
+        response.processFile = false;
+        response.infoLog +=
+          `⚠ Skipping file — HDR type "${hdrType}" cannot be safely re-encoded. ` +
+          `Dolby Vision Profile 5 has no HDR10 fallback layer. ` +
+          `Re-encoding would strip all HDR metadata and produce washed-out output. ` +
+          `Keep the original or obtain a DV Profile 7/8 version with HDR10 compatibility.\n`;
+      } else {
+        response.processFile = true;
+        response.infoLog += `HDR check passed (type: ${hdrType}) — safe to encode.\n`;
+      }
+
+      return response;
+    };
+
+    module.exports.details = details;
+    module.exports.plugin = plugin;
+  local__Tdarr_Plugin_Local_HDRDetectAndTag.js: |
+    /* eslint-disable */
+
+    /**
+     * Tdarr_Plugin_Local_HDRDetectAndTag
+     *
+     * Detects HDR type (SDR / HDR10 / HLG / HDR10+ / DV Profile 5/7/8)
+     * and extracts static HDR metadata. Sets flow variables:
+     *
+     *   - hdrType:  sdr | hdr10 | hlg | hdr10plus | dv_profile5 | dv_profile7 | dv_profile8
+     *   - hdrFlags: ffmpeg CLI flags to inject into encode commands (empty for SDR)
+     *   - skipHDR:  "true" if the file should be skipped (DV Profile 5)
+     *
+     * Uses:
+     *   - file.ffProbeData for basic color properties (already scanned by Tdarr)
+     *   - /usr/lib/jellyfin-ffmpeg/ffprobe for side_data (mastering display, CLL, DOVI)
+     *   - No mediainfo dependency
+     *
+     * Use via runClassicTranscodePlugin flow node.
+     * Place AFTER backup, BEFORE size router.
+     *
+     * v2.0.0
+     */
+
+    const details = () => ({
+      id: 'Tdarr_Plugin_Local_HDRDetectAndTag',
+      Stage: 'Pre-processing',
+      Name: 'HDR Detect and Tag',
+      Type: 'Video',
+      Operation: 'Transcode',
+      Description:
+        'Detects HDR type and extracts metadata into flow variables for downstream encode nodes.',
+      Version: '2.0.0',
+      Tags: 'pre-processing,hdr',
+      Inputs: [
+        {
+          name: 'ffprobePath',
+          type: 'string',
+          defaultValue: '/usr/lib/jellyfin-ffmpeg/ffprobe',
+          inputUI: { type: 'text' },
+          tooltip: 'Full path to ffprobe binary.',
+        },
+      ],
+    });
+
+    const plugin = async (file, librarySettings, inputs, otherArguments) => {
+      const lib = require('../methods/lib')();
+      inputs = lib.loadDefaultValues(inputs, details);
+      const { execSync } = require('child_process');
+
+      const FFPROBE = inputs.ffprobePath || '/usr/lib/jellyfin-ffmpeg/ffprobe';
+
+      // Ensure variables object exists
+      if (otherArguments && !otherArguments.variables) {
+        otherArguments.variables = {};
+      }
+
+      const response = {
+        processFile: false,
+        preset: '',
+        container: `.${file.container}`,
+        handBrakeMode: false,
+        FFmpegMode: false,
+        reQueueAfter: false,
+        infoLog: '',
+      };
+
+      const filePath = file._id || file.file;
+
+      // ─── 1. Get color properties from Tdarr's existing ffProbeData ───
+      const videoStream = (file.ffProbeData.streams || []).find(
+        (s) => s.codec_type === 'video'
+      );
+
+      if (!videoStream) {
+        response.infoLog += 'No video stream found. Defaulting to SDR.\n';
+        setVars(otherArguments, 'sdr', '', false);
+        return response;
+      }
+
+      const colorTransfer = (videoStream.color_transfer || '').toLowerCase();
+      const colorPrimaries = (videoStream.color_primaries || '').toLowerCase();
+      const colorSpace = (videoStream.color_space || '').toLowerCase();
+      const colorRange = (videoStream.color_range || 'tv').toLowerCase();
+
+      response.infoLog += `From Tdarr scan: color_transfer=${videoStream.color_transfer}, ` +
+        `color_primaries=${videoStream.color_primaries}, ` +
+        `color_space=${videoStream.color_space}\n`;
+
+      // ─── 2. Quick SDR check — skip ffprobe call entirely for SDR content ───
+      const isPQ = colorTransfer === 'smpte2084';
+      const isHLG = colorTransfer === 'arib-std-b67';
+      const isBT2020 = colorPrimaries === 'bt2020';
+
+      if (!isPQ && !isHLG && !isBT2020) {
+        response.infoLog += 'SDR content detected (no PQ/HLG/BT.2020). No HDR handling needed.\n';
+        setVars(otherArguments, 'sdr', '', false);
+        return response;
+      }
+
+      response.infoLog += 'HDR indicators found — running detailed ffprobe for side data...\n';
+
+      // ─── 3. Run ffprobe for side_data (mastering display, CLL, DOVI) ───
+      let sideDataList = [];
+      let doviProfile = null;
+
+      try {
+        // First: get frame side data (mastering display + CLL)
+        const frameCmd = [
+          JSON.stringify(FFPROBE),
+          '-v quiet -print_format json',
+          '-select_streams v:0',
+          '-read_intervals "%+#1"',
+          '-show_frames',
+          '-show_entries frame=side_data_list',
+          JSON.stringify(filePath),
+        ].join(' ');
+
+        const frameRaw = execSync(frameCmd, {
+          maxBuffer: 10 * 1024 * 1024,
+          timeout: 60000,
+        }).toString();
+
+        const frameData = JSON.parse(frameRaw);
+        const frames = frameData.frames || [];
+        sideDataList = (frames[0] || {}).side_data_list || [];
+
+        response.infoLog += `Found ${sideDataList.length} side_data entries in first frame.\n`;
+
+        // Log what we found
+        for (const sd of sideDataList) {
+          response.infoLog += `  side_data: ${sd.side_data_type || 'unknown'}\n`;
+        }
+      } catch (err) {
+        response.infoLog += `ffprobe frame scan error: ${err.message}\n`;
+        response.infoLog += 'Continuing with stream-level data only.\n';
+      }
+
+      // ─── 4. Check for DOVI via ffprobe stream side data ───
+      try {
+        const streamCmd = [
+          JSON.stringify(FFPROBE),
+          '-v quiet -print_format json',
+          '-select_streams v:0',
+          '-show_streams',
+          '-show_entries stream_side_data',
+          JSON.stringify(filePath),
+        ].join(' ');
+
+        const streamRaw = execSync(streamCmd, {
+          maxBuffer: 10 * 1024 * 1024,
+          timeout: 60000,
+        }).toString();
+
+        const streamData = JSON.parse(streamRaw);
+        const streams = streamData.streams || [];
+        const vStream = streams[0] || {};
+        const streamSideData = vStream.side_data_list || [];
+
+        for (const sd of streamSideData) {
+          const sdType = (sd.side_data_type || '').toLowerCase();
+
+          if (sdType.includes('dovi') || sdType.includes('dolby vision')) {
+            // ffprobe reports dv_profile as an integer
+            if (sd.dv_profile !== undefined) {
+              doviProfile = parseInt(sd.dv_profile, 10);
+              response.infoLog += `DOVI config record found: profile=${doviProfile}, ` +
+                `bl_present=${sd.dv_bl_signal_compatibility_id}, ` +
+                `level=${sd.dv_level}\n`;
+            } else {
+              response.infoLog += `DOVI side_data found but no profile field: ${JSON.stringify(sd)}\n`;
+            }
+          }
+        }
+
+        // Also merge any frame-level side data we might have missed
+        for (const sd of streamSideData) {
+          if (!sideDataList.find((e) => e.side_data_type === sd.side_data_type)) {
+            sideDataList.push(sd);
+          }
+        }
+      } catch (err) {
+        response.infoLog += `ffprobe stream side_data scan error: ${err.message}\n`;
+      }
+
+      // ─── 5. Fallback DOVI detection from codec profile string ───
+      if (doviProfile === null) {
+        // Some files expose DV in the codec_tag_string like "dvhe" or "dvh1"
+        const tagStr = (videoStream.codec_tag_string || '').toLowerCase();
+        const codecProfile = (videoStream.profile || '').toLowerCase();
+
+        if (tagStr.includes('dvhe') || tagStr.includes('dvh1') || tagStr.includes('dvav')) {
+          // Can't determine exact profile without DOVI config, treat as unknown → skip
+          doviProfile = -1; // sentinel for "DV detected but profile unknown"
+          response.infoLog += `DV detected from codec_tag_string: ${tagStr} (profile unknown)\n`;
+        } else if (codecProfile.includes('dolby vision')) {
+          doviProfile = -1;
+          response.infoLog += `DV detected from profile string: ${codecProfile} (profile unknown)\n`;
+        }
+      }
+
+      // ─── 6. Extract HDR10 static metadata from side_data ───
+      let masterDisplay = null;
+      let maxCLL = null;
+      let maxFALL = null;
+
+      for (const sd of sideDataList) {
+        const sdType = sd.side_data_type || '';
+
+        if (/mastering display/i.test(sdType)) {
+          const g = parseChromaticity(sd.green_x, sd.green_y);
+          const b = parseChromaticity(sd.blue_x, sd.blue_y);
+          const r = parseChromaticity(sd.red_x, sd.red_y);
+          const wp = parseChromaticity(sd.white_point_x, sd.white_point_y);
+          const lumMax = parseLuminance(sd.max_luminance);
+          const lumMin = parseLuminance(sd.min_luminance);
+
+          if (g && b && r && wp && lumMax !== null && lumMin !== null) {
+            masterDisplay = `G(${g})B(${b})R(${r})WP(${wp})L(${lumMax},${lumMin})`;
+          }
+          response.infoLog += `Mastering display: green=${sd.green_x},${sd.green_y} ` +
+            `blue=${sd.blue_x},${sd.blue_y} red=${sd.red_x},${sd.red_y} ` +
+            `wp=${sd.white_point_x},${sd.white_point_y} ` +
+            `lum=${sd.min_luminance}-${sd.max_luminance}\n`;
+          if (masterDisplay) {
+            response.infoLog += `  → Formatted: ${masterDisplay}\n`;
+          } else {
+            response.infoLog += `  → Could not format mastering display (some values missing)\n`;
+          }
+        }
+
+        if (/content light/i.test(sdType)) {
+          maxCLL = parseInt(sd.max_content || sd.max_content_light_level || '0', 10);
+          maxFALL = parseInt(sd.max_average || sd.max_frame_average_light_level || '0', 10);
+          response.infoLog += `Content light level: MaxCLL=${maxCLL}, MaxFALL=${maxFALL}\n`;
+        }
+      }
+
+      // ─── 7. Classify HDR type ───
+      let hdrType = 'sdr';
+      let skipHDR = false;
+
+      if (doviProfile === 5) {
+        hdrType = 'dv_profile5';
+        skipHDR = true;
+        response.infoLog += '⚠ Dolby Vision Profile 5 — NO HDR10 fallback. Skipping.\n';
+      } else if (doviProfile === 7) {
+        hdrType = 'dv_profile7';
+        response.infoLog += 'Dolby Vision Profile 7 (HDR10 compatible) — will preserve HDR10 base.\n';
+      } else if (doviProfile === 8) {
+        hdrType = 'dv_profile8';
+        response.infoLog += 'Dolby Vision Profile 8 (HDR10 compatible) — will preserve HDR10 base.\n';
+      } else if (doviProfile === -1) {
+        // DV detected but unknown profile — skip for safety
+        hdrType = 'dv_profile5';
+        skipHDR = true;
+        response.infoLog += '⚠ Dolby Vision detected but profile unknown — skipping for safety.\n';
+      } else if (doviProfile !== null && doviProfile !== 7 && doviProfile !== 8) {
+        // Known but unsupported DV profile
+        hdrType = 'dv_profile5';
+        skipHDR = true;
+        response.infoLog += `⚠ Dolby Vision Profile ${doviProfile} — unsupported, skipping.\n`;
+      } else if (isHLG) {
+        hdrType = 'hlg';
+        response.infoLog += 'HLG content detected.\n';
+      } else if (isPQ || isBT2020) {
+        // Check for HDR10+ dynamic metadata
+        const hasHdr10Plus = sideDataList.some(
+          (sd) => {
+            const t = (sd.side_data_type || '').toLowerCase();
+            return t.includes('hdr10+') || t.includes('dynamic') ||
+                   t.includes('itut_t35') || t.includes('itu_t_t35');
+          }
+        );
+        if (hasHdr10Plus) {
+          hdrType = 'hdr10plus';
+          response.infoLog += 'HDR10+ detected — dynamic metadata will be lost, HDR10 base preserved.\n';
+        } else {
+          hdrType = 'hdr10';
+          response.infoLog += 'HDR10 content detected.\n';
+        }
+      }
+
+      // ─── 8. Build FFmpeg HDR flags ───
+      let hdrFlags = '';
+
+      if (hdrType !== 'sdr' && !skipHDR) {
+        const parts = [];
+
+        if (hdrType === 'hlg') {
+          parts.push('-color_primaries bt2020');
+          parts.push('-color_trc arib-std-b67');
+          parts.push('-colorspace bt2020nc');
+          parts.push('-color_range tv');
+        } else {
+          // HDR10, HDR10+, DV P7/P8 — all use PQ + BT.2020
+          parts.push('-color_primaries bt2020');
+          parts.push('-color_trc smpte2084');
+          parts.push(`-colorspace ${colorSpace === 'bt2020c' ? 'bt2020c' : 'bt2020nc'}`);
+          parts.push(`-color_range ${colorRange === 'pc' ? 'pc' : 'tv'}`);
+        }
+
+        // Static metadata
+        if (hdrType !== 'hlg') {
+          if (masterDisplay) {
+            parts.push(`-master_display "${masterDisplay}"`);
+          }
+          if (maxCLL !== null && maxFALL !== null) {
+            parts.push('-max_muxing_queue_size 4096');
+            parts.push(`-content_light_level "${maxCLL},${maxFALL}"`);
+          }
+        }
+
+        hdrFlags = parts.join(' ');
+      }
+
+      response.infoLog += `\n→ hdrType=${hdrType}\n→ skipHDR=${skipHDR}\n→ hdrFlags=${hdrFlags}\n`;
+
+      // ─── 9. Set flow variables ───
+      setVars(otherArguments, hdrType, hdrFlags, skipHDR);
+
+      return response;
+    };
+
+    // ─── Helpers ───
+
+    function setVars(otherArguments, hdrType, hdrFlags, skipHDR) {
+      if (otherArguments) {
+        if (!otherArguments.variables) {
+          otherArguments.variables = {};
+        }
+        otherArguments.variables.hdrType = hdrType;
+        otherArguments.variables.hdrFlags = hdrFlags;
+        otherArguments.variables.skipHDR = skipHDR ? 'true' : 'false';
+      }
+    }
+
+    function parseChromaticity(xVal, yVal) {
+      const x = parseRational(xVal);
+      const y = parseRational(yVal);
+      if (x === null || y === null) return null;
+      // ffprobe gives chromaticity as rationals (e.g., "13250/1" meaning 0.265)
+      // master_display expects values as integers in 1/50000 scale
+      // If values are already large (>1), they're likely already in the correct scale
+      let xInt, yInt;
+      if (x > 1) {
+        xInt = Math.round(x);
+        yInt = Math.round(y);
+      } else {
+        xInt = Math.round(x * 50000);
+        yInt = Math.round(y * 50000);
+      }
+      return `${xInt},${yInt}`;
+    }
+
+    function parseLuminance(val) {
+      const v = parseRational(val);
+      if (v === null) return null;
+      // ffprobe gives luminance as rationals (e.g., "10000000/1" or "50/1")
+      // master_display expects integers in 1/10000 scale
+      // If value is already large (>100), it's likely already in the correct scale
+      if (v > 100) {
+        return Math.round(v);
+      }
+      return Math.round(v * 10000);
+    }
+
+    function parseRational(val) {
+      if (val === undefined || val === null) return null;
+      const s = String(val).trim();
+      if (s === '') return null;
+      if (s.includes('/')) {
+        const [num, den] = s.split('/').map(Number);
+        if (den === 0 || isNaN(num) || isNaN(den)) return null;
+        return num / den;
+      }
+      const n = Number(s);
+      return isNaN(n) ? null : n;
+    }
+
+    module.exports.details = details;
+    module.exports.plugin = plugin;
+  local__Tdarr_Plugin_Local_ResetToCachedOriginal.js: |
+    /* eslint-disable */
+
+    /**
+     * Tdarr_Plugin_Local_ResetToCachedOriginal  v4.0.0
+     *
+     * Drop-in replacement for setOriginalFile (used via runClassicTranscodePlugin).
+     *
+     * TWO MODES:
+     *   BACKUP MODE  — no .tdarr_original found in work root → create it
+     *   RESTORE MODE — .tdarr_original exists → copy it to current working path
+     *
+     * KEY INSIGHT: Tdarr uses a root work directory per job (e.g.
+     *   /temp/tdarr-workDir2-JOBID/) and encode stages create timestamped
+     *   subdirectories within it (e.g. /temp/tdarr-workDir2-JOBID/1772537800633/).
+     *   The backup must live in the ROOT work dir so it can be found regardless
+     *   of which subdirectory the current stage is working in.
+     */
+
+    const details = () => ({
+      id: 'Tdarr_Plugin_Local_ResetToCachedOriginal',
+      Stage: 'Pre-processing',
+      Name: 'Reset to Cached Original (NAS-safe)',
+      Type: 'Any',
+      Operation: 'None',
+      Description:
+        'On first call, backs up the pristine cache copy to the work root dir. '
+        + 'On subsequent calls, restores from that backup to the current working '
+        + 'directory. All I/O stays on local cache disk.',
+      Version: '4.0.0',
+      Tags: 'pre-processing',
+      Inputs: [],
+    });
+
+    // eslint-disable-next-line no-unused-vars
+    const plugin = (file, librarySettings, inputs, otherArguments) => {
+      const lib = require('../methods/lib')();
+      const fs = require('fs');
+      const path = require('path');
+
+      const response = {
+        processFile: false,
+        preset: '',
+        container: `.${file.container}`,
+        handBrakeMode: false,
+        FFmpegMode: false,
+        reQueueAfter: false,
+        infoLog: '',
+      };
+
+      // --- Identify paths ---
+      const origLibFile = otherArguments?.originalLibraryFile;
+      const nasOriginalPath = origLibFile?._id || file._id;
+      const currentWorkingFile = file.file;
+
+      response.infoLog += `NAS original: ${nasOriginalPath}\n`;
+      response.infoLog += `Current working file: ${currentWorkingFile}\n`;
+
+      // --- Find the work ROOT directory ---
+      // Tdarr work dirs follow the pattern:
+      //   /temp/tdarr-workDir2-JOBID/                    (root)
+      //   /temp/tdarr-workDir2-JOBID/file.mkv            (after copyToWorkDir)
+      //   /temp/tdarr-workDir2-JOBID/1772537800633/file.mkv (after encode stage)
+      //
+      // We find the root by looking for the "tdarr-workDir" pattern in the path.
+      let workRoot = '';
+
+      if (currentWorkingFile && currentWorkingFile !== nasOriginalPath) {
+        const parts = currentWorkingFile.split(path.sep);
+        for (let i = 0; i < parts.length; i++) {
+          if (parts[i].includes('tdarr-workDir')) {
+            // The work root is everything up to and including this directory
+            workRoot = parts.slice(0, i + 1).join(path.sep);
+            break;
+          }
+        }
+      }
+
+      if (!workRoot) {
+        response.infoLog += 'ERROR: Cannot find tdarr-workDir in path.\n';
+        response.infoLog += 'Falling back to NAS original.\n';
+        file.file = nasOriginalPath;
+        return response;
+      }
+
+      response.infoLog += `Work root: ${workRoot}\n`;
+
+      // --- Backup path (always in work root) ---
+      const originalBasename = path.basename(nasOriginalPath);
+      const originalExt = path.extname(nasOriginalPath);
+      const originalName = path.basename(nasOriginalPath, originalExt);
+      const backupName = `${originalName}.tdarr_original${originalExt}`;
+      const backupPath = path.join(workRoot, backupName);
+
+      response.infoLog += `Backup path: ${backupPath}\n`;
+
+      // --- Current working directory (where encode stages read/write) ---
+      const currentDir = path.dirname(currentWorkingFile);
+      const workingPath = path.join(currentDir, originalBasename);
+
+      response.infoLog += `Working path: ${workingPath}\n`;
+
+      // =========================================================
+      //  MODE 1: BACKUP — no backup exists yet
+      // =========================================================
+      if (!fs.existsSync(backupPath)) {
+        response.infoLog += `--- BACKUP MODE ---\n`;
+
+        if (fs.existsSync(currentWorkingFile)) {
+          try {
+            fs.copyFileSync(currentWorkingFile, backupPath);
+            const stat = fs.statSync(backupPath);
+            response.infoLog += `Created backup: ${backupPath} `
+              + `(${(stat.size / 1048576).toFixed(1)} MB)\n`;
+            response.infoLog += `Working file unchanged.\n`;
+          } catch (err) {
+            response.infoLog += `ERROR creating backup: ${err.message}\n`;
+          }
+        } else {
+          // Fallback: copy from NAS
+          response.infoLog += `Working file not found. Copying from NAS...\n`;
+          if (fs.existsSync(nasOriginalPath)) {
+            try {
+              fs.copyFileSync(nasOriginalPath, backupPath);
+              response.infoLog += `Created backup from NAS (fallback).\n`;
+            } catch (err) {
+              response.infoLog += `ERROR: ${err.message}\n`;
+              file.file = nasOriginalPath;
+            }
+          } else {
+            response.infoLog += `ERROR: NAS original not found either.\n`;
+            file.file = nasOriginalPath;
+          }
+        }
+
+        return response;
+      }
+
+      // =========================================================
+      //  MODE 2: RESTORE — backup exists, restore from it
+      // =========================================================
+      response.infoLog += `--- RESTORE MODE ---\n`;
+
+      const backupStat = fs.statSync(backupPath);
+      response.infoLog += `Backup: ${(backupStat.size / 1048576).toFixed(1)} MB\n`;
+
+      try {
+        // Ensure target directory exists
+        if (!fs.existsSync(currentDir)) {
+          fs.mkdirSync(currentDir, { recursive: true });
+          response.infoLog += `Created dir: ${currentDir}\n`;
+        }
+
+        fs.copyFileSync(backupPath, workingPath);
+        const restoredStat = fs.statSync(workingPath);
+        response.infoLog += `Restored to: ${workingPath} `
+          + `(${(restoredStat.size / 1048576).toFixed(1)} MB)\n`;
+        file.file = workingPath;
+        response.infoLog += `Zero NAS reads.\n`;
+      } catch (err) {
+        response.infoLog += `ERROR restoring: ${err.message}\n`;
+        response.infoLog += `Falling back to NAS.\n`;
+        file.file = nasOriginalPath;
+      }
+
+      return response;
+    };
+
+    module.exports.details = details;
+    module.exports.plugin = plugin;
+kind: ConfigMap
+metadata:
+  name: tdarr-git-plugins
+  namespace: tdarr

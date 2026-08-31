@@ -19,6 +19,38 @@ spec:
       securityContext:
         fsGroup: 1000
         fsGroupChangePolicy: "OnRootMismatch"
+      initContainers:
+      - name: prepare-git-plugin-tree
+        image: busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662 # 1.36
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: TZ
+          value: Asia/Kolkata
+        command:
+        - sh
+        - -c
+        - |
+          set -eu
+          plugin_root=/app/server/Tdarr/Plugins
+          for directory in \
+            "$plugin_root/Local" \
+            "$plugin_root/FlowPlugins/LocalFlowPlugins/video" \
+            "$plugin_root/FlowPlugins/LocalFlowPlugins/video/av1QsvEncodeHdrAware/1.0.0" \
+            "$plugin_root/FlowPlugins/LocalFlowPlugins/video/av1SvtEncodeHdrAware/1.0.0" \
+            "$plugin_root/FlowPlugins/LocalFlowPlugins/video/checkSkipHDR/1.0.0" \
+            "$plugin_root/FlowPlugins/LocalFlowPlugins/video/hdrDetectAndTag/1.0.0" \
+            "$plugin_root/FlowPlugins/LocalFlowPlugins/video/av1JellyfinGate/1.0.0"; do
+            mkdir -p "$directory"
+            chown 1000:1000 "$directory"
+            chmod 2775 "$directory"
+          done
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+          allowPrivilegeEscalation: false
+        volumeMounts:
+        - name: server
+          mountPath: /app/server
       containers:
       - name: tdarr-server
         image: ghcr.io/haveagitgat/tdarr@sha256:45742f00e51a58553844c8b13d97e7ae9b2ee9a056bd8e5993d9a8282a45a23f # 2.86.01
@@ -83,11 +115,100 @@ spec:
           initialDelaySeconds: 30
           periodSeconds: 60
           failureThreshold: 4
+      - name: tdarr-plugin-sync
+        image: busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662 # 1.36
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: TZ
+          value: Asia/Kolkata
+        command:
+        - sh
+        - -c
+        - |
+          set -eu
+          plugin_root=/app/server/Tdarr/Plugins
+          sync_file() {
+            source=$1
+            target=$2
+            target_dir=$(dirname "$target")
+            mkdir -p "$target_dir"
+            source_hash=$(sha256sum "$source" | cut -d ' ' -f 1)
+            target_hash=
+            if [ -f "$target" ]; then
+              target_hash=$(sha256sum "$target" | cut -d ' ' -f 1)
+            fi
+            if [ "$source_hash" != "$target_hash" ]; then
+              temporary="${target}.gitops.$$"
+              rm -f "$temporary"
+              cp "$source" "$temporary"
+              chmod 0644 "$temporary"
+              mv -f "$temporary" "$target"
+              changed=$((changed + 1))
+            fi
+          }
+          until wget -q -O - http://127.0.0.1:8265/api/v2/status >/dev/null; do
+            sleep 10
+          done
+          while true; do
+            changed=0
+            sync_file /git-plugins/local__Tdarr_Plugin_GR34_GrutRestoreOriginalDates.js \
+              "$plugin_root/Local/Tdarr_Plugin_GR34_GrutRestoreOriginalDates.js"
+            sync_file /git-plugins/local__Tdarr_Plugin_GR34_GrutSaveOriginalDates.js \
+              "$plugin_root/Local/Tdarr_Plugin_GR34_GrutSaveOriginalDates.js"
+            sync_file /git-plugins/local__Tdarr_Plugin_Local_AV1QSVEncodeHDRAware.js \
+              "$plugin_root/Local/Tdarr_Plugin_Local_AV1QSVEncodeHDRAware.js"
+            sync_file /git-plugins/local__Tdarr_Plugin_Local_BitrateRouter.js \
+              "$plugin_root/Local/Tdarr_Plugin_Local_BitrateRouter.js"
+            sync_file /git-plugins/local__Tdarr_Plugin_Local_CheckSkipHDR.js \
+              "$plugin_root/Local/Tdarr_Plugin_Local_CheckSkipHDR.js"
+            sync_file /git-plugins/local__Tdarr_Plugin_Local_HDRDetectAndTag.js \
+              "$plugin_root/Local/Tdarr_Plugin_Local_HDRDetectAndTag.js"
+            sync_file /git-plugins/local__Tdarr_Plugin_Local_ResetToCachedOriginal.js \
+              "$plugin_root/Local/Tdarr_Plugin_Local_ResetToCachedOriginal.js"
+            sync_file /git-plugins/flow__av1QsvEncodeHdrAware__index.js \
+              "$plugin_root/FlowPlugins/LocalFlowPlugins/video/av1QsvEncodeHdrAware/1.0.0/index.js"
+            sync_file /git-plugins/flow__av1SvtEncodeHdrAware__index.js \
+              "$plugin_root/FlowPlugins/LocalFlowPlugins/video/av1SvtEncodeHdrAware/1.0.0/index.js"
+            sync_file /git-plugins/flow__checkSkipHDR__index.js \
+              "$plugin_root/FlowPlugins/LocalFlowPlugins/video/checkSkipHDR/1.0.0/index.js"
+            sync_file /git-plugins/flow__hdrDetectAndTag__index.js \
+              "$plugin_root/FlowPlugins/LocalFlowPlugins/video/hdrDetectAndTag/1.0.0/index.js"
+            sync_file /git-plugins/flow__av1JellyfinGate__index.js \
+              "$plugin_root/FlowPlugins/LocalFlowPlugins/video/av1JellyfinGate/1.0.0/index.js"
+            if [ "$changed" -gt 0 ]; then
+              wget -q -O - --post-data='{}' --header='Content-Type: application/json' \
+                http://127.0.0.1:8265/api/v2/sync-plugins >/dev/null \
+                || echo 'tdarr-plugin-sync: plugin synchronization request failed' >&2
+            fi
+            sleep 60
+          done
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+        resources:
+          requests:
+            memory: 16Mi
+            cpu: 10m
+          limits:
+            memory: 64Mi
+            cpu: 100m
+        volumeMounts:
+        - name: server
+          mountPath: /app/server
+        - name: git-plugins
+          mountPath: /git-plugins
+          readOnly: true
       volumes:
       - name: media-nas
         hostPath:
           path: /mnt/nas/media
           type: Directory
+      - name: git-plugins
+        configMap:
+          name: tdarr-git-plugins
+          defaultMode: 0444
   volumeClaimTemplates:
   - metadata:
       name: server

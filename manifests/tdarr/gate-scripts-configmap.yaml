@@ -1,0 +1,499 @@
+apiVersion: v1
+data:
+  arr-av1-jellyfin-gate.sh: |
+    #!/bin/sh
+    set -eu
+
+    MAGIC='# tdarr-av1-jellyfin-gate/v1'
+    LOCK_NAME='.tdarr-av1-jellyfin-gate.lock'
+    MEDIA_ROOT=${ARR_GATE_MEDIA_ROOT:-/media_2}
+    GATE_ROOTS=${ARR_GATE_ROOTS:-/media_2/series/anime/}
+    LOCK_TIMEOUT_SECONDS=${ARR_GATE_LOCK_TIMEOUT_SECONDS:-60}
+
+    newline=$(printf '\nx')
+    newline=${newline%x}
+    carriage_return=$(printf '\rx')
+    carriage_return=${carriage_return%x}
+
+    fail() {
+      printf 'arr-av1-jellyfin-gate: %s\n' "$1" >&2
+      exit 1
+    }
+
+    defer_move() {
+      printf '%s\n' '[MoveStatus] DeferMove'
+      exit 0
+    }
+
+    [ "$#" -eq 2 ] || fail 'expected source and destination arguments'
+    source=$1
+    destination=$2
+    # Arr supplies the source for its own import bookkeeping. The gate only owns the final path.
+    : "$source"
+
+    case "$destination" in
+      "$MEDIA_ROOT"/*) ;;
+      *) defer_move ;;
+    esac
+
+    case "$destination" in
+      */../*|*/..) fail 'destination contains path traversal' ;;
+    esac
+    case "$destination" in
+      *"$newline"*|*"$carriage_return"*) fail 'destination contains a line break' ;;
+    esac
+
+    old_ifs=$IFS
+    IFS=:
+    allowed=0
+    for configured_root in $GATE_ROOTS; do
+      case "$configured_root" in
+        */) root=$configured_root ;;
+        *) root="$configured_root/" ;;
+      esac
+      case "$destination" in
+        "$root"*) allowed=1 ; break ;;
+      esac
+    done
+    IFS=$old_ifs
+
+    [ "$allowed" -eq 1 ] || defer_move
+
+    parent=$(dirname "$destination")
+    [ -d "$parent" ] || fail 'destination parent does not exist'
+    [ ! -L "$parent" ] || fail 'destination parent is a symlink'
+    resolved_parent=$(readlink -f "$parent") || fail 'could not resolve destination parent'
+    case "$resolved_parent"/ in
+      "$MEDIA_ROOT"/*) ;;
+      *) fail 'destination parent resolves outside the media root' ;;
+    esac
+
+    filename=$(basename "$destination")
+    [ -n "$filename" ] || fail 'destination filename is empty'
+    case "$filename" in
+      .*.*) stem=${filename%.*} ;;
+      .*) stem=$filename ;;
+      *.*) stem=${filename%.*} ;;
+      *) stem=$filename ;;
+    esac
+    [ -n "$stem" ] || fail 'destination filename stem is empty'
+    case "$stem" in
+      *"$newline"*|*"$carriage_return"*|*[[:space:]]) fail 'destination stem is unsafe' ;;
+    esac
+
+    escaped_stem=
+    rest=$stem
+    while [ -n "$rest" ]; do
+      character=${rest%"${rest#?}"}
+      rest=${rest#?}
+      case "$character" in
+        '\'|'*'|'?'|'['|']'|'!'|'#') escaped_stem="${escaped_stem}\\${character}" ;;
+        *) escaped_stem="${escaped_stem}${character}" ;;
+      esac
+    done
+    rule="/${escaped_stem}.*"
+
+    valid_rule() {
+      candidate=$1
+      case "$candidate" in
+        /*.\*) ;;
+        *) return 1 ;;
+      esac
+      encoded=${candidate#/}
+      encoded=${encoded%.*}
+      [ -n "$encoded" ] || return 1
+      escaped=0
+      rest=$encoded
+      while [ -n "$rest" ]; do
+        character=${rest%"${rest#?}"}
+        rest=${rest#?}
+        if [ "$escaped" -eq 1 ]; then
+          case "$character" in
+            '\'|'*'|'?'|'['|']'|'!'|'#') escaped=0 ;;
+            *) return 1 ;;
+          esac
+        else
+          case "$character" in
+            '\' ) escaped=1 ;;
+            '/'|'*'|'?'|'['|']'|'!'|'#') return 1 ;;
+            *) ;;
+          esac
+        fi
+      done
+      [ "$escaped" -eq 0 ] || return 1
+      case "$encoded" in *[[:space:]]) return 1 ;; esac
+      return 0
+    }
+
+    lock="$parent/$LOCK_NAME"
+    acquired=0
+    cleanup() {
+      if [ "$acquired" -eq 1 ]; then
+        rmdir "$lock" 2>/dev/null || printf '%s\n' 'arr-av1-jellyfin-gate: lock cleanup failed' >&2
+      fi
+    }
+    trap cleanup EXIT HUP INT TERM
+
+    attempt=0
+    while ! mkdir "$lock" 2>/dev/null; do
+      if [ -L "$lock" ] || { [ -e "$lock" ] && [ ! -d "$lock" ]; }; then
+        fail 'gate lock path is not a directory'
+      fi
+      attempt=$((attempt + 1))
+      [ "$attempt" -lt "$LOCK_TIMEOUT_SECONDS" ] || fail 'timed out waiting for gate lock'
+      sleep 1
+    done
+    acquired=1
+
+    marker="$parent/.ignore"
+    if [ -e "$marker" ] || [ -L "$marker" ]; then
+      [ ! -L "$marker" ] || fail 'existing .ignore is a symlink'
+      [ -f "$marker" ] || fail 'existing .ignore is not a regular file'
+
+      first_line=1
+      has_rule=0
+      duplicate=0
+      content=
+      while IFS= read -r line || [ -n "$line" ]; do
+        if [ "$first_line" -eq 1 ]; then
+          [ "$line" = "$MAGIC" ] || fail 'existing .ignore is not gate-owned'
+          first_line=0
+          content="${MAGIC}${newline}"
+          continue
+        fi
+
+        case "$line" in
+          '') content="${content}${newline}" ;;
+          \#*) content="${content}${line}${newline}" ;;
+          /*.\*)
+            valid_rule "$line" || fail 'existing .ignore contains an invalid rule'
+            has_rule=1
+            if [ "$line" = "$rule" ]; then
+              duplicate=1
+            else
+              content="${content}${line}${newline}"
+            fi
+            ;;
+          *) fail 'existing .ignore contains an invalid rule' ;;
+        esac
+      done < "$marker"
+      [ "$first_line" -eq 0 ] || fail 'existing .ignore is empty'
+      [ "$has_rule" -eq 1 ] || fail 'existing .ignore has no rules'
+
+      if [ "$duplicate" -eq 0 ]; then
+        temporary="${marker}.tdarr-gate.$$.$attempt.tmp"
+        (umask 022; printf '%s' "${content}${rule}${newline}" > "$temporary") \
+          || { rm -f "$temporary"; fail 'could not write temporary gate marker'; }
+        chmod 0644 "$temporary" || { rm -f "$temporary"; fail 'could not set gate marker permissions'; }
+        mv -f "$temporary" "$marker" || { rm -f "$temporary"; fail 'could not install gate marker'; }
+      fi
+    else
+      temporary="${marker}.tdarr-gate.$$.$attempt.tmp"
+      (umask 022; printf '%s' "${MAGIC}${newline}${rule}${newline}" > "$temporary") \
+        || { rm -f "$temporary"; fail 'could not write temporary gate marker'; }
+      chmod 0644 "$temporary" || { rm -f "$temporary"; fail 'could not set gate marker permissions'; }
+      mv -f "$temporary" "$marker" || { rm -f "$temporary"; fail 'could not install gate marker'; }
+    fi
+
+    defer_move
+  arr-gate-reconcile.py: |
+    #!/usr/bin/env python3
+    """Merge only the AV1 gate settings into Sonarr and Radarr configuration."""
+
+    import json
+    import os
+    import sys
+    import time
+    import urllib.error
+    import urllib.request
+
+
+    DESIRED_FILE = os.environ.get("ARR_GATE_DESIRED_FILE", "/desired/arr-gate-settings.json")
+    SONARR_URL = os.environ.get(
+        "SONARR_URL", "http://arr-stack-service.arr-stack.svc.cluster.local:8989/api/v3"
+    ).rstrip("/")
+    RADARR_URL = os.environ.get(
+        "RADARR_URL", "http://arr-stack-service.arr-stack.svc.cluster.local:7878/api/v3"
+    ).rstrip("/")
+    SONARR_KEY = os.environ.get("ARR_GATE_SONARR_API_KEY", "")
+    RADARR_KEY = os.environ.get("ARR_GATE_RADARR_API_KEY", "")
+
+
+    class ReconcileError(RuntimeError):
+        """A desired-state or Arr API failure."""
+
+
+    def request(base_url, api_key, method, endpoint, payload=None, timeout=15):
+        body = None
+        headers = {"Accept": "application/json", "X-Api-Key": api_key}
+        if payload is not None:
+            body = json.dumps(payload, separators=(",", ":")).encode("utf-8")
+            headers["Content-Type"] = "application/json"
+
+        request_obj = urllib.request.Request(
+            f"{base_url}{endpoint}", data=body, headers=headers, method=method
+        )
+        try:
+            with urllib.request.urlopen(request_obj, timeout=timeout) as response:
+                raw = response.read()
+        except urllib.error.HTTPError as error:
+            raise ReconcileError(f"Arr API {method} {endpoint} returned HTTP {error.code}") from error
+        except urllib.error.URLError as error:
+            raise ReconcileError(f"Arr API unavailable for {method} {endpoint}: {error.reason}") from error
+
+        if not raw:
+            return None
+        try:
+            return json.loads(raw.decode("utf-8"))
+        except json.JSONDecodeError as error:
+            raise ReconcileError(f"Arr API returned invalid JSON for {method} {endpoint}") from error
+
+
+    def wait_for_config(base_url, api_key):
+        last_error = None
+        for _ in range(60):
+            try:
+                return request(base_url, api_key, "GET", "/config/mediamanagement")
+            except ReconcileError as error:
+                last_error = str(error)
+            time.sleep(10)
+        raise ReconcileError(f"Arr media-management endpoint did not become ready: {last_error}")
+
+
+    def reconcile_app(base_url, api_key, desired, app_name):
+        if not api_key:
+            raise ReconcileError(f"{app_name} API key is missing")
+        current = wait_for_config(base_url, api_key)
+        if not isinstance(current, dict):
+            raise ReconcileError(f"{app_name} returned an invalid media-management object")
+
+        owned_fields = desired.get(app_name, {})
+        if not owned_fields:
+            raise ReconcileError(f"no desired fields configured for {app_name}")
+        merged = dict(current)
+        merged.update(owned_fields)
+        if any(current.get(key) != value for key, value in owned_fields.items()):
+            request(base_url, api_key, "PUT", "/config/mediamanagement", merged)
+
+        verified = request(base_url, api_key, "GET", "/config/mediamanagement")
+        if not isinstance(verified, dict) or any(
+            verified.get(key) != value for key, value in owned_fields.items()
+        ):
+            raise ReconcileError(f"{app_name} media-management settings did not persist")
+
+
+    def main():
+        with open(DESIRED_FILE, encoding="utf-8") as handle:
+            desired = json.load(handle)
+        if str(desired.get("enabled", "false")).lower() != "true":
+            print("arr-gate-reconcile: disabled; no Arr API calls made")
+            return
+
+        reconcile_app(SONARR_URL, SONARR_KEY, desired, "sonarr")
+        reconcile_app(RADARR_URL, RADARR_KEY, desired, "radarr")
+        print("arr-gate-reconcile: owned Sonarr/Radarr settings reconciled")
+
+
+    if __name__ == "__main__":
+        try:
+            main()
+        except (OSError, ReconcileError, KeyError, TypeError, ValueError) as error:
+            print(f"arr-gate-reconcile: {error}", file=sys.stderr)
+            sys.exit(1)
+  tdarr-reconcile.py: |
+    #!/usr/bin/env python3
+    """Reconcile the Git-owned Tdarr flow without touching its SQLite database."""
+
+    import json
+    import os
+    import sys
+    import time
+    import urllib.error
+    import urllib.request
+
+
+    BASE_URL = os.environ.get(
+        "TDARR_URL", "http://tdarr-server.tdarr.svc.cluster.local:8265"
+    ).rstrip("/")
+    DESIRED_DIR = os.environ.get("TDARR_DESIRED_DIR", "/desired")
+    CANONICAL_ID = "AV1_QSV_Arc_B570_HDR_aware_no_routing"
+    GATED_ID = "AV1_QSV_Arc_B570_HDR_aware_no_routing_Jellyfin_Gate"
+    LIBRARY_FILES = (
+        "libraries/library-4sWtQXW4h.json",
+        "libraries/library-jvBWApbSE.json",
+        "libraries/library-lkun_CfeF.json",
+        "libraries/library-R6I55tD6c.json",
+    )
+
+
+    class ReconcileError(RuntimeError):
+        """A desired-state or Tdarr API failure."""
+
+
+    def load_json(filename):
+        with open(os.path.join(DESIRED_DIR, filename), encoding="utf-8") as handle:
+            return json.load(handle)
+
+
+    def request(method, endpoint, payload=None, timeout=15, expect_json=True):
+        body = None
+        headers = {"Accept": "application/json"}
+        if payload is not None:
+            body = json.dumps(payload, separators=(",", ":")).encode("utf-8")
+            headers["Content-Type"] = "application/json"
+
+        request_obj = urllib.request.Request(
+            f"{BASE_URL}{endpoint}", data=body, headers=headers, method=method
+        )
+        try:
+            with urllib.request.urlopen(request_obj, timeout=timeout) as response:
+                raw = response.read()
+        except urllib.error.HTTPError as error:
+            raise ReconcileError(f"Tdarr API {method} {endpoint} returned HTTP {error.code}") from error
+        except urllib.error.URLError as error:
+            raise ReconcileError(f"Tdarr API unavailable for {method} {endpoint}: {error.reason}") from error
+
+        if not raw:
+            return None
+        if not expect_json:
+            return raw
+        try:
+            return json.loads(raw.decode("utf-8"))
+        except json.JSONDecodeError as error:
+            raise ReconcileError(f"Tdarr API returned invalid JSON for {method} {endpoint}") from error
+
+
+    def crud(collection, mode, doc_id=None, obj=None):
+        data = {"collection": collection, "mode": mode}
+        if doc_id is not None:
+            data["docID"] = doc_id
+        if obj is not None:
+            data["obj"] = obj
+        return request("POST", "/api/v2/cruddb", {"data": data})
+
+
+    def desired_fields_match(actual, desired):
+        return all(actual.get(key) == value for key, value in desired.items())
+
+
+    def wait_for_server():
+        last_error = None
+        for _ in range(60):
+            try:
+                status = request("GET", "/api/v2/status")
+                if isinstance(status, dict) and status.get("status") == "good":
+                    return
+                last_error = "status endpoint did not report good"
+            except ReconcileError as error:
+                last_error = str(error)
+            time.sleep(10)
+        raise ReconcileError(f"Tdarr server did not become healthy: {last_error}")
+
+
+    def sync_plugins():
+        request("POST", "/api/v2/sync-plugins", {}, expect_json=False)
+
+
+    def plugin_is_available(value):
+        if isinstance(value, dict):
+            return any(
+                str(value.get(key, "")) == "av1JellyfinGate"
+                for key in ("id", "pluginName", "name")
+            ) or any(plugin_is_available(item) for item in value.values())
+        if isinstance(value, list):
+            return any(plugin_is_available(item) for item in value)
+        return False
+
+
+    def wait_for_gate_plugin():
+        last_error = None
+        for _ in range(60):
+            try:
+                result = request(
+                    "POST",
+                    "/api/v2/search-flow-plugins",
+                    {"data": {"string": "av1JellyfinGate", "pluginType": "Local"}},
+                )
+                if plugin_is_available(result):
+                    return
+                last_error = "plugin search returned no av1JellyfinGate result"
+            except ReconcileError as error:
+                last_error = str(error)
+            time.sleep(10)
+        raise ReconcileError(f"Tdarr gate plugin was not searchable: {last_error}")
+
+
+    def ensure_flow(desired):
+        flow_id = desired.get("_id")
+        if flow_id != GATED_ID:
+            raise ReconcileError(f"gated flow has unexpected ID: {flow_id}")
+
+        current = crud("FlowsJSONDB", "getById", flow_id)
+        if current is None:
+            crud("FlowsJSONDB", "insert", flow_id, desired)
+        elif not desired_fields_match(current, desired):
+            crud("FlowsJSONDB", "update", flow_id, desired)
+
+        verified = crud("FlowsJSONDB", "getById", flow_id)
+        if verified is None or not desired_fields_match(verified, desired):
+            raise ReconcileError("gated flow did not match the desired document after reconciliation")
+
+
+    def ensure_canonical_is_unchanged(desired):
+        current = crud("FlowsJSONDB", "getById", CANONICAL_ID)
+        if current is None:
+            raise ReconcileError("canonical flow is missing; refusing to recreate it")
+        if not desired_fields_match(current, desired):
+            raise ReconcileError(
+                "canonical flow differs from the Git baseline; refusing to overwrite live flow"
+            )
+
+
+    def ensure_libraries():
+        for filename in LIBRARY_FILES:
+            desired = load_json(filename)
+            library_id = desired.get("_id")
+            if not library_id:
+                raise ReconcileError(f"library stub {filename} has no _id")
+            current = crud("LibrarySettingsJSONDB", "getById", library_id)
+            if current is None:
+                raise ReconcileError(f"library {library_id} is missing; refusing to recreate it")
+
+            managed = {key: desired[key] for key in ("flowId", "holdNewFiles")}
+            if not desired_fields_match(current, managed):
+                merged = dict(current)
+                merged.update(managed)
+                crud("LibrarySettingsJSONDB", "update", library_id, merged)
+
+            verified = crud("LibrarySettingsJSONDB", "getById", library_id)
+            if verified is None or not desired_fields_match(verified, managed):
+                raise ReconcileError(f"library {library_id} did not match desired managed fields")
+
+
+    def main():
+        canonical = load_json("flows/canonical-flow.json")
+        gated = load_json("flows/gated-flow.json")
+        if canonical.get("_id") != CANONICAL_ID:
+            raise ReconcileError("canonical desired flow ID is wrong")
+
+        wait_for_server()
+        sync_plugins()
+        wait_for_gate_plugin()
+        ensure_canonical_is_unchanged(canonical)
+        if gated.get("_id") == CANONICAL_ID:
+            raise ReconcileError("gated flow must not reuse the canonical flow ID")
+        ensure_flow(gated)
+        ensure_libraries()
+        print("tdarr-reconcile: canonical flow preserved; gated flow and library managed fields reconciled")
+
+
+    if __name__ == "__main__":
+        try:
+            main()
+        except (OSError, ReconcileError, KeyError, TypeError, ValueError) as error:
+            print(f"tdarr-reconcile: {error}", file=sys.stderr)
+            sys.exit(1)
+kind: ConfigMap
+metadata:
+  name: tdarr-gate-scripts
+  namespace: tdarr
