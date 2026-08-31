@@ -20,18 +20,18 @@ output=$(run_gate "$root/Show [Test]/Episode #1?.mp4")
 [ "$output" = '[MoveStatus] DeferMove' ]
 [ -s "$root/Show [Test]/.ignore" ]
 grep -F '# tdarr-av1-jellyfin-gate/v1' "$root/Show [Test]/.ignore" >/dev/null
-grep -F '/Episode \#1\?.*' "$root/Show [Test]/.ignore" >/dev/null
+grep -F 'Episode \#1\?.*' "$root/Show [Test]/.ignore" >/dev/null
 
 output=$(run_gate "$root/Show [Test]/Episode [2].mkv")
 [ "$output" = '[MoveStatus] DeferMove' ]
 
 output=$(run_gate "$root/Show [Test]/O'Brien.mkv")
 [ "$output" = '[MoveStatus] DeferMove' ]
-grep -F "/O'Brien.*" "$root/Show [Test]/.ignore" >/dev/null
+grep -F "O'Brien.*" "$root/Show [Test]/.ignore" >/dev/null
 
 output=$(run_gate "$web_root/Show [Test]/Web-Episode.mkv")
 [ "$output" = '[MoveStatus] DeferMove' ]
-grep -F '/Web-Episode.*' "$web_root/Show [Test]/.ignore" >/dev/null
+grep -F 'Web-Episode.*' "$web_root/Show [Test]/.ignore" >/dev/null
 
 (
   run_gate "$root/Show [Test]/Concurrent-A.mkv" > "$fixture/concurrent-a.out"
@@ -43,8 +43,8 @@ pid_a=$!
 pid_b=$!
 wait "$pid_a"
 wait "$pid_b"
-grep -F '/Concurrent-A.*' "$root/Show [Test]/.ignore" >/dev/null
-grep -F '/Concurrent-B.*' "$root/Show [Test]/.ignore" >/dev/null
+grep -F 'Concurrent-A.*' "$root/Show [Test]/.ignore" >/dev/null
+grep -F 'Concurrent-B.*' "$root/Show [Test]/.ignore" >/dev/null
 
 unowned="$root/Show [Test]/Unowned"
 mkdir -p "$unowned"
@@ -62,6 +62,13 @@ if run_gate "$empty/Empty.mkv" > "$fixture/empty.out" 2> "$fixture/empty.err"; t
 fi
 [ ! -s "$empty/.ignore" ]
 
+header_only="$root/Show [Test]/HeaderOnly"
+mkdir -p "$header_only"
+printf '%s\n' '# tdarr-av1-jellyfin-gate/v1' '# stale marker' > "$header_only/.ignore"
+output=$(run_gate "$header_only/Recovered.mkv")
+[ "$output" = '[MoveStatus] DeferMove' ]
+grep -F 'Recovered.*' "$header_only/.ignore" >/dev/null
+
 failed="$root/Show [Test]/FailedWrite"
 mkdir -p "$failed"
 touch "$failed/.tdarr-av1-jellyfin-gate.lock"
@@ -78,5 +85,14 @@ output=$(ARR_GATE_MEDIA_ROOT="$fixture/media_2" ARR_GATE_ROOTS="$fixture/media_2
 [ "$output" = '[MoveStatus] DeferMove' ]
 after=$(cksum "$root/Show [Test]/.ignore")
 [ "$before" = "$after" ]
+
+legacy="$root/Show [Test]/Legacy"
+mkdir -p "$legacy"
+printf '%s\n' '# tdarr-av1-jellyfin-gate/v1' '/Old.*' > "$legacy/.ignore"
+output=$(run_gate "$legacy/New.mkv")
+[ "$output" = '[MoveStatus] DeferMove' ]
+grep -F 'Old.*' "$legacy/.ignore" >/dev/null
+! grep -F '/Old.*' "$legacy/.ignore" >/dev/null
+grep -F 'New.*' "$legacy/.ignore" >/dev/null
 
 printf '%s\n' 'arr gate script fixture tests passed'

@@ -60,64 +60,64 @@ async function run(file, metadataCodec = 'h264', originalFile = file) {
 
 async function main() {
   const coverArtFile = mediaFile('cover-art.mkv');
-  writeMarker(['/cover-art.*']);
+  writeMarker(['cover-art.*']);
   let result = await run(coverArtFile);
   assert.equal(result.outputNumber, 1);
   assert.equal(fs.existsSync(path.join(mediaDir, '.ignore')), false);
 
   const twoStreamFile = mediaFile('two-streams.mkv');
-  writeMarker(['/two-streams.*']);
+  writeMarker(['two-streams.*']);
   result = await run(twoStreamFile, 'av1');
   assert.equal(result.outputNumber, 2);
   assert.match(fs.readFileSync(path.join(mediaDir, '.ignore'), 'utf8'), /two-streams/);
 
   const staleMetadataFile = mediaFile('stale-metadata.mkv');
-  writeMarker(['/stale-metadata.*']);
+  writeMarker(['stale-metadata.*']);
   result = await run(staleMetadataFile, 'av1');
   assert.equal(result.outputNumber, 2);
   assert.match(fs.readFileSync(path.join(mediaDir, '.ignore'), 'utf8'), /stale-metadata/);
 
   const badJsonFile = mediaFile('bad-json.mkv');
-  writeMarker(['/bad-json.*']);
+  writeMarker(['bad-json.*']);
   result = await run(badJsonFile);
   assert.equal(result.outputNumber, 2);
   assert.match(fs.readFileSync(path.join(mediaDir, '.ignore'), 'utf8'), /bad-json/);
 
   const timeoutFile = mediaFile('timeout.mkv');
-  writeMarker(['/timeout.*']);
+  writeMarker(['timeout.*']);
   result = await run(timeoutFile);
   assert.equal(result.outputNumber, 2);
   assert.match(fs.readFileSync(path.join(mediaDir, '.ignore'), 'utf8'), /timeout/);
 
   const hevcFile = mediaFile('hevc.mkv');
-  writeMarker(['/hevc.*']);
+  writeMarker(['hevc.*']);
   result = await run(hevcFile);
   assert.equal(result.outputNumber, 2);
 
   const noVideoFile = mediaFile('no-video.mkv');
-  writeMarker(['/no-video.*']);
+  writeMarker(['no-video.*']);
   result = await run(noVideoFile);
   assert.equal(result.outputNumber, 2);
 
   const cacheFallbackFile = mediaFile('cache-fallback.mkv');
-  writeMarker(['/cache-fallback.*']);
+  writeMarker(['cache-fallback.*']);
   result = await run('/temp/tdarr-workDir-cache-fallback/cache-fallback.mkv', 'h264', cacheFallbackFile);
   assert.equal(result.outputNumber, 1);
   assert.equal(fs.existsSync(path.join(mediaDir, '.ignore')), false);
 
   const cacheOnlyFile = mediaFile('cache-only.mkv');
-  writeMarker(['/cache-only.*']);
+  writeMarker(['cache-only.*']);
   const markerBeforeCacheOnly = fs.readFileSync(path.join(mediaDir, '.ignore'), 'utf8');
   result = await run('/temp/tdarr-workDir-cache-only/cache-only.mkv');
   assert.equal(result.outputNumber, 2);
   assert.equal(fs.readFileSync(path.join(mediaDir, '.ignore'), 'utf8'), markerBeforeCacheOnly);
 
   const multiFile = mediaFile('multi.mkv');
-  writeMarker(['/multi.*', '/other.*']);
+  writeMarker(['multi.*', 'other.*']);
   result = await run(multiFile);
   assert.equal(result.outputNumber, 1);
-  assert.match(fs.readFileSync(path.join(mediaDir, '.ignore'), 'utf8'), /\/other\.\*/);
-  assert.doesNotMatch(fs.readFileSync(path.join(mediaDir, '.ignore'), 'utf8'), /\/multi\.\*/);
+  assert.match(fs.readFileSync(path.join(mediaDir, '.ignore'), 'utf8'), /other\.\*/);
+  assert.doesNotMatch(fs.readFileSync(path.join(mediaDir, '.ignore'), 'utf8'), /multi\.\*/);
 
   const escapedFile = mediaFile('special [#]!.mkv');
   writeMarker([plugin._test.gateRule(path.basename(escapedFile))]);
@@ -125,8 +125,26 @@ async function main() {
   assert.equal(result.outputNumber, 1);
   assert.equal(fs.existsSync(path.join(mediaDir, '.ignore')), false);
 
+  const legacyFile = mediaFile('legacy.mkv');
+  writeMarker(['/legacy.*', '/remaining.*']);
+  result = await run(legacyFile);
+  assert.equal(result.outputNumber, 1);
+  const normalizedLegacyMarker = fs.readFileSync(path.join(mediaDir, '.ignore'), 'utf8');
+  assert.match(normalizedLegacyMarker, /remaining\.\*/);
+  assert.doesNotMatch(normalizedLegacyMarker, /\/remaining\.\*/);
+  assert.doesNotMatch(normalizedLegacyMarker, /\/legacy\.\*/);
+
+  const headerOnlyFile = mediaFile('header-only.mkv');
+  fs.writeFileSync(
+    path.join(mediaDir, '.ignore'),
+    '# tdarr-av1-jellyfin-gate/v1\n# all media has finished processing\n\n'
+  );
+  result = await run(headerOnlyFile);
+  assert.equal(result.outputNumber, 1);
+  assert.equal(fs.existsSync(path.join(mediaDir, '.ignore')), false);
+
   const eventFailureFile = mediaFile('event-failure.mkv');
-  writeMarker(['/event-failure.*']);
+  writeMarker(['event-failure.*']);
   const originalUtimes = fs.utimesSync;
   fs.utimesSync = () => {
     throw new Error('fixture watcher failure');

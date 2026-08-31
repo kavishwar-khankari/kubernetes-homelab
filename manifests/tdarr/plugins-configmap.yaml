@@ -83,12 +83,12 @@ data:
               markerState.rules.filter((rule) => expectedRules.has(rule))
             );
 
-            if (!matchingRules.size) {
+            if (markerState.rules.length && !matchingRules.size) {
               result = held(args, 'Owned marker has no rule matching the final file stem.');
             } else {
-              const remainingLines = markerState.lines.filter(
-                (line) => !matchingRules.has(line)
-              );
+              const remainingLines = markerState.lines
+                .filter((line) => !matchingRules.has(line))
+                .map(canonicalGateRule);
               const remainingRules = remainingLines.filter(isGateRule);
 
               if (!remainingRules.length) {
@@ -273,7 +273,10 @@ data:
         if (!name) continue;
         try {
           const rule = gateRule(name);
-          if (!rules.includes(rule)) rules.push(rule);
+          const candidates = [rule, `/${rule}`];
+          for (const candidate of candidates) {
+            if (!rules.includes(candidate)) rules.push(candidate);
+          }
         } catch (error) {
           // An unsafe cache basename must not prevent a valid final basename candidate.
         }
@@ -298,7 +301,7 @@ data:
         else escaped += character;
       }
 
-      return `/${escaped}.*`;
+      return `${escaped}.*`;
     }
 
     function readMarker(marker) {
@@ -322,18 +325,17 @@ data:
       const invalid = lines.slice(1).some(
         (line) => line !== '' && !line.startsWith('#') && !isGateRule(line)
       );
-      if (invalid || !rules.length) throw new Error('Gate marker has invalid or missing rules.');
+      if (invalid) throw new Error('Gate marker has invalid rules.');
 
       return { exists: true, content, lines, rules };
     }
 
     function isGateRule(line) {
-      if (typeof line !== 'string' || line.length <= 3
-          || !line.startsWith('/') || !line.endsWith('.*')) {
+      if (typeof line !== 'string' || line.length <= 2 || !line.endsWith('.*')) {
         return false;
       }
 
-      const encodedStem = line.slice(1, -2);
+      const encodedStem = line.startsWith('/') ? line.slice(1, -2) : line.slice(0, -2);
       if (!encodedStem || /\s$/.test(encodedStem)) return false;
 
       let escaped = false;
@@ -349,6 +351,10 @@ data:
       }
 
       return !escaped;
+    }
+
+    function canonicalGateRule(line) {
+      return isGateRule(line) && line.startsWith('/') ? line.slice(1) : line;
     }
 
     function acquireLock(parent) {

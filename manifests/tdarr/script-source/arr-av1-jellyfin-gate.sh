@@ -88,15 +88,15 @@ while [ -n "$rest" ]; do
     *) escaped_stem="${escaped_stem}${character}" ;;
   esac
 done
-rule="/${escaped_stem}.*"
+rule="${escaped_stem}.*"
 
 valid_rule() {
   candidate=$1
   case "$candidate" in
-    /*.\*) ;;
+    /*.\*) encoded=${candidate#/} ;;
+    *.\*) encoded=$candidate ;;
     *) return 1 ;;
   esac
-  encoded=${candidate#/}
   encoded=${encoded%.*}
   [ -n "$encoded" ] || return 1
   escaped=0
@@ -123,16 +123,37 @@ valid_rule() {
 }
 
 lock="$parent/$LOCK_NAME"
+owner="$lock/.owner"
 acquired=0
 cleanup() {
   if [ "$acquired" -eq 1 ]; then
-    rmdir "$lock" 2>/dev/null || printf '%s\n' 'arr-av1-jellyfin-gate: lock cleanup failed' >&2
+    owner_pid=
+    if [ -f "$owner" ] && [ ! -L "$owner" ]; then
+      IFS= read -r owner_pid < "$owner" || owner_pid=
+    fi
+    if [ "$owner_pid" = "$$" ]; then
+      rm -f "$owner" 2>/dev/null || true
+    fi
+    if ! rmdir "$lock" 2>/dev/null && [ -e "$lock" ]; then
+      printf '%s\n' 'arr-av1-jellyfin-gate: lock cleanup failed' >&2
+    fi
   fi
+  return 0
 }
 trap cleanup EXIT HUP INT TERM
 
 attempt=0
-while ! mkdir "$lock" 2>/dev/null; do
+while :; do
+  if mkdir "$lock" 2>/dev/null; then
+    if (
+      set -C
+      umask 022
+      printf '%s\n' "$$" > "$owner"
+    ) 2>/dev/null; then
+      acquired=1
+      break
+    fi
+  fi
   if [ -L "$lock" ] || { [ -e "$lock" ] && [ ! -d "$lock" ]; }; then
     fail 'gate lock path is not a directory'
   fi
@@ -140,7 +161,6 @@ while ! mkdir "$lock" 2>/dev/null; do
   [ "$attempt" -lt "$LOCK_TIMEOUT_SECONDS" ] || fail 'timed out waiting for gate lock'
   sleep 1
 done
-acquired=1
 
 marker="$parent/.ignore"
 if [ -e "$marker" ] || [ -L "$marker" ]; then
@@ -148,7 +168,6 @@ if [ -e "$marker" ] || [ -L "$marker" ]; then
   [ -f "$marker" ] || fail 'existing .ignore is not a regular file'
 
   first_line=1
-  has_rule=0
   duplicate=0
   content=
   while IFS= read -r line || [ -n "$line" ]; do
@@ -162,28 +181,31 @@ if [ -e "$marker" ] || [ -L "$marker" ]; then
     case "$line" in
       '') content="${content}${newline}" ;;
       \#*) content="${content}${line}${newline}" ;;
-      /*.\*)
+      *.\*)
         valid_rule "$line" || fail 'existing .ignore contains an invalid rule'
-        has_rule=1
-        if [ "$line" = "$rule" ]; then
+        canonical_line=$line
+        case "$canonical_line" in
+          /*) canonical_line=${canonical_line#/} ;;
+        esac
+        if [ "$canonical_line" = "$rule" ]; then
           duplicate=1
         else
-          content="${content}${line}${newline}"
+          content="${content}${canonical_line}${newline}"
         fi
         ;;
       *) fail 'existing .ignore contains an invalid rule' ;;
     esac
   done < "$marker"
   [ "$first_line" -eq 0 ] || fail 'existing .ignore is empty'
-  [ "$has_rule" -eq 1 ] || fail 'existing .ignore has no rules'
 
+  temporary="${marker}.tdarr-gate.$$.$attempt.tmp"
   if [ "$duplicate" -eq 0 ]; then
-    temporary="${marker}.tdarr-gate.$$.$attempt.tmp"
-    (umask 022; printf '%s' "${content}${rule}${newline}" > "$temporary") \
-      || { rm -f "$temporary"; fail 'could not write temporary gate marker'; }
-    chmod 0644 "$temporary" || { rm -f "$temporary"; fail 'could not set gate marker permissions'; }
-    mv -f "$temporary" "$marker" || { rm -f "$temporary"; fail 'could not install gate marker'; }
+    content="${content}${rule}${newline}"
   fi
+  (umask 022; printf '%s' "$content" > "$temporary") \
+    || { rm -f "$temporary"; fail 'could not write temporary gate marker'; }
+  chmod 0644 "$temporary" || { rm -f "$temporary"; fail 'could not set gate marker permissions'; }
+  mv -f "$temporary" "$marker" || { rm -f "$temporary"; fail 'could not install gate marker'; }
 else
   temporary="${marker}.tdarr-gate.$$.$attempt.tmp"
   (umask 022; printf '%s' "${MAGIC}${newline}${rule}${newline}" > "$temporary") \
