@@ -163,7 +163,7 @@ def main():
     gated_library_ids = {"4sWtQXW4h", "jvBWApbSE"}
     assert all(
         TdarrHandler.state["libraries"][library_id]["flowId"] == gated["_id"]
-        and TdarrHandler.state["libraries"][library_id]["holdNewFiles"] is True
+        and TdarrHandler.state["libraries"][library_id]["holdNewFiles"] is False
         for library_id in gated_library_ids
     )
     assert all(

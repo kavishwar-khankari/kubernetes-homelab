@@ -116,7 +116,7 @@ def main():
         library = json.loads(library_path.read_text(encoding="utf-8"))
         if library["_id"] in gated_library_ids:
             assert library["flowId"] == gated["_id"]
-            assert library["holdNewFiles"] is True
+            assert library["holdNewFiles"] is False
         else:
             assert library["flowId"] == canonical["_id"]
             assert library["holdNewFiles"] is False
