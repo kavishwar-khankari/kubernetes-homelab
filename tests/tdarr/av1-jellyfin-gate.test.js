@@ -129,6 +129,52 @@ async function main() {
   assert.equal(result.outputNumber, 1);
   assert.equal(fs.existsSync(path.join(mediaDir, '.ignore')), false);
 
+  const parenthesizedFile = mediaFile('The Whisper Man (2026) - [WEBRip-2160p].mkv');
+  assert.equal(
+    plugin._test.gateRule(path.basename(parenthesizedFile)),
+    'The Whisper Man \\(2026\\) - \\[WEBRip-2160p\\].*'
+  );
+  writeMarker([plugin._test.gateRule(path.basename(parenthesizedFile))]);
+  result = await run(parenthesizedFile);
+  assert.equal(result.outputNumber, 1);
+  assert.equal(fs.existsSync(path.join(mediaDir, '.ignore')), false);
+
+  const edgeCaseFile = mediaFile('!Pilot #1 (2026) [1080p] {cut}|^$?.mkv');
+  assert.equal(
+    plugin._test.gateRule(path.basename(edgeCaseFile)),
+    '\\!Pilot #1 \\(2026\\) \\[1080p\\] \\{cut\\}\\|\\^\\$\\u003F.*'
+  );
+  writeMarker([plugin._test.gateRule(path.basename(edgeCaseFile))]);
+  result = await run(edgeCaseFile);
+  assert.equal(result.outputNumber, 1);
+  assert.equal(fs.existsSync(path.join(mediaDir, '.ignore')), false);
+
+  const leadingHashFile = mediaFile('#Documentary.mkv');
+  assert.equal(plugin._test.gateRule(path.basename(leadingHashFile)), '\\#Documentary.*');
+  writeMarker([plugin._test.gateRule(path.basename(leadingHashFile))]);
+  result = await run(leadingHashFile);
+  assert.equal(result.outputNumber, 1);
+  assert.equal(fs.existsSync(path.join(mediaDir, '.ignore')), false);
+
+  const literalAsteriskFile = mediaFile('literal*.mkv');
+  assert.equal(plugin._test.gateRule(path.basename(literalAsteriskFile)), 'literal\\u002A.*');
+  writeMarker([plugin._test.gateRule(path.basename(literalAsteriskFile))]);
+  result = await run(literalAsteriskFile);
+  assert.equal(result.outputNumber, 1);
+  assert.equal(fs.existsSync(path.join(mediaDir, '.ignore')), false);
+
+  const legacyWildcardFile = mediaFile('legacy*?.mkv');
+  writeMarker([plugin._test.gateRule(path.basename(legacyWildcardFile), true)]);
+  result = await run(legacyWildcardFile);
+  assert.equal(result.outputNumber, 1);
+  assert.equal(fs.existsSync(path.join(mediaDir, '.ignore')), false);
+
+  const legacyParenthesizedFile = mediaFile('legacy (2026).mkv');
+  writeMarker(['legacy (2026).*']);
+  result = await run(legacyParenthesizedFile);
+  assert.equal(result.outputNumber, 1);
+  assert.equal(fs.existsSync(path.join(mediaDir, '.ignore')), false);
+
   const legacyFile = mediaFile('legacy.mkv');
   writeMarker(['/legacy.*', '/remaining.*']);
   result = await run(legacyFile);

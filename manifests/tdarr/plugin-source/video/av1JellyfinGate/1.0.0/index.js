@@ -268,21 +268,22 @@ function ruleCandidates(finalFile, args) {
 
   for (const name of names) {
     if (!name) continue;
-    try {
-      const rule = gateRule(name);
-      const candidates = [rule, `/${rule}`];
-      for (const candidate of candidates) {
-        if (!rules.includes(candidate)) rules.push(candidate);
+    for (const legacy of [false, true]) {
+      try {
+        const rule = gateRule(name, legacy);
+        for (const candidate of [rule, `/${rule}`]) {
+          if (!rules.includes(candidate)) rules.push(candidate);
+        }
+      } catch (error) {
+        // An unsafe current basename must not prevent a valid legacy candidate.
       }
-    } catch (error) {
-      // An unsafe cache basename must not prevent a valid final basename candidate.
     }
   }
 
   return rules;
 }
 
-function gateRule(filename) {
+function gateRule(filename, legacy = false) {
   const basename = path.basename(filename);
   const extension = path.extname(basename);
   const stem = extension ? basename.slice(0, -extension.length) : basename;
@@ -291,10 +292,14 @@ function gateRule(filename) {
       || stem.includes('\r') || /\s$/.test(stem)) {
     throw new Error('Unsafe media filename stem.');
   }
-
   let escaped = '';
-  for (const character of stem) {
-    if ('\\*?[]!#'.includes(character)) escaped += `\\${character}`;
+  const charactersToEscape = legacy ? '\\*?[]!#' : '\\[](){}|^$';
+  for (const [index, character] of [...stem].entries()) {
+    const leadingIgnoreControl = !legacy && index === 0 && (character === '!' || character === '#');
+    // Ignore 0.2.1 rewrites these even when they are backslash-escaped.
+    if (!legacy && character === '*') escaped += '\\u002A';
+    else if (!legacy && character === '?') escaped += '\\u003F';
+    else if (charactersToEscape.includes(character) || leadingIgnoreControl) escaped += `\\${character}`;
     else escaped += character;
   }
 
@@ -336,14 +341,21 @@ function isGateRule(line) {
   if (!encodedStem || /\s$/.test(encodedStem)) return false;
 
   let escaped = false;
-  for (const character of encodedStem) {
+  for (let index = 0; index < encodedStem.length; index += 1) {
+    const character = encodedStem[index];
     if (escaped) {
-      if (!'\\*?[]!#'.includes(character)) return false;
+      if (character === 'u') {
+        const code = encodedStem.slice(index + 1, index + 5);
+        if (!/^(002[Aa]|003[Ff])$/.test(code)) return false;
+        index += 4;
+      } else if (!'\\*?[]!#(){}|^$'.includes(character)) {
+        return false;
+      }
       escaped = false;
     } else if (character === '\\') {
       escaped = true;
     } else if ('/*?[]!#'.includes(character)) {
-      return false;
+      if (!'!#'.includes(character) || index === 0) return false;
     }
   }
 
