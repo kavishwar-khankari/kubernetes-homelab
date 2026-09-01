@@ -60,10 +60,14 @@ async function run(file, metadataCodec = 'h264', originalFile = file) {
 
 async function main() {
   const coverArtFile = mediaFile('cover-art.mkv');
+  const coverArtStatBefore = fs.statSync(coverArtFile);
   writeMarker(['cover-art.*']);
   let result = await run(coverArtFile);
   assert.equal(result.outputNumber, 1);
   assert.equal(fs.existsSync(path.join(mediaDir, '.ignore')), false);
+  const coverArtStatAfter = fs.statSync(coverArtFile);
+  assert.ok(Math.abs(coverArtStatAfter.atimeMs - coverArtStatBefore.atimeMs) < 1000);
+  assert.ok(Math.abs(coverArtStatAfter.mtimeMs - coverArtStatBefore.mtimeMs) < 1000);
 
   const twoStreamFile = mediaFile('two-streams.mkv');
   writeMarker(['two-streams.*']);

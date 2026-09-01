@@ -420,7 +420,7 @@ function restoreMarker(marker, content) {
 function touchAndRestore(filePath) {
   const stat = fs.statSync(filePath);
   fs.utimesSync(filePath, new Date(), new Date());
-  fs.utimesSync(filePath, stat.atimeMs, stat.mtimeMs);
+  fs.utimesSync(filePath, stat.atime, stat.mtime);
 }
 
 function log(args, message) {
