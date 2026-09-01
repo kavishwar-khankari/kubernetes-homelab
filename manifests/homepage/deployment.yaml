@@ -15,7 +15,7 @@ spec:
       labels:
         app.kubernetes.io/name: homepage
       annotations:
-        checksum/config: "add Silo and Garage UI service cards" # bump on every homepage ConfigMap change to force a rollout (subPath mounts don't update live)
+        checksum/config: "add downloadeverythingfromeverywhere.com to piracy bookmarks" # bump on every homepage ConfigMap change to force a rollout (subPath mounts don't update live)
     spec:
       serviceAccountName: homepage
       affinity:
