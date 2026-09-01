@@ -22,7 +22,7 @@ output=$(run_gate "$root/Show [Test]/Episode #1?.mp4")
 [ "$output" = '[MoveStatus] DeferMove' ]
 [ -s "$root/Show [Test]/.ignore" ]
 grep -F '# tdarr-av1-jellyfin-gate/v1' "$root/Show [Test]/.ignore" >/dev/null
-grep -F 'Episode \#1\?.*' "$root/Show [Test]/.ignore" >/dev/null
+grep -F 'Episode #1\u003F.*' "$root/Show [Test]/.ignore" >/dev/null
 
 output=$(run_gate "$root/Show [Test]/Episode [2].mkv")
 [ "$output" = '[MoveStatus] DeferMove' ]
@@ -38,6 +38,23 @@ grep -F 'Web-Episode.*' "$web_root/Show [Test]/.ignore" >/dev/null
 output=$(run_gate "$movie_root/Movie [Test]/Movie.mkv")
 [ "$output" = '[MoveStatus] DeferMove' ]
 grep -F 'Movie.*' "$movie_root/Movie [Test]/.ignore" >/dev/null
+
+output=$(run_gate "$movie_root/Movie [Test]/The Whisper Man (2026) - [WEBRip-2160p].mkv")
+[ "$output" = '[MoveStatus] DeferMove' ]
+grep -F 'The Whisper Man \(2026\) - \[WEBRip-2160p\].*' "$movie_root/Movie [Test]/.ignore" >/dev/null
+
+edge_filename='!Pilot #1 (2026) [1080p] {cut}|^$?.mkv'
+output=$(run_gate "$movie_root/Movie [Test]/$edge_filename")
+[ "$output" = '[MoveStatus] DeferMove' ]
+grep -F '\!Pilot #1 \(2026\) \[1080p\] \{cut\}\|\^\$\u003F.*' "$movie_root/Movie [Test]/.ignore" >/dev/null
+
+output=$(run_gate "$movie_root/Movie [Test]/#Documentary.mkv")
+[ "$output" = '[MoveStatus] DeferMove' ]
+grep -F '\#Documentary.*' "$movie_root/Movie [Test]/.ignore" >/dev/null
+
+output=$(run_gate "$movie_root/Movie [Test]/C++.Final.mkv")
+[ "$output" = '[MoveStatus] DeferMove' ]
+grep -F 'C++.Final.*' "$movie_root/Movie [Test]/.ignore" >/dev/null
 
 output=$(run_gate "$movie_4k_root/Movie [Test]/Movie.mkv")
 [ "$output" = '[MoveStatus] DeferMove' ]
@@ -89,6 +106,12 @@ fi
 [ ! -e "$failed/.ignore" ]
 rm -f "$failed/.tdarr-av1-jellyfin-gate.lock"
 
+literal_asterisk="$root/Show [Test]/LiteralAsterisk"
+mkdir -p "$literal_asterisk"
+output=$(run_gate "$literal_asterisk/Literal*.mkv")
+[ "$output" = '[MoveStatus] DeferMove' ]
+grep -F 'Literal\u002A.*' "$literal_asterisk/.ignore" >/dev/null
+
 before=$(cksum "$root/Show [Test]/.ignore")
 output=$(ARR_GATE_MEDIA_ROOT="$fixture/media_2" ARR_GATE_ROOTS="$fixture/media_2/series/other/" \
   "$SCRIPT" /downloads/source.mkv "$root/Show [Test]/Outside.mkv")
@@ -98,11 +121,12 @@ after=$(cksum "$root/Show [Test]/.ignore")
 
 legacy="$root/Show [Test]/Legacy"
 mkdir -p "$legacy"
-printf '%s\n' '# tdarr-av1-jellyfin-gate/v1' '/Old.*' > "$legacy/.ignore"
+printf '%s\n' '# tdarr-av1-jellyfin-gate/v1' '/Old.*' 'Legacy\*\?.*' > "$legacy/.ignore"
 output=$(run_gate "$legacy/New.mkv")
 [ "$output" = '[MoveStatus] DeferMove' ]
 grep -F 'Old.*' "$legacy/.ignore" >/dev/null
 ! grep -F '/Old.*' "$legacy/.ignore" >/dev/null
+grep -F 'Legacy\*\?.*' "$legacy/.ignore" >/dev/null
 grep -F 'New.*' "$legacy/.ignore" >/dev/null
 
 printf '%s\n' 'arr gate script fixture tests passed'

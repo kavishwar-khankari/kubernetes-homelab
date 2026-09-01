@@ -80,13 +80,25 @@ esac
 
 escaped_stem=
 rest=$stem
+first_character=1
 while [ -n "$rest" ]; do
   character=${rest%"${rest#?}"}
   rest=${rest#?}
   case "$character" in
-    '\'|'*'|'?'|'['|']'|'!'|'#') escaped_stem="${escaped_stem}\\${character}" ;;
+    '!'|'#')
+      if [ "$first_character" -eq 1 ]; then
+        escaped_stem="${escaped_stem}\\${character}"
+      else
+        escaped_stem="${escaped_stem}${character}"
+      fi
+      ;;
+    # Ignore 0.2.1 rewrites these even when they are backslash-escaped.
+    '*') escaped_stem="${escaped_stem}\\u002A" ;;
+    '?') escaped_stem="${escaped_stem}\\u003F" ;;
+    '\'|'['|']'|'('|')'|'{'|'}'|'|'|'^'|'$') escaped_stem="${escaped_stem}\\${character}" ;;
     *) escaped_stem="${escaped_stem}${character}" ;;
   esac
+  first_character=0
 done
 rule="${escaped_stem}.*"
 
@@ -100,22 +112,38 @@ valid_rule() {
   encoded=${encoded%.*}
   [ -n "$encoded" ] || return 1
   escaped=0
+  first_character=1
   rest=$encoded
   while [ -n "$rest" ]; do
     character=${rest%"${rest#?}"}
     rest=${rest#?}
     if [ "$escaped" -eq 1 ]; then
       case "$character" in
-        '\'|'*'|'?'|'['|']'|'!'|'#') escaped=0 ;;
+        u)
+          hex=
+          count=0
+          while [ "$count" -lt 4 ]; do
+            [ -n "$rest" ] || return 1
+            hex_character=${rest%"${rest#?}"}
+            rest=${rest#?}
+            case "$hex_character" in [0-9A-Fa-f]) ;; *) return 1 ;; esac
+            hex="${hex}${hex_character}"
+            count=$((count + 1))
+          done
+          case "$hex" in 002[Aa]|003[Ff]) escaped=0 ;; *) return 1 ;; esac
+          ;;
+        '\'|'*'|'?'|'['|']'|'!'|'#'|'('|')'|'{'|'}'|'|'|'^'|'$') escaped=0 ;;
         *) return 1 ;;
       esac
     else
       case "$character" in
         '\' ) escaped=1 ;;
-        '/'|'*'|'?'|'['|']'|'!'|'#') return 1 ;;
+        '/'|'*'|'?'|'['|']') return 1 ;;
+        '!'|'#') [ "$first_character" -eq 0 ] || return 1 ;;
         *) ;;
       esac
     fi
+    first_character=0
   done
   [ "$escaped" -eq 0 ] || return 1
   case "$encoded" in *[[:space:]]) return 1 ;; esac
