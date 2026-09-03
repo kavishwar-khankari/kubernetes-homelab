@@ -25,7 +25,7 @@ spec:
                     operator: DoesNotExist
       containers:
         - name: tailscale
-          image: tailscale/tailscale@sha256:cdf5612ded5be1344f1a704b8c5e53496db97376bb533e5e15f141e48bf60cc0 # latest (2026-08-07)
+          image: tailscale/tailscale@sha256:8c42c4574ab066384fcb72f69e086a2ff1dd3652eb6f56856cee34bcf0d2f680 # v1.102.3
           imagePullPolicy: Always
           env:
             - name: TS_AUTHKEY

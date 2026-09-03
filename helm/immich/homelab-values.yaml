@@ -1,4 +1,4 @@
-# Staged native Immich (chart 0.13.1 / app v3.0.3).
+# Staged native Immich (chart 0.13.1 / app v3.1.0).
 # Stage 1: supporting stack + server replicas 0, ingress off.
 # Public cutover and server scale-up are intentional later steps only.
 # External Immich (reverse-proxy -> 192.168.0.197) remains the sole writer.
@@ -8,7 +8,7 @@ controllers:
     containers:
       main:
         image:
-          tag: v3.0.3
+          tag: v3.1.0
         env:
           TZ: Asia/Kolkata
           REDIS_HOSTNAME: '{{ printf "%s-valkey" .Release.Name }}'
@@ -47,7 +47,7 @@ server:
         main:
           image:
             repository: ghcr.io/immich-app/immich-server
-            tag: v3.0.3@sha256:c716dc20f957aafd89fa9d284a2ec63e25c9e2d8d8e87c6197d540a3dce237db  # v3.0.3
+            tag: v3.1.0@sha256:b434cb9287eea1471c9974845914d4dd328c9c2d652e446ed4930f99944f0ceb  # v3.1.0
             pullPolicy: IfNotPresent
           env:
             DB_HOSTNAME: immich-postgres-rw
@@ -122,7 +122,7 @@ machine-learning:
         main:
           image:
             repository: ghcr.io/immich-app/immich-machine-learning
-            tag: v3.0.3-openvino@sha256:42295f06067186ee62f8bc20379c72a263e600b8ad22dc9fb22385712d00944e  # v3.0.3-openvino
+            tag: v3.1.0-openvino@sha256:4b6ef958e7749fc548377bb23ee219c09c74da8decee080d76dc6a388c39b013  # v3.1.0-openvino
             pullPolicy: IfNotPresent
           env:
             MACHINE_LEARNING_OPENVINO_PRECISION: FP32

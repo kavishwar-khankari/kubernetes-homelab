@@ -88,7 +88,7 @@ spec:
             gpu.intel.com/xe: '1'
 
       - name: meilisearch
-        image: getmeili/meilisearch:v1.34.3@sha256:779b7f3ec3279f9230b5e6399814ee93a873b077433a5ef635d644db3d491a05 # v1.34.3
+        image: getmeili/meilisearch:v1.53.1@sha256:8d6643d86d71fad6ad3cba92cde7ccfce9e4d6c384bda67598eb553571c32431 # v1.53.1
         imagePullPolicy: IfNotPresent
         ports:
         - name: meili-http
@@ -97,6 +97,8 @@ spec:
         - name: MEILI_ENV
           value: production
         - name: MEILI_NO_ANALYTICS
+          value: "true"
+        - name: MEILI_UPGRADE_DB
           value: "true"
         - name: MEILI_MASTER_KEY
           valueFrom:

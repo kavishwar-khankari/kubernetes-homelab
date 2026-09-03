@@ -24,9 +24,12 @@ spec:
                   - key: kubernetes.io/hostname
                     operator: In
                     values: [k3s-node-1, k3s-node-2]
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
       containers:
         - name: dashy
-          image: lissy93/dashy@sha256:8c04ab116bb52bd784137d3922acaa945b5559de49a14f163dbbcf0605adf3e6 # v3.3.1
+          image: lissy93/dashy@sha256:291df6b89e672bb4d29dbde1c31ec6af829401426ac4e4112e1b1b8d643d568d # 4.6.7
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

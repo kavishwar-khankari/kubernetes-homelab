@@ -27,7 +27,7 @@ spec:
       # Seed Telegram into the existing PVC-backed Apprise configs before the API starts.
       initContainers:
         - name: render-notification-configs
-          image: caronc/apprise@sha256:1871ed736799f6320d5061b72a60507f62c8747026e830175dc4b9f8adbf78dd # v1.5.1
+          image: caronc/apprise@sha256:6a9f18155b8ae6ae3439d4139e17946d3e0afe27340213c1dcf15f730c42a394 # v1.5.3
           imagePullPolicy: IfNotPresent
           command:
             - /bin/sh
@@ -44,7 +44,7 @@ spec:
               readOnly: true
       containers:
         - name: apprise
-          image: caronc/apprise@sha256:1871ed736799f6320d5061b72a60507f62c8747026e830175dc4b9f8adbf78dd # v1.5.1
+          image: caronc/apprise@sha256:6a9f18155b8ae6ae3439d4139e17946d3e0afe27340213c1dcf15f730c42a394 # v1.5.3
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -96,7 +96,7 @@ spec:
               cpu: 500m
         # Bridge direct ntfy publishers into Apprise's telegram-only config.
         - name: ntfy-bridge
-          image: binwiederhier/ntfy@sha256:f2419f405127afa868f10985c1a41449e673477cee1eb19994339a5ae8b592e7 # v2.27.0
+          image: binwiederhier/ntfy@sha256:6ef4b819f722fccdc036af611c4774cfdc2de821ab74fdd48bbf4c9d6f8973da # v2.28.0
           imagePullPolicy: IfNotPresent
           command:
             - /bin/sh

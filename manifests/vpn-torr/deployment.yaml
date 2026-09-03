@@ -136,7 +136,7 @@ spec:
               mountPath: /config
 
         - name: jdownloader2
-          image: jlesage/jdownloader-2@sha256:47ee6c64917ca5326516ebe868714709c6bdd2e08ca0e33f6e80a943ef2019d2  # v26.07.2
+          image: jlesage/jdownloader-2@sha256:f16d47986bf6a5db6d67484e3b7e76404bce74f6f212809127a79eb76aa1c641  # v26.08.2
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
