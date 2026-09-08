@@ -341,6 +341,13 @@
       "id": "e81",
       "source": "replaceOriginal",
       "sourceHandle": "1",
+      "target": "markLibraryReplaced",
+      "targetHandle": null
+    },
+    {
+      "id": "e81_mark_replaced",
+      "source": "markLibraryReplaced",
+      "sourceHandle": "1",
       "target": "restoreDates",
       "targetHandle": null
     },
@@ -375,6 +382,13 @@
     {
       "id": "e_gate_release_already",
       "source": "av1JellyfinGate",
+      "sourceHandle": "1",
+      "target": "arrLibraryRescan",
+      "targetHandle": null
+    },
+    {
+      "id": "e_gate_notify_skiplist",
+      "source": "arrLibraryRescan",
       "sourceHandle": "1",
       "target": "skipAlready",
       "targetHandle": null
@@ -833,6 +847,22 @@
     },
     {
       "fpEnabled": true,
+      "id": "markLibraryReplaced",
+      "inputsDB": {
+        "variable": "av1LibraryFileReplaced",
+        "value": "true"
+      },
+      "name": "Mark Library File Replaced",
+      "pluginName": "setFlowVariable",
+      "position": {
+        "x": 0,
+        "y": 410
+      },
+      "sourceRepo": "Community",
+      "version": "1.0.0"
+    },
+    {
+      "fpEnabled": true,
       "id": "restoreDates",
       "inputsDB": {
         "deleteDateFile": "true",
@@ -856,6 +886,19 @@
       "position": {
         "x": 0,
         "y": 500
+      },
+      "sourceRepo": "Local",
+      "version": "1.0.0"
+    },
+    {
+      "fpEnabled": true,
+      "id": "arrLibraryRescan",
+      "inputsDB": {},
+      "name": "Arr Library Rescan",
+      "pluginName": "arrLibraryRescan",
+      "position": {
+        "x": 0,
+        "y": 560
       },
       "sourceRepo": "Local",
       "version": "1.0.0"
