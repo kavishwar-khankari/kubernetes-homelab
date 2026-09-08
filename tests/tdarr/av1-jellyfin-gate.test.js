@@ -45,8 +45,7 @@ function writeMarker(rules) {
   );
 }
 
-async function run(file, metadataCodec = 'h264', originalFile = file) {
-  const logs = [];
+async function run(file, metadataCodec = 'h264', originalFile = file, logs = []) {
   return plugin.plugin({
     inputFileObj: {
       _id: file,
@@ -62,18 +61,26 @@ async function main() {
   const coverArtFile = mediaFile('cover-art.mkv');
   const coverArtStatBefore = fs.statSync(coverArtFile);
   writeMarker(['cover-art.*']);
-  let result = await run(coverArtFile);
+  const coverArtLogs = [];
+  let result = await run(coverArtFile, 'h264', coverArtFile, coverArtLogs);
   assert.equal(result.outputNumber, 1);
   assert.equal(fs.existsSync(path.join(mediaDir, '.ignore')), false);
+  assert.match(coverArtLogs.join('\n'), /ffprobe: 1 real video stream \(av1\)/);
+  assert.match(coverArtLogs.join('\n'), /Removed rule\(s\): cover-art\.\*/);
+  assert.match(coverArtLogs.join('\n'), /Deleted empty gate marker/);
+  assert.match(coverArtLogs.join('\n'), /Released verified AV1 file/);
   const coverArtStatAfter = fs.statSync(coverArtFile);
   assert.ok(Math.abs(coverArtStatAfter.atimeMs - coverArtStatBefore.atimeMs) < 1000);
   assert.ok(Math.abs(coverArtStatAfter.mtimeMs - coverArtStatBefore.mtimeMs) < 1000);
 
   const twoStreamFile = mediaFile('two-streams.mkv');
   writeMarker(['two-streams.*']);
-  result = await run(twoStreamFile, 'av1');
+  const twoStreamLogs = [];
+  result = await run(twoStreamFile, 'av1', twoStreamFile, twoStreamLogs);
   assert.equal(result.outputNumber, 2);
   assert.match(fs.readFileSync(path.join(mediaDir, '.ignore'), 'utf8'), /two-streams/);
+  assert.match(twoStreamLogs.join('\n'), /ffprobe: 2 real video streams \(av1, h264\)/);
+  assert.match(twoStreamLogs.join('\n'), /Held: Independent ffprobe found a real video stream that is not AV1/);
 
   const staleMetadataFile = mediaFile('stale-metadata.mkv');
   writeMarker(['stale-metadata.*']);

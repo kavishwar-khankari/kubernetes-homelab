@@ -50,12 +50,14 @@ async function plugin(args) {
     if (!finalFile) {
       return held(args, 'No regular final library file under /media was found.');
     }
+    log(args, `Final file: ${finalFile}`);
 
     const probe = await probeFile(finalFile);
     const videoStreams = (probe.streams || []).filter(isRealVideoStream);
     if (!videoStreams.length) {
       return held(args, 'Independent ffprobe found no real video stream.');
     }
+    log(args, `ffprobe: ${describeVideoStreams(videoStreams)}`);
 
     if (videoStreams.some((stream) => String(stream.codec_name || '').toLowerCase() !== 'av1')) {
       return held(args, 'Independent ffprobe found a real video stream that is not AV1.');
@@ -71,7 +73,7 @@ async function plugin(args) {
     try {
       const markerState = readMarker(marker);
       if (!markerState.exists) {
-        log(args, 'Verified AV1 historical file has no gate marker; leaving filesystem unchanged.');
+        log(args, `No gate marker at ${marker}; filesystem unchanged.`);
         result = released(args);
       } else {
         previousContent = markerState.content;
@@ -79,8 +81,11 @@ async function plugin(args) {
         const matchingRules = new Set(
           markerState.rules.filter((rule) => expectedRules.has(rule))
         );
+        log(args, `Marker: ${marker}`);
+        log(args, `Owned rules: ${formatRules(markerState.rules)}`);
 
         if (markerState.rules.length && !matchingRules.size) {
+          log(args, `Expected rules: ${formatRules(expectedRules)}`);
           result = held(args, 'Owned marker has no rule matching the final file stem.');
         } else {
           const remainingLines = markerState.lines
@@ -88,15 +93,24 @@ async function plugin(args) {
             .map(canonicalGateRule);
           const remainingRules = remainingLines.filter(isGateRule);
 
+          if (matchingRules.size) {
+            log(args, `Removed rule(s): ${formatRules(matchingRules)}`);
+          } else {
+            log(args, 'Marker had no remaining media rules.');
+          }
+
           if (!remainingRules.length) {
             fs.unlinkSync(marker);
+            log(args, 'Deleted empty gate marker.');
           } else {
             writeAtomically(marker, remainingLines.join('\n'));
+            log(args, `Updated marker; ${remainingRules.length} other rule(s) remain.`);
           }
           markerChanged = true;
 
           try {
             touchAndRestore(finalFile);
+            log(args, 'Notified Jellyfin and restored original timestamps.');
           } catch (error) {
             log(args, `Watcher event failed; restoring gate marker: ${error.message}`);
             restoreMarker(marker, previousContent);
@@ -105,7 +119,7 @@ async function plugin(args) {
           }
 
           if (!result) {
-            log(args, `Released verified AV1 file: ${finalFile}`);
+            log(args, 'Released verified AV1 file.');
             result = released(args);
           }
         }
@@ -433,6 +447,17 @@ function touchAndRestore(filePath) {
   const stat = fs.statSync(filePath);
   fs.utimesSync(filePath, new Date(), new Date());
   fs.utimesSync(filePath, stat.atime, stat.mtime);
+}
+
+function describeVideoStreams(videoStreams) {
+  const codecs = videoStreams.map((stream) => String(stream.codec_name || 'unknown').toLowerCase());
+  const noun = videoStreams.length === 1 ? 'stream' : 'streams';
+  return `${videoStreams.length} real video ${noun} (${codecs.join(', ')})`;
+}
+
+function formatRules(rules) {
+  const list = [...rules].filter(Boolean);
+  return list.length ? list.join(' | ') : '(none)';
 }
 
 function log(args, message) {
