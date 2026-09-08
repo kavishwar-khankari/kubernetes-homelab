@@ -44,11 +44,12 @@ class TdarrHandler(BaseHTTPRequestHandler):
             self.wfile.write(b"OK")
             return
         if self.path == "/api/v2/search-flow-plugins":
+            needle = payload.get("data", {}).get("string", "")
             self.send_json(
                 [
                     {
-                        "name": "AV1 Jellyfin Gate",
-                        "pluginName": "av1JellyfinGate",
+                        "name": needle,
+                        "pluginName": needle,
                         "sourceRepo": "Local",
                         "version": "1.0.0",
                     }

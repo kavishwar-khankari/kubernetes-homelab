@@ -56,6 +56,24 @@ spec:
           value: "7"
         - name: nodeName
           value: "K8sGPUNode"
+        - name: SONARR_URL
+          value: "http://arr-stack-service.arr-stack.svc.cluster.local:8989/api/v3"
+        - name: RADARR_URL
+          value: "http://arr-stack-service.arr-stack.svc.cluster.local:7878/api/v3"
+        - name: ARR_RESCAN_TIMEOUT_MS
+          value: "8000"
+        - name: ARR_GATE_SONARR_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: arr-gate-api-keys
+              key: ARR_GATE_SONARR_API_KEY
+              optional: true
+        - name: ARR_GATE_RADARR_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: arr-gate-api-keys
+              key: ARR_GATE_RADARR_API_KEY
+              optional: true
         volumeMounts:
         - name: cache
           mountPath: /temp

@@ -64,6 +64,8 @@ async function main() {
   const coverArtLogs = [];
   let result = await run(coverArtFile, 'h264', coverArtFile, coverArtLogs);
   assert.equal(result.outputNumber, 1);
+  assert.equal(result.variables.av1GateRuleRemoved, 'true');
+  assert.equal(result.variables.user.av1GateRuleRemoved, 'true');
   assert.equal(fs.existsSync(path.join(mediaDir, '.ignore')), false);
   assert.match(coverArtLogs.join('\n'), /ffprobe: 1 real video stream \(av1\)/);
   assert.match(coverArtLogs.join('\n'), /Removed rule\(s\): cover-art\.\*/);
@@ -198,6 +200,7 @@ async function main() {
   );
   result = await run(headerOnlyFile);
   assert.equal(result.outputNumber, 1);
+  assert.equal(result.variables.av1GateRuleRemoved, 'false');
   assert.equal(fs.existsSync(path.join(mediaDir, '.ignore')), false);
 
   const eventFailureFile = mediaFile('event-failure.mkv');
@@ -236,6 +239,8 @@ async function main() {
   const historicalFile = mediaFile('historical.mkv');
   result = await run(historicalFile);
   assert.equal(result.outputNumber, 1);
+  assert.equal(result.variables.av1GateRuleRemoved, 'false');
+  assert.equal(result.variables.user.av1GateRuleRemoved, 'false');
 
   const outsideFile = path.join(fixture, 'outside.mkv');
   fs.writeFileSync(outsideFile, 'fixture');

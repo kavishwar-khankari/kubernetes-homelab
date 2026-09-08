@@ -74,7 +74,7 @@ async function plugin(args) {
       const markerState = readMarker(marker);
       if (!markerState.exists) {
         log(args, `No gate marker at ${marker}; filesystem unchanged.`);
-        result = released(args);
+        result = released(args, { av1GateRuleRemoved: 'false' });
       } else {
         previousContent = markerState.content;
         const expectedRules = new Set(ruleCandidates(finalFile, args));
@@ -120,7 +120,9 @@ async function plugin(args) {
 
           if (!result) {
             log(args, 'Released verified AV1 file.');
-            result = released(args);
+            result = released(args, {
+              av1GateRuleRemoved: matchingRules.size ? 'true' : 'false',
+            });
           }
         }
       }
@@ -464,13 +466,28 @@ function log(args, message) {
   if (args && typeof args.jobLog === 'function') args.jobLog(`AV1 Jellyfin Gate: ${message}`);
 }
 
-function released(args) {
+function released(args, extras) {
   const inputFileObj = (args && args.inputFileObj) || {};
   return {
     outputFileObj: inputFileObj,
     outputNumber: 1,
-    variables: args && args.variables,
+    variables: applyFlowVars(args, extras),
   };
+}
+
+function applyFlowVars(args, extras) {
+  const variables = (args && args.variables) || {};
+  if (!variables.user || typeof variables.user !== 'object' || Array.isArray(variables.user)) {
+    variables.user = {};
+  }
+  if (extras) {
+    Object.keys(extras).forEach((key) => {
+      variables[key] = extras[key];
+      variables.user[key] = extras[key];
+    });
+  }
+  if (args) args.variables = variables;
+  return variables;
 }
 
 function held(args, reason) {

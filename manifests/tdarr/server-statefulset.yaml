@@ -39,7 +39,8 @@ spec:
             "$plugin_root/FlowPlugins/LocalFlowPlugins/video/av1SvtEncodeHdrAware/1.0.0" \
             "$plugin_root/FlowPlugins/LocalFlowPlugins/video/checkSkipHDR/1.0.0" \
             "$plugin_root/FlowPlugins/LocalFlowPlugins/video/hdrDetectAndTag/1.0.0" \
-            "$plugin_root/FlowPlugins/LocalFlowPlugins/video/av1JellyfinGate/1.0.0"; do
+            "$plugin_root/FlowPlugins/LocalFlowPlugins/video/av1JellyfinGate/1.0.0" \
+            "$plugin_root/FlowPlugins/LocalFlowPlugins/video/arrLibraryRescan/1.0.0"; do
             mkdir -p "$directory"
             chown 1000:1000 "$directory"
             chmod 2775 "$directory"
@@ -175,6 +176,8 @@ spec:
               "$plugin_root/FlowPlugins/LocalFlowPlugins/video/hdrDetectAndTag/1.0.0/index.js"
             sync_file /git-plugins/flow__av1JellyfinGate__index.js \
               "$plugin_root/FlowPlugins/LocalFlowPlugins/video/av1JellyfinGate/1.0.0/index.js"
+            sync_file /git-plugins/flow__arrLibraryRescan__index.js \
+              "$plugin_root/FlowPlugins/LocalFlowPlugins/video/arrLibraryRescan/1.0.0/index.js"
             if [ "$changed" -gt 0 ]; then
               wget -q -O - --post-data='{}' --header='Content-Type: application/json' \
                 http://127.0.0.1:8265/api/v2/sync-plugins >/dev/null \

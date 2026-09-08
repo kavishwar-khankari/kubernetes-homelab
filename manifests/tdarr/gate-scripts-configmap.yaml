@@ -444,33 +444,41 @@ data:
         request("POST", "/api/v2/sync-plugins", {}, expect_json=False)
 
 
-    def plugin_is_available(value):
+    FLOW_PLUGINS = ("av1JellyfinGate", "arrLibraryRescan")
+
+
+    def plugin_is_available(value, plugin_name):
         if isinstance(value, dict):
             return any(
-                str(value.get(key, "")) == "av1JellyfinGate"
+                str(value.get(key, "")) == plugin_name
                 for key in ("id", "pluginName", "name")
-            ) or any(plugin_is_available(item) for item in value.values())
+            ) or any(plugin_is_available(item, plugin_name) for item in value.values())
         if isinstance(value, list):
-            return any(plugin_is_available(item) for item in value)
+            return any(plugin_is_available(item, plugin_name) for item in value)
         return False
 
 
-    def wait_for_gate_plugin():
+    def wait_for_flow_plugin(plugin_name):
         last_error = None
         for _ in range(60):
             try:
                 result = request(
                     "POST",
                     "/api/v2/search-flow-plugins",
-                    {"data": {"string": "av1JellyfinGate", "pluginType": "Local"}},
+                    {"data": {"string": plugin_name, "pluginType": "Local"}},
                 )
-                if plugin_is_available(result):
+                if plugin_is_available(result, plugin_name):
                     return
-                last_error = "plugin search returned no av1JellyfinGate result"
+                last_error = f"plugin search returned no {plugin_name} result"
             except ReconcileError as error:
                 last_error = str(error)
             time.sleep(10)
-        raise ReconcileError(f"Tdarr gate plugin was not searchable: {last_error}")
+        raise ReconcileError(f"Tdarr plugin {plugin_name} was not searchable: {last_error}")
+
+
+    def wait_for_flow_plugins():
+        for plugin_name in FLOW_PLUGINS:
+            wait_for_flow_plugin(plugin_name)
 
 
     def ensure_flow(desired):
@@ -528,7 +536,7 @@ data:
 
         wait_for_server()
         sync_plugins()
-        wait_for_gate_plugin()
+        wait_for_flow_plugins()
         ensure_canonical_is_unchanged(canonical)
         if gated.get("_id") == CANONICAL_ID:
             raise ReconcileError("gated flow must not reuse the canonical flow ID")
