@@ -80,6 +80,8 @@ spec:
           value: "true"
         - name: ffmpegVersion
           value: "7"
+        - name: TDARR_ENGINE
+          value: "nodejs"
         volumeMounts:
         - name: server
           mountPath: /app/server
