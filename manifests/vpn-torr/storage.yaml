@@ -67,7 +67,7 @@ spec:
     driver: smb.csi.k8s.io
     volumeHandle: qbittorrent-downloads   # must be unique cluster-wide
     volumeAttributes:
-      source: "//192.168.0.75/media_2/media"
+      source: "//192.168.0.75/media"
     nodeStageSecretRef:
       name: vpn-torr-secrets
       namespace: vpn-torr

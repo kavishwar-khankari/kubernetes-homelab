@@ -83,7 +83,7 @@ spec:
     driver: smb.csi.k8s.io
     volumeHandle: media-pv   # must be unique cluster-wide
     volumeAttributes:
-      source: "//192.168.0.75/media_2/media"
+      source: "//192.168.0.75/media"
     nodeStageSecretRef:
       name: smbcreds-arr-stack
       namespace: arr-stack
