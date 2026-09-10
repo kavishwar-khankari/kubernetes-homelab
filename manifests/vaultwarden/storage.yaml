@@ -9,6 +9,7 @@ metadata:
   name: vaultwarden-data
   namespace: vaultwarden
   labels:
+    recurring-job.longhorn.io/source: enabled
     recurring-job-group.longhorn.io/default: enabled
     recurring-job-group.longhorn.io/vaultwarden: enabled
 spec:
@@ -24,7 +25,7 @@ metadata:
   name: vaultwarden-snapshot-hourly
   namespace: longhorn-system
 spec:
-  cron: "0 * * * *"
+  cron: "50 * * * *"
   task: snapshot
   groups:
     - vaultwarden
