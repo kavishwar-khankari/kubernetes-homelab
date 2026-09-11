@@ -14,6 +14,8 @@ spec:
     metadata:
       labels:
         app: rclone
+      annotations:
+        rclone/config-sha: "24ce6ef753e93dec"
     spec:
       securityContext:
         runAsNonRoot: true
