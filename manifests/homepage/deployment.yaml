@@ -15,7 +15,7 @@ spec:
       labels:
         app.kubernetes.io/name: homepage
       annotations:
-        checksum/config: "add vidity-4k.com to piracy bookmarks" # bump on every homepage ConfigMap change to force a rollout (subPath mounts don't update live)
+        checksum/config: "add rclone-opendrive tile" # bump on every homepage ConfigMap change to force a rollout (subPath mounts don't update live)
     spec:
       serviceAccountName: homepage
       affinity:
