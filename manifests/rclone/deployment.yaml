@@ -52,23 +52,20 @@ spec:
               readOnly: true
 
           startupProbe:
-            httpGet:
-              path: /
+            tcpSocket:
               port: ui
             periodSeconds: 5
             failureThreshold: 30
 
           readinessProbe:
-            httpGet:
-              path: /
+            tcpSocket:
               port: ui
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 6
 
           livenessProbe:
-            httpGet:
-              path: /
+            tcpSocket:
               port: ui
             periodSeconds: 30
             timeoutSeconds: 5
