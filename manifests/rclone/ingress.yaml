@@ -1,0 +1,38 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rclone-ingress
+  namespace: rclone
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+    # Long-lived transfers through the GUI/API
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - rclone.techtronics.top
+        - rclone-api.techtronics.top
+  rules:
+    - host: rclone.techtronics.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rclone
+                port:
+                  number: 5522
+    - host: rclone-api.techtronics.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rclone
+                port:
+                  number: 5533

@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rclone
+  namespace: rclone
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: rclone
+  template:
+    metadata:
+      labels:
+        app: rclone
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+
+      containers:
+        - name: rclone
+          image: rclone/rclone@sha256:45401ad7410db1d67ffdb58e19059ad20b0d8e0285a60e38bbec55cc1019c7a5  # 1.75.1
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "/scripts/entrypoint.sh"]
+
+          ports:
+            - name: ui
+              containerPort: 5522
+            - name: api
+              containerPort: 5533
+
+          env:
+            - name: HOME
+              value: /config
+            - name: TZ
+              value: "Asia/Kolkata"
+
+          envFrom:
+            - secretRef:
+                name: rclone-secrets
+
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+
+          startupProbe:
+            httpGet:
+              path: /
+              port: ui
+            periodSeconds: 5
+            failureThreshold: 30
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: ui
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+
+          livenessProbe:
+            httpGet:
+              path: /
+              port: ui
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 6
+
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 100m
+            limits:
+              memory: 1Gi
+              cpu: 1000m
+
+      volumes:
+        - name: config
+          emptyDir: {}
+        - name: scripts
+          configMap:
+            name: rclone-entrypoint
+            defaultMode: 0555
+            items:
+              - key: entrypoint.sh
+                path: entrypoint.sh

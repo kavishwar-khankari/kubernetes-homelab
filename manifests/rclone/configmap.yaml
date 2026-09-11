@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rclone-entrypoint
+  namespace: rclone
+data:
+  entrypoint.sh: |
+    #!/bin/sh
+    set -eu
+
+    : "${OPENDRIVE_USERNAME:?missing OPENDRIVE_USERNAME}"
+    : "${OPENDRIVE_PASSWORD_OBSCURED:?missing OPENDRIVE_PASSWORD_OBSCURED}"
+    : "${OPENDRIVE_CRYPT_PASSWORD_OBSCURED:?missing OPENDRIVE_CRYPT_PASSWORD_OBSCURED}"
+    : "${RCLONE_GUI_USER:?missing RCLONE_GUI_USER}"
+    : "${RCLONE_GUI_PASS:?missing RCLONE_GUI_PASS}"
+
+    umask 077
+    mkdir -p /config/rclone
+
+    # No password2/salt anywhere: TrueNAS tasks and the node opendrive-crypt
+    # remote all use a saltless crypt config. Adding one breaks decryption.
+    cat > /config/rclone/rclone.conf <<EOF
+    [opendrive]
+    type = opendrive
+    username = ${OPENDRIVE_USERNAME}
+    password = ${OPENDRIVE_PASSWORD_OBSCURED}
+
+    [sh-media]
+    type = crypt
+    remote = opendrive:media
+    filename_encryption = standard
+    password = ${OPENDRIVE_CRYPT_PASSWORD_OBSCURED}
+
+    [sh-longhorn_sync]
+    type = crypt
+    remote = opendrive:/backups/backupstore
+    filename_encryption = off
+    password = ${OPENDRIVE_CRYPT_PASSWORD_OBSCURED}
+
+    [sh-immich_data]
+    type = crypt
+    remote = opendrive:/TANK_2/media_2/media/immich_data
+    filename_encryption = off
+    password = ${OPENDRIVE_CRYPT_PASSWORD_OBSCURED}
+
+    [sh-music]
+    type = crypt
+    remote = opendrive:/TANK_2/media_2/media/music
+    filename_encryption = off
+    password = ${OPENDRIVE_CRYPT_PASSWORD_OBSCURED}
+
+    [sh-nextcloud_personal]
+    type = crypt
+    remote = opendrive:/TANK_2/media_2/media/nextcloud_personal
+    filename_encryption = standard
+    password = ${OPENDRIVE_CRYPT_PASSWORD_OBSCURED}
+
+    [sh-nextcloud_data]
+    type = crypt
+    remote = opendrive:/TANK_2/media_2/media/nextcloud_data
+    filename_encryption = standard
+    password = ${OPENDRIVE_CRYPT_PASSWORD_OBSCURED}
+
+    [sh-big_data]
+    type = crypt
+    remote = opendrive:/TANK_2/big_data
+    filename_encryption = standard
+    password = ${OPENDRIVE_CRYPT_PASSWORD_OBSCURED}
+
+    [od-all]
+    type = combine
+    upstreams = "media=sh-media:" "longhorn_sync=sh-longhorn_sync:" "immich_data=sh-immich_data:" "music=sh-music:" "nextcloud_personal=sh-nextcloud_personal:" "nextcloud_data=sh-nextcloud_data:" "big_data=sh-big_data:"
+    EOF
+
+    exec rclone gui \
+      --config /config/rclone/rclone.conf \
+      --addr 0.0.0.0:5522 \
+      --api-addr 0.0.0.0:5533 \
+      --user "${RCLONE_GUI_USER}" \
+      --pass "${RCLONE_GUI_PASS}" \
+      --no-open-browser \
+      --rc-allow-origin "https://rclone.techtronics.top" \
+      --log-level INFO
