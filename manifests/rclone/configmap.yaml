@@ -46,7 +46,7 @@ data:
     [sh-music]
     type = crypt
     remote = opendrive:/TANK_2/media_2/media/music
-    filename_encryption = off
+    filename_encryption = standard
     password = ${OPENDRIVE_CRYPT_PASSWORD_OBSCURED}
 
     [sh-nextcloud_personal]
@@ -85,9 +85,15 @@ data:
     filename_encryption = off
     password = ${OPENDRIVE_CRYPT_PASSWORD_OBSCURED}
 
+    [sh-music-legacy]
+    type = crypt
+    remote = opendrive:/TANK_2/media_2/media/music
+    filename_encryption = off
+    password = ${OPENDRIVE_CRYPT_PASSWORD_OBSCURED}
+
     [od-all]
     type = combine
-    upstreams = "media=sh-media:" "longhorn_sync=sh-longhorn_sync:" "immich_data=sh-immich_data:" "music=sh-music:" "nextcloud_personal=sh-nextcloud_personal:" "nextcloud_data=sh-nextcloud_data:" "big_data=sh-big_data:" "nextcloud_personal-legacy=sh-nextcloud_personal-legacy:" "nextcloud_data-legacy=sh-nextcloud_data-legacy:" "big_data-legacy=sh-big_data-legacy:"
+    upstreams = "media=sh-media:" "longhorn_sync=sh-longhorn_sync:" "immich_data=sh-immich_data:" "music=sh-music:" "nextcloud_personal=sh-nextcloud_personal:" "nextcloud_data=sh-nextcloud_data:" "big_data=sh-big_data:" "nextcloud_personal-legacy=sh-nextcloud_personal-legacy:" "nextcloud_data-legacy=sh-nextcloud_data-legacy:" "big_data-legacy=sh-big_data-legacy:" "music-legacy=sh-music-legacy:"
     EOF
 
     exec rclone gui \
