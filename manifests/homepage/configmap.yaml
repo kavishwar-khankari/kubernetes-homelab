@@ -514,7 +514,7 @@ data:
             href: https://nextcloud.techtronics.top/apps/dashboard/
             icon: nextcloud.png
         - rclone-opendrive:
-            href: https://rclone.techtronics.top/login?url=https://rclone-api.techtronics.top
+            href: https://rclone.techtronics.top
             icon: rclone.png
             description: OpenDrive via rclone (decrypted)
         - garage ui:
