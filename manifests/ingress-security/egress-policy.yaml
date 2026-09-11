@@ -139,6 +139,15 @@ spec:
               protocol: TCP
     - toEndpoints:
         - matchLabels:
+            k8s:io.kubernetes.pod.namespace: rclone
+      toPorts:
+        - ports:
+            - port: "5522"
+              protocol: TCP
+            - port: "5533"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
             k8s:io.kubernetes.pod.namespace: searxng
       toPorts:
         - ports:
