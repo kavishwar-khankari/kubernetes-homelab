@@ -153,37 +153,61 @@ valid_rule() {
 lock="$parent/$LOCK_NAME"
 owner="$lock/.owner"
 acquired=0
+
+release_lock() {
+  owner_pid=
+  if [ -f "$owner" ] && [ ! -L "$owner" ]; then
+    IFS= read -r owner_pid < "$owner" || owner_pid=
+  fi
+  if [ -z "$owner_pid" ] || [ "$owner_pid" = "$$" ]; then
+    rm -f "$owner" 2>/dev/null || true
+  fi
+  rmdir "$lock" 2>/dev/null || true
+}
+
 cleanup() {
   if [ "$acquired" -eq 1 ]; then
-    owner_pid=
-    if [ -f "$owner" ] && [ ! -L "$owner" ]; then
-      IFS= read -r owner_pid < "$owner" || owner_pid=
-    fi
-    if [ "$owner_pid" = "$$" ]; then
-      rm -f "$owner" 2>/dev/null || true
-    fi
-    if ! rmdir "$lock" 2>/dev/null && [ -e "$lock" ]; then
-      printf '%s\n' 'arr-av1-jellyfin-gate: lock cleanup failed' >&2
-    fi
+    release_lock
   fi
   return 0
 }
 trap cleanup EXIT HUP INT TERM
 
+# A lock with no readable owner PID, or whose owner process is gone, was
+# orphaned by an interrupted run and can never be released by itself.
+reclaim_stale_lock() {
+  owner_pid=
+  if [ -f "$owner" ] && [ ! -L "$owner" ]; then
+    IFS= read -r owner_pid < "$owner" || owner_pid=
+  fi
+  if [ -n "$owner_pid" ] && kill -0 "$owner_pid" 2>/dev/null; then
+    return 1
+  fi
+  printf '%s\n' 'arr-av1-jellyfin-gate: reclaiming stale gate lock' >&2
+  rm -f "$owner" 2>/dev/null || true
+  rmdir "$lock" 2>/dev/null || true
+  return 0
+}
+
 attempt=0
 while :; do
   if mkdir "$lock" 2>/dev/null; then
+    acquired=1
     if (
       set -C
       umask 022
       printf '%s\n' "$$" > "$owner"
     ) 2>/dev/null; then
-      acquired=1
       break
     fi
+    fail 'could not record gate lock owner'
   fi
   if [ -L "$lock" ] || { [ -e "$lock" ] && [ ! -d "$lock" ]; }; then
     fail 'gate lock path is not a directory'
+  fi
+  # Allow a legitimate new owner a moment before breaking a dead lock.
+  if [ "$attempt" -ge 5 ]; then
+    reclaim_stale_lock || true
   fi
   attempt=$((attempt + 1))
   [ "$attempt" -lt "$LOCK_TIMEOUT_SECONDS" ] || fail 'timed out waiting for gate lock'
