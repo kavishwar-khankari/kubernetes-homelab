@@ -79,3 +79,64 @@ After RDTC downloads moved to TrueNAS, Sonarr reported inaccessible paths such a
 The TrueNAS share was changed to the Multi-protocol purpose with **Use Apple-style Character Encoding** enabled, and the SMB service was fully restarted. Node 2 was then reconnected and the affected Arr workloads were refreshed. The aliases disappeared from the Arr view and Sonarr imported the remaining files, including the previously failing Onalrie, Hanaori, Grand Blue, Smoking Behind the Supermarket with You, and Though I Am an Inept Villainess episodes.
 
 The successful condition is the real long filenames being visible and imports succeeding; `nounix` may still appear in the Linux mount options. A client remount alone did not immediately clear the stale name view, while restarting SMB invalidated the server-side sessions and allowed the share encoding change to take effect.
+
+## Recurrence: 2026-08-21
+
+### Symptoms
+
+- RDTClient running natively on TrueNAS with TorBox and the Bezzad downloader reported the completed torrent as finished.
+- The TrueNAS filesystem contained all 12 video files, each approximately 6.3 GiB.
+- Sonarr manual import reported `No video files were found in the selected folder`.
+- The same directory appeared empty from the Kubuntu SMB mount, although other newly downloaded directories remained browsable.
+
+### Affected
+
+| Resource | Path or component | Impact |
+|----------|------------------|--------|
+| RDTClient | TrueNAS Portainer stack, `/data/downloads` | Wrote valid files directly to the ZFS dataset as `apps` (UID 568) |
+| TrueNAS | `TANK_2/media_2/media/rdtclient` | Stored the files correctly; local POSIX access worked |
+| Linux CIFS clients | Laptop SMB mount and Kubernetes Arr media mount | Could enumerate the affected directory but could not traverse it to list the video files |
+| Sonarr | `/media_2/rdtclient/tv-sonarr` | Could not discover files for import |
+
+### Root Cause
+
+The affected torrent directory names ended with a trailing period:
+
+```text
+[CRUCiBLE] ... Fuufu Ijou, Koibito Miman.
+16.Extremes.(Dhuruvangal.Pathinaaru).2016.1080p.WEB-DL.x264.AC3.
+```
+
+ZFS and Linux permit directory names ending in `.`. SMB and Windows-compatible path handling do not reliably support a trailing period in a path component. The Linux kernel CIFS client could therefore see the directory entry but could not enumerate its children.
+
+The `|` in the first release name was a secondary SMB naming risk, but it was not the decisive cause. Replacing `|` with `-` did not fix the directory while the final `.` remained.
+
+The following checks ruled out the earlier hypotheses:
+
+1. `sudo -u kavi ls` on TrueNAS listed all 12 files.
+2. A fresh authenticated `smbclient` session listed all 12 files with their correct sizes.
+3. Changing ownership or the POSIX ACL mask was not required; the SMB user could already access the files.
+4. Fresh CIFS mounts using different share paths, SMB 3.0/3.1.1, `reparse=none`, and `noserverino` still showed only the directory while its name ended in `.`.
+5. A known-good directory without a trailing period was visible through the same CIFS mount.
+6. After removing the trailing periods, the same CIFS mount exposed all 24 files from the two test copies, and Sonarr listed all 12 files for import.
+
+### Fix Steps
+
+1. Renamed the affected `tv-sonarr` directory to remove the final period.
+2. Replaced the pipe in the separate root-level copy and removed its final period.
+3. Remounted the laptop CIFS share.
+4. Verified all files through the laptop mount.
+5. Verified all 12 files from inside the Sonarr container.
+6. Confirmed Sonarr manual import detected all 12 episodes.
+
+No files were redownloaded, re-owned, or modified. The current operational workaround is to manually rename directories with trailing periods before importing them.
+
+### Prevention
+
+- [x] Remove trailing periods from the affected directories before Sonarr import.
+- [ ] Sanitize trailing periods and spaces, plus SMB-reserved characters, in every completed torrent path component before exposing it to SMB clients.
+- [ ] If using the RDTClient completion hook, pass `%R` so the sanitizer processes only the completed torrent rather than the entire downloads tree.
+- [ ] Do not rely on `catia`, `mangled names`, or `mapposix` as the primary fix for trailing-dot paths; the tested TrueNAS/CIFS combination remained inconsistent.
+- [ ] Evaluate NFSv4.2 for the Linux-only media path. NFS would preserve native POSIX names for the TrueNAS host, Kubernetes nodes, and the Linux laptop, but requires deliberate UID/GID mapping and an NFS CSI migration.
+- [ ] If SMB remains in use, keep the share name/path policy documented and continue sanitizing names at the download boundary.
+- [ ] Keep SMB and NFS writes disciplined if both protocols are enabled for the same dataset; use TrueNAS multi-protocol configuration rather than adding an unmanaged overlapping export.
