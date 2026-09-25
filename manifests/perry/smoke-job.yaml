@@ -21,7 +21,7 @@ spec:
         runAsGroup: 10001
       containers:
         - name: smoke
-          image: ghcr.io/kavishwar-khankari/perry-the-platypus@sha256:6ece6f30bfee3d2cd8a660b7da21f93227e9aae48915058d0df7a96ea152cbad # sha-0266f0f
+          image: ghcr.io/kavishwar-khankari/perry-the-platypus@sha256:64a2a5cbbe260eaef93522e6636a8ae5f645dcaa12b3338b60b3fadcc2ac00a5 # sha-9c6d637
           imagePullPolicy: IfNotPresent
           command:
             - python
