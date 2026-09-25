@@ -431,6 +431,10 @@ data:
         - longhorn:
             href: https://longhorn.techtronics.top
             icon: longhorn.png
+        - perry:
+            href: https://perry.techtronics.top/docs
+            icon: si-fastapi
+            description: Synthetic Jev decision pipeline (production, gated Apprise)
         - perry-staging:
             href: https://perry-staging.techtronics.top/docs
             icon: si-fastapi

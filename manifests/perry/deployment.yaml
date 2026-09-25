@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: perry
+  namespace: perry
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: perry
+  template:
+    metadata:
+      labels:
+        app: perry
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values: [k3s-node-1, k3s-node-2]
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+      containers:
+        - name: perry
+          image: ghcr.io/kavishwar-khankari/perry-the-platypus@sha256:6ece6f30bfee3d2cd8a660b7da21f93227e9aae48915058d0df7a96ea152cbad # sha-0266f0f
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: TZ
+              value: Asia/Kolkata
+            - name: PERRY_DB_PATH
+              value: /data/perry.sqlite
+            # The only event ID that may reach Apprise. Any other ID is held before the
+            # model call; a missing value authorizes nothing.
+            - name: PERRY_APPROVED_EVENT_ID
+              value: perry-phone-test-001
+            - name: PERRY_APPRISE_URL
+              value: http://apprise.apprise.svc.cluster.local:8000/notify/global
+            - name: PERRY_ZEN_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: perry-secrets
+                  key: PERRY_ZEN_API_KEY
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            periodSeconds: 5
+            failureThreshold: 24
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            periodSeconds: 10
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 50m
+            limits:
+              memory: 512Mi
+              cpu: 500m
+      volumes:
+        - name: data
+          emptyDir: {}

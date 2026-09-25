@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: perry
+  namespace: perry
+spec:
+  ingressClassName: nginx-private
+  tls:
+    - hosts:
+        - perry.techtronics.top
+  rules:
+    - host: perry.techtronics.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: perry
+                port:
+                  number: 8000
