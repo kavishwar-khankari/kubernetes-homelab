@@ -30,7 +30,7 @@ spec:
         runAsGroup: 10001
       containers:
         - name: perry
-          image: ghcr.io/kavishwar-khankari/perry-the-platypus@sha256:93b271dac6473cff30fd72d52daf3db3c1c297a5866607a315bcfff63fb0ffc1 # sha-8861ff3
+          image: ghcr.io/kavishwar-khankari/perry-the-platypus@sha256:6ece6f30bfee3d2cd8a660b7da21f93227e9aae48915058d0df7a96ea152cbad # sha-0266f0f
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -83,7 +83,7 @@ spec:
         # Disposable receiver so staging can prove the notification path without any
         # phone/ntfy/Telegram route. It is not exposed through the ingress.
         - name: fake-sink
-          image: ghcr.io/kavishwar-khankari/perry-the-platypus@sha256:93b271dac6473cff30fd72d52daf3db3c1c297a5866607a315bcfff63fb0ffc1 # sha-8861ff3
+          image: ghcr.io/kavishwar-khankari/perry-the-platypus@sha256:6ece6f30bfee3d2cd8a660b7da21f93227e9aae48915058d0df7a96ea152cbad # sha-0266f0f
           imagePullPolicy: IfNotPresent
           command:
             - uvicorn
