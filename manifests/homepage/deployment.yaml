@@ -15,7 +15,7 @@ spec:
       labels:
         app.kubernetes.io/name: homepage
       annotations:
-        checksum/config: "point rclone-opendrive tile at GUI root" # bump on every homepage ConfigMap change to force a rollout (subPath mounts don't update live)
+        checksum/config: "add perry and perry-staging tiles" # bump on every homepage ConfigMap change to force a rollout (subPath mounts don't update live)
     spec:
       serviceAccountName: homepage
       affinity:
