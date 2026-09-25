@@ -1,0 +1,110 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: perry-staging
+  namespace: perry-staging
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: perry-staging
+  template:
+    metadata:
+      labels:
+        app: perry-staging
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values: [k3s-node-1, k3s-node-2]
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+      containers:
+        - name: perry
+          image: ghcr.io/kavishwar-khankari/perry-the-platypus@sha256:93b271dac6473cff30fd72d52daf3db3c1c297a5866607a315bcfff63fb0ffc1 # sha-8861ff3
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: TZ
+              value: Asia/Kolkata
+            - name: PERRY_DB_PATH
+              value: /data/perry.sqlite
+            # Only IDs with this prefix are authorized, and from_environment refuses the
+            # prefix unless the notifier is the loopback fake sink below.
+            - name: PERRY_STAGE_EVENT_PREFIX
+              value: stage-
+            - name: PERRY_APPRISE_URL
+              value: http://127.0.0.1:8080/notify/global
+            - name: PERRY_ZEN_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: perry-staging-secrets
+                  key: PERRY_ZEN_API_KEY
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            periodSeconds: 5
+            failureThreshold: 24
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            periodSeconds: 10
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 50m
+            limits:
+              memory: 512Mi
+              cpu: 500m
+        # Disposable receiver so staging can prove the notification path without any
+        # phone/ntfy/Telegram route. It is not exposed through the ingress.
+        - name: fake-sink
+          image: ghcr.io/kavishwar-khankari/perry-the-platypus@sha256:93b271dac6473cff30fd72d52daf3db3c1c297a5866607a315bcfff63fb0ffc1 # sha-8861ff3
+          imagePullPolicy: IfNotPresent
+          command:
+            - uvicorn
+            - perry.staging_sink:app
+            - --host
+            - 0.0.0.0
+            - --port
+            - "8080"
+          ports:
+            - name: sink
+              containerPort: 8080
+          env:
+            - name: TZ
+              value: Asia/Kolkata
+          resources:
+            requests:
+              memory: 64Mi
+              cpu: 20m
+            limits:
+              memory: 128Mi
+              cpu: 200m
+      volumes:
+        - name: data
+          emptyDir: {}

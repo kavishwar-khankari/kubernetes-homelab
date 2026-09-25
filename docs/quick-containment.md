@@ -31,6 +31,7 @@ letter.techtronics.top
 longhorn.techtronics.top
 openwebui.techtronics.top
 paperless.techtronics.top
+perry-staging.techtronics.top
 pbs.techtronics.top
 proxmox-1.techtronics.top
 proxmox-2.techtronics.top

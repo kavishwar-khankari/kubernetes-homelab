@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: perry-staging
+  namespace: perry-staging
+spec:
+  type: ClusterIP
+  selector:
+    app: perry-staging
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: perry-staging-sink
+  namespace: perry-staging
+spec:
+  type: ClusterIP
+  selector:
+    app: perry-staging
+  ports:
+    - name: sink
+      port: 8080
+      targetPort: sink
