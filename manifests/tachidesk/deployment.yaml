@@ -26,7 +26,7 @@ spec:
                     values: [k3s-node-1, k3s-node-2]
       containers:
       - name: tachidesk
-        image: ghcr.io/suwayomi/suwayomi-server@sha256:e59f212ccf91b26de8676a063a2db90256c148c6261535c7c477d47a43d9751b # v2.3.2243
+        image: ghcr.io/suwayomi/suwayomi-server@sha256:1fac27c387dc2ea9949e1a01ad7f6d6de9d72d3988338a95476748e5c45c4582 # v2.4.2366
         imagePullPolicy: IfNotPresent
         ports:
         - name: web

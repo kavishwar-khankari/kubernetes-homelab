@@ -26,7 +26,7 @@ spec:
                     values: [k3s-node-1, k3s-node-2]
       containers:
         - name: reddit-mcp
-          image: ghcr.io/sparfenyuk/mcp-proxy:v0.12.0@sha256:ce037447191eeed517faa80640539dedaffb79a3ec107bfd23625a4438b0d06d # v0.12.0
+          image: ghcr.io/sparfenyuk/mcp-proxy:v0.13.0@sha256:060ab76d1125f1539de6533e95f63ba7853b141c945099f235e71acd416b86e2 # v0.13.0
           imagePullPolicy: IfNotPresent
           command:
             - sh

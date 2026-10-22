@@ -73,7 +73,7 @@ spec:
           mountPath: /var/lib/postgresql/data
 
       - name: job-server
-        image: ghcr.io/fredrikburmester/streamystats-job-server@sha256:fba43363b72e1418418e881aca05a8f85652fde5461ff7d71cda209f5d50ab4a  # v2.18.1
+        image: ghcr.io/fredrikburmester/streamystats-job-server@sha256:b9e6fc640b02ede44f379970cf3f8e81a20bb82bb846e2f738c5db650784137c  # v2.20.0
         imagePullPolicy: IfNotPresent
         ports:
         - name: job-http
@@ -121,7 +121,7 @@ spec:
           failureThreshold: 6
 
       - name: nextjs-app
-        image: ghcr.io/fredrikburmester/streamystats-nextjs@sha256:5560e0a936617a56e70f1951700d202b440072dcd2d7ebffd35e7999c388be8b  # v2.18.1
+        image: ghcr.io/fredrikburmester/streamystats-nextjs@sha256:45f93e6233eac3802d056c237293482704ae5dd9502a2566f6df5aa8a4fa214c  # v2.20.0
         imagePullPolicy: IfNotPresent
         ports:
         - name: http

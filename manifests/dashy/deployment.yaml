@@ -29,7 +29,7 @@ spec:
         fsGroupChangePolicy: "OnRootMismatch"
       containers:
         - name: dashy
-          image: lissy93/dashy@sha256:291df6b89e672bb4d29dbde1c31ec6af829401426ac4e4112e1b1b8d643d568d # 4.6.7
+          image: lissy93/dashy@sha256:4de769e76043d62013e77a9ece046d6fda900469bd7effba860cbb13fd6ae602 # 4.8.8
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

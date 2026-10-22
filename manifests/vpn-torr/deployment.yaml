@@ -118,7 +118,7 @@ spec:
               mountPath: /dev/net/tun
 
         - name: prowlarr
-          image: lscr.io/linuxserver/prowlarr@sha256:2f3d31307beba3ba2dd226d191f5f5c14ee3b4d8b49277c64683f5ed97083179  # 2.5.2.5491-ls155
+          image: lscr.io/linuxserver/prowlarr@sha256:b3b00047ed20f6ce2b16780145cb6a0acb51c9e28ea6aa6f5dcd33c7034f1797  # 2.6.5.5623-ls165
           imagePullPolicy: IfNotPresent
           env:
             - name: PUID
@@ -136,7 +136,7 @@ spec:
               mountPath: /config
 
         - name: jdownloader2
-          image: jlesage/jdownloader-2@sha256:f16d47986bf6a5db6d67484e3b7e76404bce74f6f212809127a79eb76aa1c641  # v26.08.2
+          image: jlesage/jdownloader-2@sha256:bd6cd2fdc72818f30207e677b33cd7f1b425048c4e7132624e541e99f992be4c  # v26.09.1
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

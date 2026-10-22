@@ -29,7 +29,7 @@ spec:
                     values: [k3s-node-1, k3s-node-2]
       containers:
         - name: homepage
-          image: gethomepage/homepage@sha256:753eeb0cc22ab7baad39ed47cbd1aae14e193dd1b264e965f193a9ea1d1e1bdd  # v2.2.0
+          image: gethomepage/homepage@sha256:3e38fe788223cb46a3ce1f046ef11667b40f7707fdca0dcbfa3f86c5c42bf1e8  # v2.6.0
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

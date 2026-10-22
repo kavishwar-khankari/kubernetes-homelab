@@ -38,7 +38,7 @@ spec:
               mountPropagation: HostToContainer
       containers:
         - name: radarr
-          image: lscr.io/linuxserver/radarr@sha256:a45b5ab0f850f39edb4cc9c95bbd967b52ddc3d4574a4dfb45561177db6c88f4  # 6.3.0.10514-ls313
+          image: lscr.io/linuxserver/radarr@sha256:fc0ae3c50f8128b97e84381903ec8d6845c3a569641cb7117c124376cccb57c1  # 6.4.4.10685-ls323
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -84,7 +84,7 @@ spec:
             failureThreshold: 6
 
         - name: sonarr
-          image: lscr.io/linuxserver/sonarr@sha256:24acea2956a0ccb11f103877d9f4f8576600fb34bff34820ed749c2256dab89f  # 4.0.19.2979-ls320
+          image: lscr.io/linuxserver/sonarr@sha256:44b06045a98bc1f237b9ffefc4b28dab64cb29305e4a2a94875ae93b5224e4cc  # 4.0.20.3014-ls329
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -169,7 +169,7 @@ spec:
         #    failureThreshold: 6
 
         - name: wizarr
-          image: ghcr.io/wizarrrr/wizarr@sha256:0627e8e13f0fa76ab3a0348153bdcba5083c9f86745299a81394b8099900758e  # v2026.9.0
+          image: ghcr.io/wizarrrr/wizarr@sha256:08f2c6de534ec7d36d39a4f55b7c5c379021ca881dc519c702aad0ddafbdc67a  # v2026.10.1
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -200,7 +200,7 @@ spec:
             failureThreshold: 6
 
         - name: jellyseerr
-          image: ghcr.io/seerr-team/seerr@sha256:f4768de5f616248d723e05891f3345a1402123775d03bf0890dbfedc0831bda1  # v3.4.1
+          image: ghcr.io/seerr-team/seerr@sha256:d8fab675b55ad293ded98fd71efcfd46054cbad9746534ae1cc4794a88c0b3be  # v3.5.1
           imagePullPolicy: IfNotPresent
           securityContext:
             runAsUser: 1000
