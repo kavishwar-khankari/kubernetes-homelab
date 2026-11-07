@@ -51,7 +51,7 @@
 
 - [x] Pin MetalLB L2 announcements to the physical NIC (`interfaces: [enp6s18]`) so pod veth churn cannot delete the responder.
 - [x] Keep the MetalLB announcer and the Tailscale subnet router on disjoint nodes. Currently MetalLB announces only from `k3s-node-3`, which has no Tailscale pod.
-- [ ] Decide the durable GitOps representation for the node-label invariant. Options: switch the `L2Advertisement` nodeSelector to `minecraft-server: "true"` (the label the Tailscale DaemonSet already excludes), manage `metallb-announce` via k3s `node-label`, or add an ArgoCD-managed enforcement Job.
+- [x] Made the node invariant declarative in git: the `L2Advertisement` now selects `minecraft-server: "true"` (commit `b062e95`). The Tailscale DaemonSet requires that label to be absent, so the announcer can never also be a subnet router, even if `metallb-announce` is re-added to node-1 or node-2.
 - [ ] Add a check that alerts when `ip neigh show 192.168.0.43` is `FAILED` on any node running a Tailscale subnet router, or when the VIP announcer changes to a node that also runs a subnet router.
 - [ ] Document the accepted trade-off: with only `k3s-node-3` eligible, if node-3 is down the VIP is not announced at all (no L2 failover).
 - [ ] Consider the alternative invariant: make `dev-vm` the only Tailscale subnet router, since it can never be a MetalLB announcer.
