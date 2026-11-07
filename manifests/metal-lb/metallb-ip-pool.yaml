@@ -19,3 +19,8 @@ spec:
   nodeSelectors:
   - matchLabels:
       metallb-announce: "true"
+  # Pin L2 announcements to the physical NIC. Without this, MetalLB also
+  # announces from Cilium pod veths (lxc*), and ARP for the VIP dies when a
+  # veth is recycled.
+  interfaces:
+  - enp6s18
