@@ -16,9 +16,12 @@ metadata:
 spec:
   ipAddressPools:
   - lan-pool
+  # Announce only from the minecraft node. The Tailscale subnet-router
+  # DaemonSet requires `minecraft-server` NOT to exist, so this guarantees the
+  # MetalLB announcer is never also a Tailscale router (incident 026).
   nodeSelectors:
   - matchLabels:
-      metallb-announce: "true"
+      minecraft-server: "true"
   # Pin L2 announcements to the physical NIC. Without this, MetalLB also
   # announces from Cilium pod veths (lxc*), and ARP for the VIP dies when a
   # veth is recycled.
