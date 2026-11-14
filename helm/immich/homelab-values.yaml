@@ -93,7 +93,7 @@ server:
         - path: /data
           subPath: immich_data
         - path: /usr/src/app/external/kavi
-          subPath: nextcloud_personal/kavi/InstantUpload
+          subPath: nextcloud_personal/kavi
           readOnly: true
         - path: /usr/src/app/external/prashant
           subPath: nextcloud_data/prashant/files/InstantUpload
