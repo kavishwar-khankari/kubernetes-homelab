@@ -1,14 +1,12 @@
-# Staged native Immich (chart 0.13.1 / app v3.1.0).
-# Stage 1: supporting stack + server replicas 0, ingress off.
-# Public cutover and server scale-up are intentional later steps only.
-# External Immich (reverse-proxy -> 192.168.0.197) remains the sole writer.
+# Native Immich (chart 0.13.1 / app v3.4.1).
+# External-library mount paths are stable asset identifiers; keep them unchanged.
 
 controllers:
   main:
     containers:
       main:
         image:
-          tag: v3.1.0
+          tag: v3.4.1
         env:
           TZ: Asia/Kolkata
           REDIS_HOSTNAME: '{{ printf "%s-valkey" .Release.Name }}'
@@ -47,7 +45,7 @@ server:
         main:
           image:
             repository: ghcr.io/immich-app/immich-server
-            tag: v3.1.0@sha256:b434cb9287eea1471c9974845914d4dd328c9c2d652e446ed4930f99944f0ceb  # v3.1.0
+            tag: v3.4.1@sha256:7c489add298fc2f92cda4c777de6462aa206877e04087b815f62c7664af0b53b  # v3.4.1
             pullPolicy: IfNotPresent
           env:
             DB_HOSTNAME: immich-postgres-rw
@@ -112,6 +110,7 @@ machine-learning:
   enabled: true
   controllers:
     main:
+      strategy: Recreate
       pod:
         affinity:
           nodeAffinity:
@@ -125,10 +124,9 @@ machine-learning:
         main:
           image:
             repository: ghcr.io/immich-app/immich-machine-learning
-            tag: v3.1.0-openvino@sha256:4b6ef958e7749fc548377bb23ee219c09c74da8decee080d76dc6a388c39b013  # v3.1.0-openvino
+            tag: v3.4.1-openvino@sha256:97f60b06c5938c326d3ba416bcf24bc94d233f34554c05f3b76336f98ffd5ea9  # v3.4.1-openvino
             pullPolicy: IfNotPresent
           env:
-            MACHINE_LEARNING_OPENVINO_PRECISION: FP32
             MACHINE_LEARNING_REQUEST_THREADS: "1"
             MACHINE_LEARNING_MODEL_TTL: "300"
             MACHINE_LEARNING_MODEL_ARENA: "false"
