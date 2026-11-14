@@ -93,7 +93,11 @@ server:
         - path: /data
           subPath: immich_data
         - path: /usr/src/app/external/kavi
-          subPath: nextcloud_personal/kavi
+          subPath: nextcloud_personal/kavi/InstantUpload
+          readOnly: true
+        - path: /usr/src/app/external/xiaomi17
+          subPath: "nextcloud_personal/kavi/Xiaomi 17"
+          readOnly: true
         - path: /usr/src/app/external/prashant
           subPath: nextcloud_data/prashant/files/InstantUpload
           readOnly: true
